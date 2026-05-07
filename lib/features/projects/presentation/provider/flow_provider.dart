@@ -19,6 +19,11 @@ class FlowProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  int _currentPage = 0;
+  final int _pageSize = 20;
+  bool _hasMore = true;
+  bool _isLoadingMore = false;
+
   List<flow_domain.Flow> get flows => _flows;
 
   flow_domain.Flow? get selectedFlow => _selectedFlow;
@@ -29,6 +34,10 @@ class FlowProvider extends ChangeNotifier {
 
   bool get hasSelectedFlow => _selectedFlow != null;
 
+  bool get isLoadingMore => _isLoadingMore;
+
+  bool get hasMore => _hasMore;
+
   static const String _selectedFlowKey = 'selected_flow_json';
 
   Future<void> initialize() async {
@@ -38,6 +47,8 @@ class FlowProvider extends ChangeNotifier {
   Future<void> loadFlows({int? projectId, String? name}) async {
     _isLoading = true;
     _error = null;
+    _currentPage = 0;
+    _hasMore = true;
     notifyListeners();
 
     try {
@@ -46,13 +57,46 @@ class FlowProvider extends ChangeNotifier {
       }
 
       final PagedResponse<flow_domain.Flow> response = await _flowRepository
-          .getFlows(projectId: projectId, name: name, page: 0, size: 20);
+          .getFlows(
+            projectId: projectId,
+            name: name,
+            page: _currentPage,
+            size: _pageSize,
+          );
       _flows = response.content;
+      _hasMore = response.pageNumber < response.totalPages - 1;
     } catch (e) {
       _error = e.toString();
       _flows = [];
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadMoreFlows({int? projectId, String? name}) async {
+    if (_isLoadingMore || !_hasMore) return;
+
+    _isLoadingMore = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final PagedResponse<flow_domain.Flow> response = await _flowRepository
+          .getFlows(
+            projectId: projectId,
+            name: name,
+            page: _currentPage + 1,
+            size: _pageSize,
+          );
+
+      _flows.addAll(response.content);
+      _currentPage++;
+      _hasMore = response.pageNumber < response.totalPages - 1;
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoadingMore = false;
       notifyListeners();
     }
   }

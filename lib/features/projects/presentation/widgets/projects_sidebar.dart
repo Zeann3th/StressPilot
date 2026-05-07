@@ -25,8 +25,36 @@ class _ProjectsSidebarState extends State<ProjectsSidebar> {
   }
 }
 
-class _ProjectsList extends StatelessWidget {
+class _ProjectsList extends StatefulWidget {
   const _ProjectsList();
+
+  @override
+  State<_ProjectsList> createState() => _ProjectsListState();
+}
+
+class _ProjectsListState extends State<_ProjectsList> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<ProjectProvider>().loadMoreProjects();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,19 +100,42 @@ class _ProjectsList extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.only(left: 12, right: 4),
-            itemCount: projects.length,
-            itemBuilder: (context, index) {
-              final p = projects[index];
-              return _ProjectSidebarRow(
-                project: p,
-                isSelected: provider.selectedProject?.id == p.id,
-                onTap: () => provider.selectProject(p),
-                onEdit: () => _showEditDialog(context, p),
-                onDelete: () => _showDeleteDialog(context, p),
-              );
-            },
+          child: Scrollbar(
+            controller: _scrollController,
+            thumbVisibility: true,
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.only(left: 12, right: 4),
+              itemCount: projects.length + (provider.hasMore ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == projects.length) {
+                  return provider.isLoadingMore
+                      ? Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Center(
+                            child: SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.accent,
+                              ),
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink();
+                }
+
+                final p = projects[index];
+                return _ProjectSidebarRow(
+                  project: p,
+                  isSelected: provider.selectedProject?.id == p.id,
+                  onTap: () => provider.selectProject(p),
+                  onEdit: () => _showEditDialog(context, p),
+                  onDelete: () => _showDeleteDialog(context, p),
+                );
+              },
+            ),
           ),
         ),
       ],
