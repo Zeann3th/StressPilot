@@ -45,7 +45,11 @@ class ProjectDialogs {
           label: 'Create',
           onPressed: () async {
             if (nameController.text.trim().isEmpty) {
-              PilotToast.show(context, 'Please enter a project name', isError: true);
+              PilotToast.show(
+                context,
+                'Please enter a project name',
+                isError: true,
+              );
               return;
             }
             try {
@@ -71,7 +75,8 @@ class ProjectDialogs {
   static void showEditDialog(
     BuildContext context, {
     required Project project,
-    required Future<void> Function(int id, String name, String description) onUpdate,
+    required Future<void> Function(int id, String name, String description)
+    onUpdate,
   }) {
     final nameController = TextEditingController(text: project.name);
     final descController = TextEditingController(text: project.description);
@@ -109,7 +114,11 @@ class ProjectDialogs {
           label: 'Save',
           onPressed: () async {
             if (nameController.text.trim().isEmpty) {
-              PilotToast.show(context, 'Please enter a project name', isError: true);
+              PilotToast.show(
+                context,
+                'Please enter a project name',
+                isError: true,
+              );
               return;
             }
             try {
@@ -189,4 +198,3 @@ class ProjectDialogs {
     );
   }
 }
-

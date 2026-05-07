@@ -17,6 +17,11 @@ class ProjectProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  int _currentPage = 0;
+  final int _pageSize = 20;
+  bool _hasMore = true;
+  bool _isLoadingMore = false;
+
   bool _isSidebarCollapsed = false;
 
   List<Project> get projects => _projects;
@@ -25,6 +30,8 @@ class ProjectProvider extends ChangeNotifier {
   String? get error => _error;
   bool get hasSelectedProject => _selectedProject != null;
   bool get isSidebarCollapsed => _isSidebarCollapsed;
+  bool get isLoadingMore => _isLoadingMore;
+  bool get hasMore => _hasMore;
 
   static const String _selectedProjectKey = 'selected_project_json';
 
@@ -45,6 +52,8 @@ class ProjectProvider extends ChangeNotifier {
   Future<void> loadProjects({String? searchName}) async {
     _isLoading = true;
     _error = null;
+    _currentPage = 0;
+    _hasMore = true;
     notifyListeners();
 
     try {
@@ -53,12 +62,10 @@ class ProjectProvider extends ChangeNotifier {
         await HttpClient.waitForBackend();
       }
 
-      final PagedResponse<Project> response = await _projectRepository.getProjects(
-        name: searchName,
-        page: 0,
-        size: 50,
-      );
+      final PagedResponse<Project> response = await _projectRepository
+          .getProjects(name: searchName, page: _currentPage, size: _pageSize);
       _projects = response.content;
+      _hasMore = response.pageNumber < response.totalPages - 1;
       _error = null;
     } catch (e) {
       _error = e.toString();
@@ -69,11 +76,42 @@ class ProjectProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> loadMoreProjects({String? searchName}) async {
+    if (_isLoadingMore || !_hasMore) return;
+
+    _isLoadingMore = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final PagedResponse<Project> response = await _projectRepository
+          .getProjects(
+            name: searchName,
+            page: _currentPage + 1,
+            size: _pageSize,
+          );
+
+      _projects.addAll(response.content);
+      _currentPage++;
+      _hasMore = response.pageNumber < response.totalPages - 1;
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoadingMore = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> selectProject(Project project) async {
     _selectedProject = project;
     notifyListeners();
 
-    NavigationTracker.trackProject(project.name, project.description, project.toJson());
+    NavigationTracker.trackProject(
+      project.name,
+      project.description,
+      project.toJson(),
+    );
 
     final prefs = await SharedPreferences.getInstance();
     final jsonString = jsonEncode(project.toJson());
@@ -179,7 +217,6 @@ class ProjectProvider extends ChangeNotifier {
 
   Future<void> exportProject(int projectId, String projectName) async {
     try {
-
       final result = await FilePicker.saveFile(
         dialogTitle: 'Export Project',
         fileName: '${projectName.replaceAll(' ', '_')}_export.yaml',
@@ -188,7 +225,6 @@ class ProjectProvider extends ChangeNotifier {
       );
 
       if (result == null) {
-
         return;
       }
 

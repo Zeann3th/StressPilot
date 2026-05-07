@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart' as flow_domain;
+import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+    as flow_domain;
 import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
 import 'package:stress_pilot/features/projects/presentation/widgets/flow_dialog.dart';
@@ -29,7 +30,6 @@ class WorkspaceFlowTabs extends StatelessWidget {
       color: Colors.transparent,
       child: Row(
         children: [
-
           Expanded(
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
@@ -45,8 +45,11 @@ class WorkspaceFlowTabs extends StatelessWidget {
                 onEdit: () => FlowDialog.showEditDialog(
                   context,
                   flow: flows[i],
-                  onUpdate: (id, name, desc) =>
-                      flowProvider.updateFlow(flowId: id, name: name, description: desc),
+                  onUpdate: (id, name, desc) => flowProvider.updateFlow(
+                    flowId: id,
+                    name: name,
+                    description: desc,
+                  ),
                 ),
                 onDelete: () => FlowDialog.showDeleteDialog(
                   context,
@@ -59,8 +62,10 @@ class WorkspaceFlowTabs extends StatelessWidget {
 
           _NewFlowButton(
             onPressed: () {
-              final projectId =
-                  context.read<ProjectProvider>().selectedProject?.id;
+              final projectId = context
+                  .read<ProjectProvider>()
+                  .selectedProject
+                  ?.id;
               if (projectId == null) return;
               final flowProv = context.read<FlowProvider>();
               FlowDialog.showCreateDialog(
@@ -115,14 +120,14 @@ class _FlowTabState extends State<_FlowTab> {
     final labelColor = widget.isActive
         ? AppColors.accent
         : _hovered
-            ? textColor
-            : AppColors.textSecondary;
+        ? textColor
+        : AppColors.textSecondary;
 
     final bgColor = widget.isActive
         ? AppColors.accent.withValues(alpha: 0.08)
         : _hovered
-            ? AppColors.hoverItem
-            : Colors.transparent;
+        ? AppColors.hoverItem
+        : Colors.transparent;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -147,7 +152,6 @@ class _FlowTabState extends State<_FlowTab> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-
               if (widget.isActive) ...[
                 Container(
                   width: 5,
@@ -170,8 +174,9 @@ class _FlowTabState extends State<_FlowTab> {
                 widget.flow.name,
                 style: AppTypography.body.copyWith(
                   color: labelColor,
-                  fontWeight:
-                      widget.isActive ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: widget.isActive
+                      ? FontWeight.w600
+                      : FontWeight.w400,
                 ),
               ),
 
@@ -206,19 +211,27 @@ class _TabMenu extends StatelessWidget {
       itemBuilder: (_) => [
         PopupMenuItem(
           value: 'edit',
-          child: Row(children: [
-            const Icon(Icons.edit_outlined, size: 14),
-            const SizedBox(width: 8),
-            const Text('Rename'),
-          ]),
+          child: Row(
+            children: [
+              const Icon(Icons.edit_outlined, size: 14),
+              const SizedBox(width: 8),
+              const Text('Rename'),
+            ],
+          ),
         ),
         PopupMenuItem(
           value: 'delete',
-          child: Row(children: [
-            Icon(Icons.delete_outline_rounded, size: 14, color: AppColors.error),
-            const SizedBox(width: 8),
-            Text('Delete', style: TextStyle(color: AppColors.error)),
-          ]),
+          child: Row(
+            children: [
+              Icon(
+                Icons.delete_outline_rounded,
+                size: 14,
+                color: AppColors.error,
+              ),
+              const SizedBox(width: 8),
+              Text('Delete', style: TextStyle(color: AppColors.error)),
+            ],
+          ),
         ),
       ],
       onSelected: (v) {

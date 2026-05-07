@@ -64,7 +64,8 @@ class _NavigationItemState extends State<NavigationItem> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (widget.subtitle != null && widget.subtitle!.isNotEmpty) ...[
+                      if (widget.subtitle != null &&
+                          widget.subtitle!.isNotEmpty) ...[
                         const SizedBox(height: 1),
                         Text(
                           widget.subtitle!,

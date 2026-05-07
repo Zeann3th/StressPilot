@@ -35,15 +35,18 @@ class _JsonViewerState extends State<JsonViewer> {
       _scrollToActiveMatch();
     }
 
-    if (widget.searchQuery != oldWidget.searchQuery || widget.json != oldWidget.json) {
-       _lastReportedCount = -1;
+    if (widget.searchQuery != oldWidget.searchQuery ||
+        widget.json != oldWidget.json) {
+      _lastReportedCount = -1;
     }
   }
 
   void _scrollToActiveMatch() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (widget.activeMatchIndex < 0 || widget.activeMatchIndex >= _matchKeys.length) return;
+      if (widget.activeMatchIndex < 0 ||
+          widget.activeMatchIndex >= _matchKeys.length)
+        return;
 
       final key = _matchKeys[widget.activeMatchIndex];
       final context = key.currentContext;
@@ -60,7 +63,6 @@ class _JsonViewerState extends State<JsonViewer> {
 
   @override
   Widget build(BuildContext context) {
-
     _matchKeys.clear();
 
     final jsonString = const JsonEncoder.withIndent('  ').convert(widget.json);
@@ -78,7 +80,8 @@ class _JsonViewerState extends State<JsonViewer> {
 
     return SelectableText.rich(
       TextSpan(
-        style: widget.style ??
+        style:
+            widget.style ??
             TextStyle(
               fontFamily: 'JetBrains Mono',
               fontSize: 13,
@@ -99,13 +102,23 @@ class _JsonViewerState extends State<JsonViewer> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final keyColor = isDark ? const Color(0xFF9CDCFE) : const Color(0xFF0451A5);
-    final stringColor = isDark ? const Color(0xFFCE9178) : const Color(0xFFA31515);
-    final numberColor = isDark ? const Color(0xFFB5CEA8) : const Color(0xFF098658);
-    final keywordColor = isDark ? const Color(0xFF569CD6) : const Color(0xFF0000FF);
+    final stringColor = isDark
+        ? const Color(0xFFCE9178)
+        : const Color(0xFFA31515);
+    final numberColor = isDark
+        ? const Color(0xFFB5CEA8)
+        : const Color(0xFF098658);
+    final keywordColor = isDark
+        ? const Color(0xFF569CD6)
+        : const Color(0xFF0000FF);
 
     for (final match in regex.allMatches(json)) {
       if (match.start > lastMatchEnd) {
-        _addTextWithSearch(spans, json.substring(lastMatchEnd, match.start), null);
+        _addTextWithSearch(
+          spans,
+          json.substring(lastMatchEnd, match.start),
+          null,
+        );
       }
 
       Color? color;
@@ -134,7 +147,12 @@ class _JsonViewerState extends State<JsonViewer> {
 
   void _addTextWithSearch(List<InlineSpan> spans, String text, Color? color) {
     if (widget.searchQuery == null || widget.searchQuery!.isEmpty) {
-      spans.add(TextSpan(text: text, style: color != null ? TextStyle(color: color) : null));
+      spans.add(
+        TextSpan(
+          text: text,
+          style: color != null ? TextStyle(color: color) : null,
+        ),
+      );
       return;
     }
 
@@ -145,12 +163,22 @@ class _JsonViewerState extends State<JsonViewer> {
     while (true) {
       final index = lowerText.indexOf(query, start);
       if (index == -1) {
-        spans.add(TextSpan(text: text.substring(start), style: color != null ? TextStyle(color: color) : null));
+        spans.add(
+          TextSpan(
+            text: text.substring(start),
+            style: color != null ? TextStyle(color: color) : null,
+          ),
+        );
         break;
       }
 
       if (index > start) {
-        spans.add(TextSpan(text: text.substring(start, index), style: color != null ? TextStyle(color: color) : null));
+        spans.add(
+          TextSpan(
+            text: text.substring(start, index),
+            style: color != null ? TextStyle(color: color) : null,
+          ),
+        );
       }
 
       final matchText = text.substring(index, index + query.length);
@@ -160,27 +188,29 @@ class _JsonViewerState extends State<JsonViewer> {
 
       final isActive = matchIndex == widget.activeMatchIndex;
 
-      spans.add(WidgetSpan(
-        alignment: PlaceholderAlignment.middle,
-        child: Container(
-          key: key,
-          decoration: BoxDecoration(
-            color: isActive
-              ? Colors.orange.withValues(alpha: 0.8)
-              : Colors.yellow.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(2),
-          ),
-          child: Text(
-            matchText,
-            style: TextStyle(
-              fontFamily: 'JetBrains Mono',
-              fontSize: 13,
-              color: isActive ? Colors.black : color,
-              fontWeight: FontWeight.bold,
+      spans.add(
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: Container(
+            key: key,
+            decoration: BoxDecoration(
+              color: isActive
+                  ? Colors.orange.withValues(alpha: 0.8)
+                  : Colors.yellow.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+            child: Text(
+              matchText,
+              style: TextStyle(
+                fontFamily: 'JetBrains Mono',
+                fontSize: 13,
+                color: isActive ? Colors.black : color,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
-      ));
+      );
 
       start = index + query.length;
     }

@@ -143,10 +143,7 @@ class _PilotButtonState extends State<PilotButton> {
           duration: AppDurations.short,
           tween: Tween(begin: 1.0, end: _isPressed ? 0.98 : 1.0),
           builder: (context, scale, child) {
-            return Transform.scale(
-              scale: scale,
-              child: child,
-            );
+            return Transform.scale(scale: scale, child: child);
           },
           child: AnimatedContainer(
             key: ValueKey(isDark),
@@ -155,10 +152,14 @@ class _PilotButtonState extends State<PilotButton> {
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: AppRadius.br8,
-              border: _isFocused ? Border.all(color: AppColors.accent, width: 1) : null,
+              border: _isFocused
+                  ? Border.all(color: AppColors.accent, width: 1)
+                  : null,
             ),
             child: Row(
-              mainAxisSize: widget.alignment == MainAxisAlignment.center ? MainAxisSize.min : MainAxisSize.max,
+              mainAxisSize: widget.alignment == MainAxisAlignment.center
+                  ? MainAxisSize.min
+                  : MainAxisSize.max,
               mainAxisAlignment: widget.alignment,
               children: [
                 if (widget.icon != null) ...[

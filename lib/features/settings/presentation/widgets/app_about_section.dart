@@ -73,10 +73,7 @@ class _AppAboutSectionState extends State<AppAboutSection> {
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      final legacyKeys = [
-        'projects_list_json',
-        'flows_list_json',
-      ];
+      final legacyKeys = ['projects_list_json', 'flows_list_json'];
 
       for (final key in legacyKeys) {
         if (prefs.containsKey(key)) {
@@ -114,7 +111,13 @@ class _AppAboutSectionState extends State<AppAboutSection> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Version', style: AppTypography.heading.copyWith(color: textColor, fontSize: 20)),
+            Text(
+              'Version',
+              style: AppTypography.heading.copyWith(
+                color: textColor,
+                fontSize: 20,
+              ),
+            ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(24),
@@ -131,18 +134,31 @@ class _AppAboutSectionState extends State<AppAboutSection> {
                       color: AppColors.accent.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.auto_awesome_rounded, color: AppColors.accent, size: 24),
+                    child: Icon(
+                      Icons.auto_awesome_rounded,
+                      color: AppColors.accent,
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Stress Pilot v$_appVersion',
-                            style: AppTypography.bodyLg.copyWith(color: textColor, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Stress Pilot v$_appVersion',
+                          style: AppTypography.bodyLg.copyWith(
+                            color: textColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 2),
-                        Text('The application is running the latest stable build.',
-                            style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                        Text(
+                          'The application is running the latest stable build.',
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -151,7 +167,8 @@ class _AppAboutSectionState extends State<AppAboutSection> {
                       PilotButton.ghost(
                         label: 'Check for Updates',
                         icon: Icons.refresh_rounded,
-                        onPressed: () => UpdateDialog.checkAndShow(context, manual: true),
+                        onPressed: () =>
+                            UpdateDialog.checkAndShow(context, manual: true),
                       ),
                     ],
                   ),
@@ -159,11 +176,23 @@ class _AppAboutSectionState extends State<AppAboutSection> {
               ),
             ),
             const SizedBox(height: 12),
-            Text('System Health', style: AppTypography.heading.copyWith(color: textColor, fontSize: 20)),
+            Text(
+              'System Health',
+              style: AppTypography.heading.copyWith(
+                color: textColor,
+                fontSize: 20,
+              ),
+            ),
             const SizedBox(height: 12),
             _buildHealthStatus(border, textColor),
             const SizedBox(height: 24),
-            Text('Cache Management', style: AppTypography.heading.copyWith(color: textColor, fontSize: 20)),
+            Text(
+              'Cache Management',
+              style: AppTypography.heading.copyWith(
+                color: textColor,
+                fontSize: 20,
+              ),
+            ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(24),
@@ -180,18 +209,31 @@ class _AppAboutSectionState extends State<AppAboutSection> {
                       color: AppColors.warning.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.cleaning_services_rounded, color: AppColors.warning, size: 24),
+                    child: Icon(
+                      Icons.cleaning_services_rounded,
+                      color: AppColors.warning,
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Purge Application Cache',
-                            style: AppTypography.bodyLg.copyWith(color: textColor, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Purge Application Cache',
+                          style: AppTypography.bodyLg.copyWith(
+                            color: textColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 2),
-                        Text('Delete legacy cached data. This will not delete your actual projects or settings.',
-                            style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                        Text(
+                          'Delete legacy cached data. This will not delete your actual projects or settings.',
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -231,18 +273,31 @@ class _AppAboutSectionState extends State<AppAboutSection> {
                 color: AppColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.check_circle_rounded, color: AppColors.success, size: 24),
+              child: Icon(
+                Icons.check_circle_rounded,
+                color: AppColors.success,
+                size: 24,
+              ),
             ),
             const SizedBox(width: 20),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('System Operational',
-                      style: AppTypography.bodyLg.copyWith(color: textColor, fontWeight: FontWeight.bold)),
+                  Text(
+                    'System Operational',
+                    style: AppTypography.bodyLg.copyWith(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text('No issues or crashes have been detected recently.',
-                      style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                  Text(
+                    'No issues or crashes have been detected recently.',
+                    style: AppTypography.caption.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -269,18 +324,31 @@ class _AppAboutSectionState extends State<AppAboutSection> {
                   color: AppColors.error.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 24),
+                child: Icon(
+                  Icons.warning_amber_rounded,
+                  color: AppColors.error,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Recent Crash Detected',
-                        style: AppTypography.bodyLg.copyWith(color: AppColors.error, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Recent Crash Detected',
+                      style: AppTypography.bodyLg.copyWith(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text('Occurred at ${_lastCrashTime ?? 'Unknown'}',
-                        style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                    Text(
+                      'Occurred at ${_lastCrashTime ?? 'Unknown'}',
+                      style: AppTypography.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -299,7 +367,9 @@ class _AppAboutSectionState extends State<AppAboutSection> {
                 ),
                 child: Text(
                   _lastError ?? '',
-                  style: AppTypography.codeSm.copyWith(color: AppColors.error.withValues(alpha: 0.8)),
+                  style: AppTypography.codeSm.copyWith(
+                    color: AppColors.error.withValues(alpha: 0.8),
+                  ),
                   maxLines: 5,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -311,7 +381,9 @@ class _AppAboutSectionState extends State<AppAboutSection> {
                   icon: Icons.content_copy_rounded,
                   onPressed: _copyError,
                   compact: true,
-                  foregroundOverride: AppColors.textSecondary.withValues(alpha: 0.5),
+                  foregroundOverride: AppColors.textSecondary.withValues(
+                    alpha: 0.5,
+                  ),
                 ),
               ),
             ],
@@ -320,10 +392,7 @@ class _AppAboutSectionState extends State<AppAboutSection> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              PilotButton.ghost(
-                label: 'Dismiss Log',
-                onPressed: _clearLog,
-              ),
+              PilotButton.ghost(label: 'Dismiss Log', onPressed: _clearLog),
             ],
           ),
         ],

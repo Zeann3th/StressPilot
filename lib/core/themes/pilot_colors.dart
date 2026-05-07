@@ -45,7 +45,7 @@ class PilotColors {
 
   // These map semantic UI states to HTTP method colors by convention.
   // Custom themes must follow the same color conventions for these to be meaningful.
-  Color get success => methodGet;   // green
-  Color get warning => methodPut;   // amber
-  Color get info    => methodPost;  // blue
+  Color get success => methodGet; // green
+  Color get warning => methodPut; // amber
+  Color get info => methodPost; // blue
 }

@@ -47,11 +47,12 @@ class _FunctionSettingsViewState extends State<FunctionSettingsView> {
 
     return Row(
       children: [
-
         Container(
           width: 300,
           decoration: BoxDecoration(
-            border: Border(right: BorderSide(color: border.withValues(alpha: 0.1))),
+            border: Border(
+              right: BorderSide(color: border.withValues(alpha: 0.1)),
+            ),
           ),
           child: Column(
             children: [
@@ -59,7 +60,10 @@ class _FunctionSettingsViewState extends State<FunctionSettingsView> {
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
-                    Text('Functions', style: AppTypography.label.copyWith(fontSize: 16)),
+                    Text(
+                      'Functions',
+                      style: AppTypography.label.copyWith(fontSize: 16),
+                    ),
                     const Spacer(),
                     PilotButton.ghost(
                       icon: Icons.add_rounded,
@@ -97,9 +101,18 @@ class _FunctionSettingsViewState extends State<FunctionSettingsView> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.functions_rounded, size: 48, color: AppColors.textSecondary.withValues(alpha: 0.5)),
+                      Icon(
+                        Icons.functions_rounded,
+                        size: 48,
+                        color: AppColors.textSecondary.withValues(alpha: 0.5),
+                      ),
                       const SizedBox(height: 16),
-                      Text('Select a function to edit', style: AppTypography.body.copyWith(color: AppColors.textSecondary)),
+                      Text(
+                        'Select a function to edit',
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                       const SizedBox(height: 24),
                       PilotButton.primary(
                         label: 'Create New Function',
@@ -129,7 +142,9 @@ class _FunctionListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = isSelected ? AppColors.accent.withValues(alpha: 0.1) : Colors.transparent;
+    final bg = isSelected
+        ? AppColors.accent.withValues(alpha: 0.1)
+        : Colors.transparent;
     final textColor = AppColors.textPrimary;
 
     return InkWell(
@@ -138,7 +153,9 @@ class _FunctionListTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: bg,
-          border: Border(bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.05))),
+          border: Border(
+            bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.05)),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +172,9 @@ class _FunctionListTile extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               function.description ?? 'No description',
-              style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -222,11 +241,19 @@ class _FunctionDetailEditorState extends State<_FunctionDetailEditor> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.function.id == null ? 'New Function' : 'Edit Function',
-                      style: AppTypography.heading.copyWith(fontSize: 24)),
+                    Text(
+                      widget.function.id == null
+                          ? 'New Function'
+                          : 'Edit Function',
+                      style: AppTypography.heading.copyWith(fontSize: 24),
+                    ),
                     if (widget.function.updatedAt != null)
-                      Text('Last updated: ${widget.function.updatedAt}',
-                        style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                      Text(
+                        'Last updated: ${widget.function.updatedAt}',
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -245,18 +272,45 @@ class _FunctionDetailEditorState extends State<_FunctionDetailEditor> {
                           borderRadius: AppRadius.br8,
                           side: BorderSide(color: AppColors.border),
                         ),
-                        title: Text('Delete Function', style: AppTypography.heading.copyWith(color: AppColors.textPrimary)),
-                        content: Text('Are you sure you want to delete "${widget.function.name}"?', style: AppTypography.body.copyWith(color: AppColors.textSecondary)),
+                        title: Text(
+                          'Delete Function',
+                          style: AppTypography.heading.copyWith(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        content: Text(
+                          'Are you sure you want to delete "${widget.function.name}"?',
+                          style: AppTypography.body.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                         actions: [
-                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: AppTypography.body.copyWith(color: AppColors.textSecondary))),
-                          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Delete', style: AppTypography.body.copyWith(color: AppColors.error))),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: Text(
+                              'Cancel',
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: Text(
+                              'Delete',
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.error,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     );
                     if (confirmed == true && context.mounted) {
                       final provider = context.read<FunctionSettingsProvider>();
                       await provider.deleteFunction(widget.function.id!);
-                      if (context.mounted) PilotToast.show(context, 'Function deleted');
+                      if (context.mounted)
+                        PilotToast.show(context, 'Function deleted');
                     }
                   },
                 ),
@@ -272,7 +326,8 @@ class _FunctionDetailEditorState extends State<_FunctionDetailEditor> {
                     body: _codeController.text,
                   );
                   await provider.saveFunction(updated);
-                  if (context.mounted) PilotToast.show(context, 'Function saved successfully');
+                  if (context.mounted)
+                    PilotToast.show(context, 'Function saved successfully');
                 },
               ),
             ],
@@ -303,13 +358,18 @@ class _FunctionDetailEditorState extends State<_FunctionDetailEditor> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Function Definition (JavaScript)', style: AppTypography.label),
+                Text(
+                  'Function Definition (JavaScript)',
+                  style: AppTypography.label,
+                ),
                 const SizedBox(height: 8),
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: AppRadius.br8,
-                      border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: AppColors.border.withValues(alpha: 0.3),
+                      ),
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: CodeTheme(
@@ -320,7 +380,10 @@ class _FunctionDetailEditorState extends State<_FunctionDetailEditor> {
                       ),
                       child: CodeField(
                         controller: _codeController,
-                        textStyle: const TextStyle(fontFamily: 'JetBrains Mono', fontSize: 13),
+                        textStyle: const TextStyle(
+                          fontFamily: 'JetBrains Mono',
+                          fontSize: 13,
+                        ),
                         expands: true,
                       ),
                     ),

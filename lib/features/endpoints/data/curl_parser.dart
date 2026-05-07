@@ -9,24 +9,25 @@ class CurlParsedData {
 
 class CurlParser {
   static CurlParsedData parse(String curlCommand) {
-    final cleanCommand =
-        curlCommand.replaceAll('\\\n', ' ').replaceAll('\\\r\n', ' ');
+    final cleanCommand = curlCommand
+        .replaceAll('\\\n', ' ')
+        .replaceAll('\\\r\n', ' ');
 
     String method = 'GET';
     String url = '';
     Map<String, String> headers = {};
     String body = '';
 
-    final urlMatch =
-        RegExp(r'''(?:curl\s+)?(?:['"]?)(https?://[^'"\s]+)(?:['"]?)''')
-            .firstMatch(cleanCommand);
+    final urlMatch = RegExp(
+      r'''(?:curl\s+)?(?:['"]?)(https?://[^'"\s]+)(?:['"]?)''',
+    ).firstMatch(cleanCommand);
     if (urlMatch != null) {
       url = urlMatch.group(1)!;
     }
 
-    final methodMatch =
-        RegExp(r'''(?:-X|--request)\s+(['"]?)([A-Z]+)\1''')
-            .firstMatch(cleanCommand);
+    final methodMatch = RegExp(
+      r'''(?:-X|--request)\s+(['"]?)([A-Z]+)\1''',
+    ).firstMatch(cleanCommand);
     if (methodMatch != null) {
       method = methodMatch.group(2)!;
     } else if (cleanCommand.contains('-d') ||
@@ -35,14 +36,16 @@ class CurlParser {
       method = 'POST';
     }
 
-    final headerRegExp =
-        RegExp(r'''(?:-H|--header)\s+(['"])([^:]+):\s*(.*?)\1''');
+    final headerRegExp = RegExp(
+      r'''(?:-H|--header)\s+(['"])([^:]+):\s*(.*?)\1''',
+    );
     for (final match in headerRegExp.allMatches(cleanCommand)) {
       headers[match.group(2)!.trim()] = match.group(3)!.trim();
     }
 
-    final headerNoQuoteRegExp =
-        RegExp(r'''(?:-H|--header)\s+([^'"\s]+):\s*([^'"\s]+)''');
+    final headerNoQuoteRegExp = RegExp(
+      r'''(?:-H|--header)\s+([^'"\s]+):\s*([^'"\s]+)''',
+    );
     for (final match in headerNoQuoteRegExp.allMatches(cleanCommand)) {
       final key = match.group(1)!.trim();
       if (!headers.containsKey(key)) {
@@ -58,8 +61,9 @@ class CurlParser {
     if (dataMatch != null) {
       body = dataMatch.group(2) ?? '';
     } else {
-      final dataNoQuoteRegExp =
-          RegExp(r'''(?:-d|--data(?:-raw|-binary)?)\s+([^{'"\s][^\s]*)''');
+      final dataNoQuoteRegExp = RegExp(
+        r'''(?:-d|--data(?:-raw|-binary)?)\s+([^{'"\s][^\s]*)''',
+      );
       final dataNoQuoteMatch = dataNoQuoteRegExp.firstMatch(cleanCommand);
       if (dataNoQuoteMatch != null) {
         body = dataNoQuoteMatch.group(1) ?? '';

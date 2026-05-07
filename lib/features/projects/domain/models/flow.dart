@@ -48,9 +48,9 @@ class Flow {
       type: json['type'] ?? 'DEFAULT',
       projectId: _toInt(json['projectId']),
       steps:
-      (json['steps'] as List?)
-          ?.map((e) => FlowStep.fromJson(e as Map<String, dynamic>))
-          .toList() ??
+          (json['steps'] as List?)
+              ?.map((e) => FlowStep.fromJson(e as Map<String, dynamic>))
+              .toList() ??
           [],
     );
   }
@@ -109,7 +109,6 @@ class FlowStep {
   });
 
   factory FlowStep.fromJson(Map<String, dynamic> json) {
-
     final endpointObj = json['endpoint'];
     int? endpointId;
     String? endpointName;
@@ -117,18 +116,19 @@ class FlowStep {
     String? endpointType;
     String? endpointMethod;
 
-    final Map<String, dynamic>? pre = Flow._parseProcessor(json['preProcessor']);
+    final Map<String, dynamic>? pre = Flow._parseProcessor(
+      json['preProcessor'],
+    );
 
     if (endpointObj is Map<String, dynamic>) {
-
-      endpointId    = Flow._toInt(endpointObj['id']);
-      endpointName  = endpointObj['name']?.toString();
-      endpointUrl   = endpointObj['url']?.toString();
-      endpointType  = endpointObj['type']?.toString();
-      endpointMethod = endpointObj['httpMethod']?.toString()
-          ?? endpointObj['method']?.toString();
+      endpointId = Flow._toInt(endpointObj['id']);
+      endpointName = endpointObj['name']?.toString();
+      endpointUrl = endpointObj['url']?.toString();
+      endpointType = endpointObj['type']?.toString();
+      endpointMethod =
+          endpointObj['httpMethod']?.toString() ??
+          endpointObj['method']?.toString();
     } else {
-
       final raw = json['endpointId'];
       endpointId = raw == null ? null : Flow._toInt(raw);
       endpointName = json['endpointName']?.toString();
@@ -147,18 +147,18 @@ class FlowStep {
     }
 
     return FlowStep(
-      id:             json['id']?.toString() ?? '',
-      type:           json['type']?.toString() ?? 'ENDPOINT',
-      endpointId:     endpointId,
-      endpointName:   endpointName,
-      endpointUrl:    endpointUrl,
-      endpointType:   endpointType,
+      id: json['id']?.toString() ?? '',
+      type: json['type']?.toString() ?? 'ENDPOINT',
+      endpointId: endpointId,
+      endpointName: endpointName,
+      endpointUrl: endpointUrl,
+      endpointType: endpointType,
       endpointMethod: endpointMethod,
-      nextIfTrue:     json['nextIfTrue']?.toString(),
-      nextIfFalse:    json['nextIfFalse']?.toString(),
-      condition:      json['condition']?.toString(),
-      preProcessor:   pre,
-      postProcessor:  Flow._parseProcessor(json['postProcessor']),
+      nextIfTrue: json['nextIfTrue']?.toString(),
+      nextIfFalse: json['nextIfFalse']?.toString(),
+      condition: json['condition']?.toString(),
+      preProcessor: pre,
+      postProcessor: Flow._parseProcessor(json['postProcessor']),
     );
   }
 
@@ -176,17 +176,17 @@ class FlowStep {
     }
 
     final Map<String, dynamic> json = {
-      'id':           id,
-      'type':         type,
-      'endpointId':   endpointId,
+      'id': id,
+      'type': type,
+      'endpointId': endpointId,
       'endpointName': endpointName,
-      'endpointUrl':  endpointUrl,
+      'endpointUrl': endpointUrl,
       'endpointType': endpointType,
       'endpointMethod': endpointMethod,
-      'nextIfTrue':   nextIfTrue,
-      'nextIfFalse':  nextIfFalse,
-      'condition':    condition,
-      'postProcessor':postProcessor,
+      'nextIfTrue': nextIfTrue,
+      'nextIfFalse': nextIfFalse,
+      'condition': condition,
+      'postProcessor': postProcessor,
     };
 
     if (pre.isNotEmpty) {
@@ -211,10 +211,10 @@ class CreateFlowRequest {
   });
 
   Map<String, dynamic> toJson() => {
-    'projectId':   projectId,
-    'name':        name,
+    'projectId': projectId,
+    'name': name,
     'description': description,
-    'type':        type,
+    'type': type,
   };
 }
 
@@ -225,16 +225,16 @@ class RunFlowRequest {
   final Map<String, dynamic>? variables;
 
   RunFlowRequest({
-    this.threads        = 1,
-    this.totalDuration  = 60,
+    this.threads = 1,
+    this.totalDuration = 60,
     this.rampUpDuration = 0,
     this.variables,
   });
 
   Map<String, dynamic> toJson() => {
-    'threads':        threads,
-    'totalDuration':  totalDuration,
+    'threads': threads,
+    'totalDuration': totalDuration,
     'rampUpDuration': rampUpDuration,
-    'variables':      variables,
+    'variables': variables,
   };
 }

@@ -75,7 +75,9 @@ class _WorkspaceEndpointsListState extends State<WorkspaceEndpointsList> {
 
       FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
-        allowedExtensions: formats.isEmpty ? ['json', 'yaml', 'yml', 'proto'] : formats,
+        allowedExtensions: formats.isEmpty
+            ? ['json', 'yaml', 'yml', 'proto']
+            : formats,
       );
 
       final filePath = result?.files.firstOrNull?.path;
@@ -127,15 +129,16 @@ class _WorkspaceEndpointsListState extends State<WorkspaceEndpointsList> {
     final endpoints = _query.isEmpty
         ? allEndpoints
         : allEndpoints
-            .where((e) =>
-                e.name.toLowerCase().contains(_query) ||
-                (e.url?.toLowerCase().contains(_query) ?? false) ||
-                e.type.toLowerCase().contains(_query))
-            .toList();
+              .where(
+                (e) =>
+                    e.name.toLowerCase().contains(_query) ||
+                    (e.url?.toLowerCase().contains(_query) ?? false) ||
+                    e.type.toLowerCase().contains(_query),
+              )
+              .toList();
 
     return Column(
       children: [
-
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 10, 8, 4),
           child: Row(
@@ -146,7 +149,11 @@ class _WorkspaceEndpointsListState extends State<WorkspaceEndpointsList> {
               ),
               const Spacer(),
               IconButton(
-                icon: Icon(LucideIcons.upload, size: 16, color: AppColors.textMuted),
+                icon: Icon(
+                  LucideIcons.upload,
+                  size: 16,
+                  color: AppColors.textMuted,
+                ),
                 tooltip: 'Import Endpoints',
                 onPressed: () => _handleUpload(context),
                 visualDensity: VisualDensity.compact,
@@ -164,12 +171,23 @@ class _WorkspaceEndpointsListState extends State<WorkspaceEndpointsList> {
             child: TextField(
               controller: _searchCtrl,
               onChanged: _onSearchChanged,
-              style: AppTypography.caption.copyWith(color: AppColors.textPrimary),
+              style: AppTypography.caption.copyWith(
+                color: AppColors.textPrimary,
+              ),
               decoration: InputDecoration(
                 hintText: 'Search endpoints...',
-                hintStyle: AppTypography.caption.copyWith(color: AppColors.textMuted),
-                prefixIcon: Icon(LucideIcons.search, size: 14, color: AppColors.textMuted),
-                prefixIconConstraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+                hintStyle: AppTypography.caption.copyWith(
+                  color: AppColors.textMuted,
+                ),
+                prefixIcon: Icon(
+                  LucideIcons.search,
+                  size: 14,
+                  color: AppColors.textMuted,
+                ),
+                prefixIconConstraints: const BoxConstraints(
+                  minWidth: 30,
+                  minHeight: 30,
+                ),
                 filled: true,
                 fillColor: AppColors.elevated,
                 contentPadding: const EdgeInsets.symmetric(vertical: 6),
@@ -212,7 +230,8 @@ class _WorkspaceEndpointsListState extends State<WorkspaceEndpointsList> {
               : ListView.builder(
                   controller: _scrollCtrl,
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  itemCount: endpoints.length +
+                  itemCount:
+                      endpoints.length +
                       (_query.isEmpty && endpointProvider.hasMore ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index >= endpoints.length) {

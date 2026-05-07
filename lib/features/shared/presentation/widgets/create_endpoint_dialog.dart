@@ -72,8 +72,9 @@ class _CreateEndpointDialogState extends State<CreateEndpointDialog> {
       if (value.trim().toLowerCase().startsWith('curl ')) {
         final data = CurlParser.parse(value);
         setState(() {
-          if (data.url != null && data.url!.isNotEmpty)
+          if (data.url != null && data.url!.isNotEmpty) {
             _urlCtrl.text = data.url!;
+          }
           if (data.method != null) _httpMethod = data.method!;
           if (data.headers != null) _headers = {...data.headers!};
           if (data.body != null) _bodyCtrl.text = data.body!;

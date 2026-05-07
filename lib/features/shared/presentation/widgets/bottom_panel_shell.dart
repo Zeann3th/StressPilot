@@ -54,8 +54,11 @@ class _BottomPanelShellState extends State<BottomPanelShell> {
                     cursor: SystemMouseCursors.resizeRow,
                     child: GestureDetector(
                       onVerticalDragUpdate: (details) {
-                        _panelHeight.value = (_panelHeight.value - details.delta.dy)
-                            .clamp(widget.minPanelHeight, widget.maxPanelHeight);
+                        _panelHeight.value =
+                            (_panelHeight.value - details.delta.dy).clamp(
+                              widget.minPanelHeight,
+                              widget.maxPanelHeight,
+                            );
                       },
                       child: Container(
                         height: 4,
@@ -66,10 +69,7 @@ class _BottomPanelShellState extends State<BottomPanelShell> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: height,
-                    child: widget.panel,
-                  ),
+                  SizedBox(height: height, child: widget.panel),
                 ],
               );
             },

@@ -82,10 +82,7 @@ class AppStateManager extends ChangeNotifier {
         ? ServiceHealth.dead
         : ServiceHealth.degraded;
 
-    AppLogger.warning(
-      '$name failed ($failures times): $error',
-      name: _tag,
-    );
+    AppLogger.warning('$name failed ($failures times): $error', name: _tag);
 
     _services[name] = current.copyWith(
       health: health,
@@ -131,9 +128,8 @@ class AppStateManager extends ChangeNotifier {
   ServiceHealth healthOf(String name) =>
       _services[name]?.health ?? ServiceHealth.dead;
 
-  List<ServiceState> get unhealthyServices => _services.values
-      .where((s) => s.health != ServiceHealth.healthy)
-      .toList();
+  List<ServiceState> get unhealthyServices =>
+      _services.values.where((s) => s.health != ServiceHealth.healthy).toList();
 
   bool get allHealthy => unhealthyServices.isEmpty;
 

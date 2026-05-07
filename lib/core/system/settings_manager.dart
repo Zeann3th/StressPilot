@@ -16,9 +16,10 @@ class SettingsManager extends ChangeNotifier {
   bool get isInitialized => _initialized;
 
   Future<File> get _file async {
-    final String home = Platform.environment['HOME'] ??
-                        Platform.environment['USERPROFILE'] ??
-                        '/';
+    final String home =
+        Platform.environment['HOME'] ??
+        Platform.environment['USERPROFILE'] ??
+        '/';
     final dir = Directory(p.join(home, _dirName, _subDirName));
 
     if (!await dir.exists()) {
@@ -71,7 +72,9 @@ class SettingsManager extends ChangeNotifier {
   Future<void> _save() async {
     try {
       final file = await _file;
-      await file.writeAsString(const JsonEncoder.withIndent('  ').convert(_settings));
+      await file.writeAsString(
+        const JsonEncoder.withIndent('  ').convert(_settings),
+      );
     } catch (e) {
       AppLogger.error('Failed to save settings: $e', name: 'SettingsManager');
     }

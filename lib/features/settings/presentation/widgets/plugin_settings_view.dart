@@ -35,11 +35,12 @@ class _PluginSettingsViewState extends State<PluginSettingsView> {
 
     return Row(
       children: [
-
         Container(
           width: 300,
           decoration: BoxDecoration(
-            border: Border(right: BorderSide(color: border.withValues(alpha: 0.1))),
+            border: Border(
+              right: BorderSide(color: border.withValues(alpha: 0.1)),
+            ),
           ),
           child: Column(
             children: [
@@ -47,12 +48,17 @@ class _PluginSettingsViewState extends State<PluginSettingsView> {
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
-                    Text('Plugins', style: AppTypography.label.copyWith(fontSize: 16)),
+                    Text(
+                      'Plugins',
+                      style: AppTypography.label.copyWith(fontSize: 16),
+                    ),
                     const Spacer(),
                     PilotButton.ghost(
                       icon: Icons.refresh_rounded,
                       onPressed: () async {
-                        await context.read<PluginSettingsProvider>().reloadAllPlugins();
+                        await context
+                            .read<PluginSettingsProvider>()
+                            .reloadAllPlugins();
                         if (context.mounted) {
                           PilotToast.show(context, 'All plugins reloaded');
                         }
@@ -85,9 +91,18 @@ class _PluginSettingsViewState extends State<PluginSettingsView> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.extension_rounded, size: 48, color: AppColors.textSecondary.withValues(alpha: 0.5)),
+                      Icon(
+                        Icons.extension_rounded,
+                        size: 48,
+                        color: AppColors.textSecondary.withValues(alpha: 0.5),
+                      ),
                       const SizedBox(height: 16),
-                      Text('Select a plugin to view details', style: AppTypography.body.copyWith(color: AppColors.textSecondary)),
+                      Text(
+                        'Select a plugin to view details',
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                     ],
                   ),
                 )
@@ -114,7 +129,9 @@ class _PluginListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = isSelected ? AppColors.accent.withValues(alpha: 0.1) : Colors.transparent;
+    final bg = isSelected
+        ? AppColors.accent.withValues(alpha: 0.1)
+        : Colors.transparent;
     final textColor = AppColors.textPrimary;
 
     return InkWell(
@@ -123,7 +140,9 @@ class _PluginListTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: bg,
-          border: Border(bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.05))),
+          border: Border(
+            bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.05)),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +154,9 @@ class _PluginListTile extends StatelessWidget {
                     plugin.pluginId,
                     style: AppTypography.body.copyWith(
                       color: textColor,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -150,7 +171,9 @@ class _PluginListTile extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               plugin.provider ?? 'Unknown Author',
-              style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         ),
@@ -184,20 +207,37 @@ class _PluginDetailView extends StatelessWidget {
                   color: AppColors.accent.withValues(alpha: 0.1),
                   borderRadius: AppRadius.br8,
                 ),
-                child: Icon(Icons.extension_rounded, size: 32, color: AppColors.accent),
+                child: Icon(
+                  Icons.extension_rounded,
+                  size: 32,
+                  color: AppColors.accent,
+                ),
               ),
               const SizedBox(width: 24),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(plugin.pluginId, style: AppTypography.heading.copyWith(fontSize: 24)),
+                    Text(
+                      plugin.pluginId,
+                      style: AppTypography.heading.copyWith(fontSize: 24),
+                    ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Text('v${plugin.version}', style: AppTypography.body.copyWith(color: secondaryColor)),
+                        Text(
+                          'v${plugin.version}',
+                          style: AppTypography.body.copyWith(
+                            color: secondaryColor,
+                          ),
+                        ),
                         const SizedBox(width: 12),
-                        Text('by ${plugin.provider ?? "Unknown"}', style: AppTypography.body.copyWith(color: AppColors.accent)),
+                        Text(
+                          'by ${plugin.provider ?? "Unknown"}',
+                          style: AppTypography.body.copyWith(
+                            color: AppColors.accent,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -207,7 +247,9 @@ class _PluginDetailView extends StatelessWidget {
                 label: 'Reload',
                 icon: Icons.refresh_rounded,
                 onPressed: () async {
-                  await context.read<PluginSettingsProvider>().reloadPlugin(plugin.pluginId);
+                  await context.read<PluginSettingsProvider>().reloadPlugin(
+                    plugin.pluginId,
+                  );
                   if (context.mounted) {
                     PilotToast.show(context, 'Plugin reloaded');
                   }
@@ -232,9 +274,15 @@ class _PluginDetailView extends StatelessWidget {
               children: [
                 _InfoRow(label: 'Plugin ID', value: plugin.pluginId),
                 _InfoRow(label: 'Version', value: plugin.version),
-                _InfoRow(label: 'Provider', value: plugin.provider ?? 'Unknown'),
+                _InfoRow(
+                  label: 'Provider',
+                  value: plugin.provider ?? 'Unknown',
+                ),
                 _InfoRow(label: 'License', value: plugin.license ?? 'Unknown'),
-                _InfoRow(label: 'Class', value: plugin.pluginClass ?? 'Unknown'),
+                _InfoRow(
+                  label: 'Class',
+                  value: plugin.pluginClass ?? 'Unknown',
+                ),
                 _InfoRow(label: 'Requires', value: plugin.requires ?? 'Any'),
               ],
             ),
@@ -244,11 +292,15 @@ class _PluginDetailView extends StatelessWidget {
             _Section(
               title: 'Dependencies',
               content: Column(
-                children: plugin.dependencies.map((d) => _InfoRow(
-                  label: d.pluginId,
-                  value: d.version ?? 'Any',
-                  isDependency: true,
-                )).toList(),
+                children: plugin.dependencies
+                    .map(
+                      (d) => _InfoRow(
+                        label: d.pluginId,
+                        value: d.version ?? 'Any',
+                        isDependency: true,
+                      ),
+                    )
+                    .toList(),
               ),
             ),
           ],
@@ -269,7 +321,13 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: AppTypography.label.copyWith(fontSize: 14, fontWeight: FontWeight.bold)),
+        Text(
+          title,
+          style: AppTypography.label.copyWith(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 12),
         content,
       ],
@@ -282,7 +340,11 @@ class _InfoRow extends StatelessWidget {
   final String value;
   final bool isDependency;
 
-  const _InfoRow({required this.label, required this.value, this.isDependency = false});
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    this.isDependency = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +355,12 @@ class _InfoRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 120,
-            child: Text(label, style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+            child: Text(
+              label,
+              style: AppTypography.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
           ),
           Expanded(
             child: Text(

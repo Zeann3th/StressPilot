@@ -31,10 +31,12 @@ class AppUpdater {
     _hasChecked = true;
     try {
       final info = await PackageInfo.fromPlatform();
-      final dio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 5),
-      ));
+      final dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ),
+      );
 
       final response = await dio.get(AppConfig.updateCheckUrl);
       if (response.statusCode != 200) return null;
@@ -50,7 +52,10 @@ class AppUpdater {
 
       final platformKey = _getPlatformKey();
       if (platformKey == null || !downloads.containsKey(platformKey)) {
-        AppLogger.warning('No download URL for platform: $platformKey', name: 'Updater');
+        AppLogger.warning(
+          'No download URL for platform: $platformKey',
+          name: 'Updater',
+        );
         return null;
       }
 
@@ -60,7 +65,10 @@ class AppUpdater {
         releaseNotes: data['releaseNotes'] as String?,
       );
     } catch (e) {
-      AppLogger.warning('Update check failed or timed out: $e', name: 'Updater');
+      AppLogger.warning(
+        'Update check failed or timed out: $e',
+        name: 'Updater',
+      );
       return null;
     }
   }
@@ -109,24 +117,41 @@ class AppUpdater {
   }
 
   static Future<void> _install(String filePath) async {
-    AppLogger.info('Cleaning up JSA cache and killing backend before update...', name: 'Updater');
+    AppLogger.info(
+      'Cleaning up JSA cache and killing backend before update...',
+      name: 'Updater',
+    );
     try {
       // Cleanup JSA cache to avoid compatibility issues with new backend version
-      final home = Platform.environment[Platform.isWindows ? 'USERPROFILE' : 'HOME'] ?? '';
-      final pilotHome = Platform.environment['PILOT_HOME'] ?? (Platform.isWindows ? '$home\\.pilot' : '$home/.pilot');
-      final jsaDir = Directory(Platform.isWindows ? '$pilotHome\\core\\scripts' : '$pilotHome/core/scripts');
+      final home =
+          Platform.environment[Platform.isWindows ? 'USERPROFILE' : 'HOME'] ??
+          '';
+      final pilotHome =
+          Platform.environment['PILOT_HOME'] ??
+          (Platform.isWindows ? '$home\\.pilot' : '$home/.pilot');
+      final jsaDir = Directory(
+        Platform.isWindows
+            ? '$pilotHome\\core\\scripts'
+            : '$pilotHome/core/scripts',
+      );
 
       if (await jsaDir.exists()) {
         final files = jsaDir.listSync();
         for (final file in files) {
           if (file is File && file.path.endsWith('.jsa')) {
-            AppLogger.info('Deleting old JSA cache: ${file.path}', name: 'Updater');
+            AppLogger.info(
+              'Deleting old JSA cache: ${file.path}',
+              name: 'Updater',
+            );
             await file.delete();
           }
         }
       }
     } catch (e) {
-      AppLogger.warning('Failed to cleanup JSA cache during update: $e', name: 'Updater');
+      AppLogger.warning(
+        'Failed to cleanup JSA cache during update: $e',
+        name: 'Updater',
+      );
     }
 
     try {
@@ -134,14 +159,21 @@ class AppUpdater {
 
       await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
-      AppLogger.warning('Failed to kill backend during update: $e', name: 'Updater');
+      AppLogger.warning(
+        'Failed to kill backend during update: $e',
+        name: 'Updater',
+      );
     }
 
     if (Platform.isWindows) {
       await Process.start(filePath, ['/SILENT'], runInShell: false);
       exit(0);
     } else if (Platform.isLinux) {
-      await Process.start('pkexec', ['dpkg', '-i', filePath], runInShell: false);
+      await Process.start('pkexec', [
+        'dpkg',
+        '-i',
+        filePath,
+      ], runInShell: false);
       exit(0);
     } else if (Platform.isMacOS) {
       await Process.run('open', [filePath]);
@@ -157,8 +189,11 @@ class AppUpdater {
   }
 
   static bool _isNewer(String remote, String current) {
-    List<int> parse(String v) =>
-        v.replaceAll(RegExp(r'[^0-9.]'), '').split('.').map((e) => int.tryParse(e) ?? 0).toList();
+    List<int> parse(String v) => v
+        .replaceAll(RegExp(r'[^0-9.]'), '')
+        .split('.')
+        .map((e) => int.tryParse(e) ?? 0)
+        .toList();
 
     final r = parse(remote);
     final c = parse(current);

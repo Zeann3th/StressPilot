@@ -22,9 +22,8 @@ class InAppPilotController implements PilotWebViewController {
   InAppPilotController(this.controller);
 
   @override
-  Future<void> loadUrl(String url) => controller.loadUrl(
-    urlRequest: inapp.URLRequest(url: inapp.WebUri(url)),
-  );
+  Future<void> loadUrl(String url) =>
+      controller.loadUrl(urlRequest: inapp.URLRequest(url: inapp.WebUri(url)));
   @override
   Future<void> reload() => controller.reload();
   @override
@@ -42,7 +41,6 @@ class LinuxPilotController implements PilotWebViewController {
   LinuxPilotController(this._currentUrl);
 
   Future<void> _open(String url) async {
-
     await Process.run('xdg-open', [url]);
   }
 
@@ -64,7 +62,8 @@ class LinuxPilotController implements PilotWebViewController {
   void setVisible(bool visible) {}
 }
 
-typedef PilotWebViewCreatedCallback = void Function(PilotWebViewController controller);
+typedef PilotWebViewCreatedCallback =
+    void Function(PilotWebViewController controller);
 
 class PilotWebView extends StatefulWidget {
   final String initialUrl;
@@ -90,7 +89,6 @@ class _PilotWebViewState extends State<PilotWebView> {
   void initState() {
     super.initState();
     if (_isLinux) {
-
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!_launched) {
           _launched = true;
@@ -139,9 +137,7 @@ class _PilotWebViewState extends State<PilotWebView> {
       final notification = LocalNotification(
         title: 'Plugin Downloaded',
         body: '$filename has been installed to ~/.pilot/core/plugins',
-        actions: [
-          LocalNotificationAction(text: 'OK'),
-        ],
+        actions: [LocalNotificationAction(text: 'OK')],
       );
       notification.show();
     } catch (e) {
@@ -182,16 +178,22 @@ class _PilotWebViewState extends State<PilotWebView> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(AppColors.accent)),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(AppColors.accent),
+              ),
               const SizedBox(height: 16),
               Text(
                 'Downloading Plugin...',
-                style: AppTypography.bodyLg.copyWith(fontWeight: FontWeight.w600),
+                style: AppTypography.bodyLg.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Installing to ~/.pilot/core/plugins',
-                style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -237,7 +239,8 @@ class _PilotWebViewState extends State<PilotWebView> {
       ),
       onDownloadStartRequest: (controller, downloadStartRequest) async {
         final url = downloadStartRequest.url.toString();
-        final filename = downloadStartRequest.suggestedFilename ?? url.split('/').last;
+        final filename =
+            downloadStartRequest.suggestedFilename ?? url.split('/').last;
         await _handleDownload(url, filename);
       },
       onWebViewCreated: (controller) {

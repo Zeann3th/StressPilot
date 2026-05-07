@@ -5,7 +5,8 @@ import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/features/settings/presentation/provider/scheduling_provider.dart';
 import 'package:stress_pilot/features/settings/domain/models/schedule.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart' as flow_domain;
+import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+    as flow_domain;
 
 class TaskSchedulingView extends StatefulWidget {
   const TaskSchedulingView({super.key});
@@ -50,7 +51,9 @@ class _TaskSchedulingViewState extends State<TaskSchedulingView> {
         Container(
           width: 300,
           decoration: BoxDecoration(
-            border: Border(right: BorderSide(color: border.withValues(alpha: 0.1))),
+            border: Border(
+              right: BorderSide(color: border.withValues(alpha: 0.1)),
+            ),
           ),
           child: Column(
             children: [
@@ -58,7 +61,10 @@ class _TaskSchedulingViewState extends State<TaskSchedulingView> {
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
-                    Text('Schedules', style: AppTypography.label.copyWith(fontSize: 16)),
+                    Text(
+                      'Schedules',
+                      style: AppTypography.label.copyWith(fontSize: 16),
+                    ),
                     const Spacer(),
                     PilotButton.ghost(
                       icon: Icons.add_rounded,
@@ -112,7 +118,9 @@ class _ScheduleListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = isSelected ? AppColors.accent.withValues(alpha: 0.1) : Colors.transparent;
+    final bg = isSelected
+        ? AppColors.accent.withValues(alpha: 0.1)
+        : Colors.transparent;
     final textColor = AppColors.textPrimary;
 
     return InkWell(
@@ -121,7 +129,9 @@ class _ScheduleListTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: bg,
-          border: Border(bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.05))),
+          border: Border(
+            bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.05)),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,7 +143,9 @@ class _ScheduleListTile extends StatelessWidget {
                     'Flow #${schedule.flowId}',
                     style: AppTypography.body.copyWith(
                       color: textColor,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -141,19 +153,28 @@ class _ScheduleListTile extends StatelessWidget {
                 ),
                 if (!schedule.enabled)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Text('Disabled', style: AppTypography.caption.copyWith(fontSize: 10)),
+                    child: Text(
+                      'Disabled',
+                      style: AppTypography.caption.copyWith(fontSize: 10),
+                    ),
                   ),
               ],
             ),
             const SizedBox(height: 4),
             Text(
               schedule.quartzExpr,
-              style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontFamily: 'JetBrains Mono'),
+              style: AppTypography.caption.copyWith(
+                color: AppColors.textSecondary,
+                fontFamily: 'JetBrains Mono',
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -190,9 +211,15 @@ class _ScheduleDetailEditorState extends State<_ScheduleDetailEditor> {
 
   void _initFields() {
     _cronController = TextEditingController(text: widget.schedule.quartzExpr);
-    _threadsController = TextEditingController(text: widget.schedule.threads.toString());
-    _durationController = TextEditingController(text: widget.schedule.duration.toString());
-    _rampUpController = TextEditingController(text: widget.schedule.rampUp.toString());
+    _threadsController = TextEditingController(
+      text: widget.schedule.threads.toString(),
+    );
+    _durationController = TextEditingController(
+      text: widget.schedule.duration.toString(),
+    );
+    _rampUpController = TextEditingController(
+      text: widget.schedule.rampUp.toString(),
+    );
     _enabled = widget.schedule.enabled;
     _flowId = widget.schedule.flowId;
   }
@@ -230,8 +257,16 @@ class _ScheduleDetailEditorState extends State<_ScheduleDetailEditor> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Edit Schedule', style: AppTypography.heading.copyWith(fontSize: 24)),
-                    Text('ID: ${widget.schedule.id}', style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                    Text(
+                      'Edit Schedule',
+                      style: AppTypography.heading.copyWith(fontSize: 24),
+                    ),
+                    Text(
+                      'ID: ${widget.schedule.id}',
+                      style: AppTypography.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -244,17 +279,29 @@ class _ScheduleDetailEditorState extends State<_ScheduleDetailEditor> {
                     context: context,
                     builder: (context) => AlertDialog(
                       title: const Text('Delete Schedule'),
-                      content: const Text('Are you sure you want to delete this schedule?'),
+                      content: const Text(
+                        'Are you sure you want to delete this schedule?',
+                      ),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete', style: TextStyle(color: Colors.redAccent))),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.redAccent),
+                          ),
+                        ),
                       ],
                     ),
                   );
                   if (confirmed == true && context.mounted) {
                     final provider = context.read<SchedulingProvider>();
                     await provider.deleteSchedule(widget.schedule.id);
-                    if (context.mounted) PilotToast.show(context, 'Schedule deleted');
+                    if (context.mounted)
+                      PilotToast.show(context, 'Schedule deleted');
                   }
                 },
               ),
@@ -273,7 +320,8 @@ class _ScheduleDetailEditorState extends State<_ScheduleDetailEditor> {
                     enabled: _enabled,
                   );
                   await provider.saveSchedule(updated);
-                  if (context.mounted) PilotToast.show(context, 'Schedule saved successfully');
+                  if (context.mounted)
+                    PilotToast.show(context, 'Schedule saved successfully');
                 },
               ),
             ],
@@ -298,11 +346,19 @@ class _ScheduleDetailEditorState extends State<_ScheduleDetailEditor> {
             const SizedBox(height: 8),
             DropdownButtonFormField<int>(
               initialValue: _flowId,
-              items: flows.map((f) => DropdownMenuItem<int>(value: f.id, child: Text(f.name))).toList(),
+              items: flows
+                  .map(
+                    (f) =>
+                        DropdownMenuItem<int>(value: f.id, child: Text(f.name)),
+                  )
+                  .toList(),
               onChanged: (val) => setState(() => _flowId = val),
               decoration: InputDecoration(
                 border: OutlineInputBorder(borderRadius: AppRadius.br8),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -411,7 +467,10 @@ class _NewScheduleEditorState extends State<_NewScheduleEditor> {
           Row(
             children: [
               Expanded(
-                child: Text('New Schedule', style: AppTypography.heading.copyWith(fontSize: 24)),
+                child: Text(
+                  'New Schedule',
+                  style: AppTypography.heading.copyWith(fontSize: 24),
+                ),
               ),
               PilotButton.primary(
                 label: 'Create Schedule',
@@ -445,7 +504,8 @@ class _NewScheduleEditorState extends State<_NewScheduleEditor> {
                     ),
                     createRequest: request,
                   );
-                  if (context.mounted) PilotToast.show(context, 'Schedule created successfully');
+                  if (context.mounted)
+                    PilotToast.show(context, 'Schedule created successfully');
                 },
               ),
             ],
@@ -463,11 +523,21 @@ class _NewScheduleEditorState extends State<_NewScheduleEditor> {
                   const SizedBox(height: 8),
                   DropdownButtonFormField<int>(
                     initialValue: _flowId,
-                    items: flows.map((f) => DropdownMenuItem<int>(value: f.id, child: Text(f.name))).toList(),
+                    items: flows
+                        .map(
+                          (f) => DropdownMenuItem<int>(
+                            value: f.id,
+                            child: Text(f.name),
+                          ),
+                        )
+                        .toList(),
                     onChanged: (val) => setState(() => _flowId = val),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(borderRadius: AppRadius.br8),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -528,7 +598,8 @@ class _NewScheduleEditorState extends State<_NewScheduleEditor> {
                     children: [
                       Checkbox(
                         value: _enabled,
-                        onChanged: (val) => setState(() => _enabled = val ?? true),
+                        onChanged: (val) =>
+                            setState(() => _enabled = val ?? true),
                       ),
                       const Text('Enabled'),
                     ],

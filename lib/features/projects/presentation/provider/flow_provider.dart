@@ -5,7 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:stress_pilot/core/network/http_client.dart';
 import 'package:stress_pilot/core/navigation/navigation_tracker.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart' as flow_domain;
+import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+    as flow_domain;
 import 'package:stress_pilot/features/shared/domain/models/paged_response.dart';
 import 'package:stress_pilot/features/projects/domain/repositories/flow_repository.dart';
 import 'package:stress_pilot/features/projects/data/repositories/flow_repository_impl.dart';
@@ -60,7 +61,11 @@ class FlowProvider extends ChangeNotifier {
     _selectedFlow = flowItem;
     notifyListeners();
 
-    NavigationTracker.trackFlow(flowItem.name, flowItem.description, flowItem.toJson());
+    NavigationTracker.trackFlow(
+      flowItem.name,
+      flowItem.description,
+      flowItem.toJson(),
+    );
 
     final prefs = await SharedPreferences.getInstance();
     final jsonString = jsonEncode(flowItem.toJson());

@@ -68,8 +68,8 @@ class _PilotInputState extends State<PilotInput> {
     final borderColor = widget.borderless
         ? Colors.transparent
         : _isFocused
-            ? AppColors.accent
-            : AppColors.border;
+        ? AppColors.accent
+        : AppColors.border;
 
     return AnimatedContainer(
       key: ValueKey(isDark),
@@ -77,10 +77,7 @@ class _PilotInputState extends State<PilotInput> {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: AppRadius.br8,
-        border: Border.all(
-          color: borderColor,
-          width: 1,
-        ),
+        border: Border.all(color: borderColor, width: 1),
       ),
       child: TextField(
         controller: widget.controller,

@@ -9,7 +9,8 @@ class KeymapProvider extends ChangeNotifier {
   bool _isLoading = false;
 
   Map<String, String> get keymap => _keymap;
-  List<MapEntry<SingleActivator, String>> get cachedActivators => _cachedActivators;
+  List<MapEntry<SingleActivator, String>> get cachedActivators =>
+      _cachedActivators;
   bool get isLoading => _isLoading;
 
   Future<void> initialize() async {
@@ -23,12 +24,20 @@ class KeymapProvider extends ChangeNotifier {
 
     _keymap.clear();
     final defaultKeymapKeys = [
-      'keymap.sidebar.toggle', 'keymap.app.settings', 'keymap.flow.save',
-      'keymap.flow.run', 'keymap.flow.new', 'keymap.node.delete',
-      'keymap.sidebar.tab.flows', 'keymap.sidebar.tab.nodes',
-      'keymap.project.endpoints', 'keymap.project.environment',
-      'keymap.project.view_all', 'keymap.nav.notifications',
-      'keymap.nav.runs', 'keymap.theme.toggle'
+      'keymap.sidebar.toggle',
+      'keymap.app.settings',
+      'keymap.flow.save',
+      'keymap.flow.run',
+      'keymap.flow.new',
+      'keymap.node.delete',
+      'keymap.sidebar.tab.flows',
+      'keymap.sidebar.tab.nodes',
+      'keymap.project.endpoints',
+      'keymap.project.environment',
+      'keymap.project.view_all',
+      'keymap.nav.notifications',
+      'keymap.nav.runs',
+      'keymap.theme.toggle',
     ];
 
     for (var key in defaultKeymapKeys) {

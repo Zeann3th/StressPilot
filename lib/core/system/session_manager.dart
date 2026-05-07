@@ -24,18 +24,27 @@ class SessionManager {
     _keepAliveTimer = Timer.periodic(_keepAliveInterval, (_) async {
       AppLogger.debug('Auto-refresh timer triggered', name: _logName);
       try {
-
-        await _dio.get('/api/v1/utilities/session', options: Options(
-          sendTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 5),
-        ));
+        await _dio.get(
+          '/api/v1/utilities/session',
+          options: Options(
+            sendTimeout: const Duration(seconds: 5),
+            receiveTimeout: const Duration(seconds: 5),
+          ),
+        );
         AppLogger.debug('Session keep-alive successful', name: _logName);
       } catch (e) {
-        AppLogger.warning('Session keep-alive failed, re-initializing...', name: _logName);
+        AppLogger.warning(
+          'Session keep-alive failed, re-initializing...',
+          name: _logName,
+        );
         try {
           await initializeSession(retry: true);
         } catch (e2) {
-          AppLogger.error('Session re-initialization failed during auto-refresh', name: _logName, error: e2);
+          AppLogger.error(
+            'Session re-initialization failed during auto-refresh',
+            name: _logName,
+            error: e2,
+          );
         }
       }
     });
@@ -121,12 +130,12 @@ class SessionManager {
 
     try {
       await AppLogger.measure('Session initialization', () async {
-        final success = await waitForHealthCheck(
-          maxAttempts: retry ? 5 : 20,
-        );
+        final success = await waitForHealthCheck(maxAttempts: retry ? 5 : 20);
 
         if (!success) {
-          throw Exception('Failed to initialize session after multiple attempts');
+          throw Exception(
+            'Failed to initialize session after multiple attempts',
+          );
         }
       }, name: _logName);
     } finally {

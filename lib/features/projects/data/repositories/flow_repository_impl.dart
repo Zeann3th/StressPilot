@@ -26,7 +26,10 @@ class FlowRepositoryImpl implements FlowRepository {
       },
     );
 
-    return PagedResponse.fromJson(response.data['data'], (json) => Flow.fromJson(json));
+    return PagedResponse.fromJson(
+      response.data['data'],
+      (json) => Flow.fromJson(json),
+    );
   }
 
   @override
@@ -47,10 +50,7 @@ class FlowRepositoryImpl implements FlowRepository {
     String? name,
     String? description,
   }) async {
-    final body = {
-      'name': name,
-      'description': description,
-    };
+    final body = {'name': name, 'description': description};
 
     final response = await _dio.patch('/api/v1/flows/$flowId', data: body);
     return Flow.fromJson(response.data['data']);

@@ -26,7 +26,9 @@ class FunctionSettingsProvider extends ChangeNotifier {
     try {
       _functions = await _repository.getAllFunctions();
       if (_selectedFunction != null) {
-        final stillExists = _functions.indexWhere((f) => f.id == _selectedFunction!.id);
+        final stillExists = _functions.indexWhere(
+          (f) => f.id == _selectedFunction!.id,
+        );
         if (stillExists != -1) {
           _selectedFunction = _functions[stillExists];
         } else {
@@ -34,7 +36,11 @@ class FunctionSettingsProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      AppLogger.error('Failed to load functions', name: 'FunctionSettingsProvider', error: e);
+      AppLogger.error(
+        'Failed to load functions',
+        name: 'FunctionSettingsProvider',
+        error: e,
+      );
       _error = e.toString();
     } finally {
       _isLoading = false;
@@ -59,7 +65,11 @@ class FunctionSettingsProvider extends ChangeNotifier {
       _selectedFunction = result;
       notifyListeners();
     } catch (e) {
-      AppLogger.error('Failed to save function', name: 'FunctionSettingsProvider', error: e);
+      AppLogger.error(
+        'Failed to save function',
+        name: 'FunctionSettingsProvider',
+        error: e,
+      );
       rethrow;
     }
   }
@@ -72,13 +82,21 @@ class FunctionSettingsProvider extends ChangeNotifier {
       }
       await loadFunctions();
     } catch (e) {
-      AppLogger.error('Failed to delete function', name: 'FunctionSettingsProvider', error: e);
+      AppLogger.error(
+        'Failed to delete function',
+        name: 'FunctionSettingsProvider',
+        error: e,
+      );
       rethrow;
     }
   }
 
   void createNew() {
-    _selectedFunction = UserFunction(name: 'New Function', body: '// Enter function definition here\nfunction main(input) {\n  return input;\n}');
+    _selectedFunction = UserFunction(
+      name: 'New Function',
+      body:
+          '// Enter function definition here\nfunction main(input) {\n  return input;\n}',
+    );
     notifyListeners();
   }
 }

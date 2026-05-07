@@ -35,7 +35,10 @@ class ResultsRepositoryImpl implements ResultsRepository {
     final wsUrl =
         '${AppConfig.apiBaseUrl.replaceFirst('http', 'ws')}/ws/websocket';
 
-    AppLogger.info('Connecting to WebSocket: $wsUrl', name: 'ResultsRepository');
+    AppLogger.info(
+      'Connecting to WebSocket: $wsUrl',
+      name: 'ResultsRepository',
+    );
 
     _client = StompClient(
       config: StompConfig(

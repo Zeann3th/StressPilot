@@ -23,13 +23,13 @@ import 'package:flutter_highlight/themes/github.dart';
 import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
 
 import 'package:stress_pilot/features/workspace/presentation/provider/workspace_tab_provider.dart';
-import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart' as domain_endpoint;
+import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart'
+    as domain_endpoint;
 
 import 'canvas/canvas_node_toolbar.dart';
 import 'canvas/canvas_painters.dart';
 
 class WorkspaceCanvas extends StatelessWidget {
-
   final flow.Flow? selectedFlow;
 
   const WorkspaceCanvas({super.key, required this.selectedFlow});
@@ -46,10 +46,7 @@ class WorkspaceCanvas extends StatelessWidget {
               height: 72,
               decoration: BoxDecoration(
                 borderRadius: AppRadius.br12,
-                border: Border.all(
-                  color: AppColors.border,
-                  width: 1,
-                ),
+                border: Border.all(color: AppColors.border, width: 1),
                 color: AppColors.elevated,
               ),
               child: Center(
@@ -81,7 +78,6 @@ class WorkspaceCanvas extends StatelessWidget {
     return ChangeNotifierProvider.value(
       value: context.read<CanvasProvider>(),
       child: _CanvasContent(
-
         key: ValueKey(selectedFlow!.id),
         flowId: selectedFlow!.id.toString(),
       ),
@@ -102,7 +98,7 @@ class _CanvasContentState extends State<_CanvasContent>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final TransformationController _transformationController =
-  TransformationController();
+      TransformationController();
 
   CanvasProvider? _canvasProvider;
 
@@ -221,7 +217,9 @@ class _CanvasContentState extends State<_CanvasContent>
                 builder: (context, candidateData, rejectedData) {
                   return InteractiveViewer(
                     transformationController: _transformationController,
-                    panEnabled: !_isDraggingNode && !canvasProvider.isLocked &&
+                    panEnabled:
+                        !_isDraggingNode &&
+                        !canvasProvider.isLocked &&
                         canvasProvider.canvasMode == CanvasMode.move,
                     scaleEnabled: !_isDraggingNode && !canvasProvider.isLocked,
                     boundaryMargin: const EdgeInsets.all(4000),
@@ -272,7 +270,8 @@ class _CanvasContentState extends State<_CanvasContent>
                                             _animationController.value * 14.0,
                                         colors: Theme.of(context).colorScheme,
                                         lineStyle: canvasProvider.lineStyle,
-                                        highlightedConnectionId: _highlightedConnectionId,
+                                        highlightedConnectionId:
+                                            _highlightedConnectionId,
                                       ),
                                     );
                                   },
@@ -280,8 +279,11 @@ class _CanvasContentState extends State<_CanvasContent>
                               ),
                             ),
                             ...canvasProvider.nodes.map(
-                              (node) =>
-                                  _buildNodeWidget(node, canvasProvider, Theme.of(context).colorScheme),
+                              (node) => _buildNodeWidget(
+                                node,
+                                canvasProvider,
+                                Theme.of(context).colorScheme,
+                              ),
                             ),
                           ],
                         ),
@@ -298,7 +300,11 @@ class _CanvasContentState extends State<_CanvasContent>
               child: Center(
                 child: Container(
                   key: _toolbarKey,
-                  child: _buildUnifiedToolbar(context, Theme.of(context).colorScheme, canvasProvider),
+                  child: _buildUnifiedToolbar(
+                    context,
+                    Theme.of(context).colorScheme,
+                    canvasProvider,
+                  ),
                 ),
               ),
             ),
@@ -306,9 +312,7 @@ class _CanvasContentState extends State<_CanvasContent>
               left: 16,
               top: 100,
               bottom: 100,
-              child: Center(
-                child: const CanvasNodeToolbar(),
-              ),
+              child: Center(child: const CanvasNodeToolbar()),
             ),
           ],
         ),
@@ -317,8 +321,12 @@ class _CanvasContentState extends State<_CanvasContent>
   }
 
   Widget _buildNodeWidget(
-      CanvasNode node, CanvasProvider provider, ColorScheme colors) {
-    final isSelected = provider.selectedNodeId == node.id ||
+    CanvasNode node,
+    CanvasProvider provider,
+    ColorScheme colors,
+  ) {
+    final isSelected =
+        provider.selectedNodeId == node.id ||
         provider.selectedSourceNodeId == node.id;
 
     return Positioned(
@@ -361,8 +369,11 @@ class _CanvasContentState extends State<_CanvasContent>
                           );
                         }
                       : null,
-                  child:
-                      CanvasNodeBody(node: node, provider: provider, colors: colors),
+                  child: CanvasNodeBody(
+                    node: node,
+                    provider: provider,
+                    colors: colors,
+                  ),
                 ),
                 if (isSelected)
                   Positioned.fill(
@@ -407,8 +418,7 @@ class _CanvasContentState extends State<_CanvasContent>
     }
   }
 
-  void _handleDrop(
-      DragTargetDetails<DragData> details, BuildContext context) {
+  void _handleDrop(DragTargetDetails<DragData> details, BuildContext context) {
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final Offset localOffset = renderBox.globalToLocal(details.offset);
     final Matrix4 transform = _transformationController.value;
@@ -416,8 +426,9 @@ class _CanvasContentState extends State<_CanvasContent>
 
     if (transform.determinant() != 0.0) {
       final Matrix4 inverse = Matrix4.inverted(transform);
-      final Vector3 transformed =
-      inverse.transform3(Vector3(localOffset.dx, localOffset.dy, 0));
+      final Vector3 transformed = inverse.transform3(
+        Vector3(localOffset.dx, localOffset.dy, 0),
+      );
       canvasPosition = Offset(transformed.x, transformed.y);
     } else {
       canvasPosition = localOffset;
@@ -432,13 +443,13 @@ class _CanvasContentState extends State<_CanvasContent>
       width: type == FlowNodeType.start
           ? 56
           : (type == FlowNodeType.branch
-          ? 160
-          : (type == FlowNodeType.subflow ? 180 : 160)),
+                ? 160
+                : (type == FlowNodeType.subflow ? 180 : 160)),
       height: type == FlowNodeType.start
           ? 56
           : (type == FlowNodeType.branch
-          ? 100
-          : (type == FlowNodeType.subflow ? 64 : 100)),
+                ? 100
+                : (type == FlowNodeType.subflow ? 64 : 100)),
     );
     context.read<CanvasProvider>().addNode(newNode);
   }
@@ -454,13 +465,13 @@ class _CanvasContentState extends State<_CanvasContent>
     if (result['action'] == 'navigate') {
       final endpoint = result['endpoint'] as domain_endpoint.Endpoint;
       context.read<WorkspaceTabProvider>().openTab(
-            WorkspaceTab(
-              id: endpoint.id.toString(),
-              name: endpoint.name,
-              type: WorkspaceTabType.endpoint,
-              data: endpoint,
-            ),
-          );
+        WorkspaceTab(
+          id: endpoint.id.toString(),
+          name: endpoint.name,
+          type: WorkspaceTabType.endpoint,
+          data: endpoint,
+        ),
+      );
       return;
     }
 
@@ -511,8 +522,7 @@ class _CanvasContentState extends State<_CanvasContent>
         'flowName': result.name,
       });
 
-      final scaffoldMessenger =
-          AppNavigator.scaffoldMessengerKey.currentState;
+      final scaffoldMessenger = AppNavigator.scaffoldMessengerKey.currentState;
       final theme = Theme.of(context);
 
       try {
@@ -545,17 +555,18 @@ class _CanvasContentState extends State<_CanvasContent>
       builder: (context) => _BranchDialog(controller: controller),
     );
     if (result != null && mounted) {
-      context
-          .read<CanvasProvider>()
-          .updateNodeData(node.id, {'condition': result});
+      context.read<CanvasProvider>().updateNodeData(node.id, {
+        'condition': result,
+      });
     }
   }
 
   void _showJsonPayload(BuildContext context) {
     final provider = context.read<CanvasProvider>();
     final steps = provider.generateFlowConfiguration();
-    final initialValue = const JsonEncoder.withIndent('  ')
-        .convert(steps.map((s) => s.toJson(includeMetadata: false)).toList());
+    final initialValue = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(steps.map((s) => s.toJson(includeMetadata: false)).toList());
     showDialog(
       context: context,
       builder: (context) =>
@@ -564,10 +575,10 @@ class _CanvasContentState extends State<_CanvasContent>
   }
 
   Widget _buildUnifiedToolbar(
-      BuildContext context,
-      ColorScheme colors,
-      CanvasProvider provider,
-      ) {
+    BuildContext context,
+    ColorScheme colors,
+    CanvasProvider provider,
+  ) {
     return Container(
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -583,122 +594,122 @@ class _CanvasContentState extends State<_CanvasContent>
           ),
         ],
       ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildModeButton(
-                  provider, CanvasMode.move, LucideIcons.hand, 'Pan'),
-              const SizedBox(width: 4),
-              _buildModeButton(
-                  provider, CanvasMode.connect, LucideIcons.pencil, 'Link'),
-              _ToolbarDivider(borderColor: AppColors.border.withValues(alpha: 0.3)),
-              _ToolbarIcon(
-                tooltip: 'Line: ${_lineStyleLabel(provider.lineStyle)}',
-                onTap: () => provider.cycleLineStyle(),
-                icon: _lineStyleIcon(provider.lineStyle),
-                color: AppColors.textMuted,
-              ),
-              _ToolbarDivider(borderColor: AppColors.border.withValues(alpha: 0.3)),
-              _ToolbarIcon(
-                tooltip: provider.isLocked ? 'Unlock Canvas' : 'Lock Canvas',
-                onTap: () => provider.toggleLock(),
-                icon: provider.isLocked ? LucideIcons.lock : LucideIcons.lockOpen,
-                color: provider.isLocked ? AppColors.accent : AppColors.textMuted,
-              ),
-              _ToolbarIcon(
-                tooltip: 'Focus Graph',
-                onTap: () => _focusGraph(),
-                icon: LucideIcons.crosshair,
-                color: AppColors.textMuted,
-              ),
-              _ToolbarIcon(
-                tooltip: 'Zoom In',
-                onTap: () => _zoom(1.2),
-                icon: LucideIcons.plus,
-                color: AppColors.textMuted,
-              ),
-              _ToolbarIcon(
-                tooltip: 'Zoom Out',
-                onTap: () => _zoom(0.8),
-                icon: LucideIcons.minus,
-                color: AppColors.textMuted,
-              ),
-              _ToolbarDivider(borderColor: AppColors.border),
-              _ToolbarIcon(
-                tooltip: 'Show JSON',
-                onTap: () => _showJsonPayload(context),
-                icon: LucideIcons.code,
-                color: AppColors.textMuted,
-              ),
-              _ToolbarIcon(
-                tooltip: 'Clear Canvas',
-                onTap: () async {
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      backgroundColor: colors.surface,
-                      title: const Text('Clear Canvas?'),
-                      content: const Text(
-                          'This will remove all nodes and connections.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () =>
-                              Navigator.of(context).pop(false),
-                          child: const Text('Cancel'),
-                        ),
-                        FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.error,
-                            foregroundColor: colors.onError,
-                          ),
-                          onPressed: () =>
-                              Navigator.of(context).pop(true),
-                          child: const Text('Clear'),
-                        ),
-                      ],
-                    ),
-                  );
-                  if (confirmed == true) provider.clearCanvas();
-                },
-                icon: LucideIcons.trash2,
-                color: AppColors.error,
-              ),
-              _ToolbarIcon(
-                tooltip: 'Save Flow',
-                onTap: provider.isSaving
-                    ? null
-                    : () async {
-                  final flowProvider =
-                  context.read<FlowProvider>();
-                  final endpointProvider =
-                  context.read<EndpointProvider>();
-                  final scaffoldMessenger =
-                      AppNavigator.scaffoldMessengerKey.currentState;
-                  try {
-                    await provider.saveFlowConfiguration(
-                      int.parse(widget.flowId),
-                      flowProvider,
-                      endpoints: endpointProvider.endpoints,
-                      flows: flowProvider.flows,
-                    );
-                    scaffoldMessenger?.showSnackBar(
-                      const SnackBar(content: Text('Flow saved.')),
-                    );
-                  } catch (e) {
-                    scaffoldMessenger?.showSnackBar(
-                      SnackBar(content: Text('Error saving: $e')),
-                    );
-                  }
-                },
-                icon: LucideIcons.save,
-                color: provider.isSaving
-                    ? AppColors.textMuted
-                    : AppColors.textSecondary,
-                loading: provider.isSaving,
-              ),
-            ],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildModeButton(provider, CanvasMode.move, LucideIcons.hand, 'Pan'),
+          const SizedBox(width: 4),
+          _buildModeButton(
+            provider,
+            CanvasMode.connect,
+            LucideIcons.pencil,
+            'Link',
           ),
-        );
+          _ToolbarDivider(borderColor: AppColors.border.withValues(alpha: 0.3)),
+          _ToolbarIcon(
+            tooltip: 'Line: ${_lineStyleLabel(provider.lineStyle)}',
+            onTap: () => provider.cycleLineStyle(),
+            icon: _lineStyleIcon(provider.lineStyle),
+            color: AppColors.textMuted,
+          ),
+          _ToolbarDivider(borderColor: AppColors.border.withValues(alpha: 0.3)),
+          _ToolbarIcon(
+            tooltip: provider.isLocked ? 'Unlock Canvas' : 'Lock Canvas',
+            onTap: () => provider.toggleLock(),
+            icon: provider.isLocked ? LucideIcons.lock : LucideIcons.lockOpen,
+            color: provider.isLocked ? AppColors.accent : AppColors.textMuted,
+          ),
+          _ToolbarIcon(
+            tooltip: 'Focus Graph',
+            onTap: () => _focusGraph(),
+            icon: LucideIcons.crosshair,
+            color: AppColors.textMuted,
+          ),
+          _ToolbarIcon(
+            tooltip: 'Zoom In',
+            onTap: () => _zoom(1.2),
+            icon: LucideIcons.plus,
+            color: AppColors.textMuted,
+          ),
+          _ToolbarIcon(
+            tooltip: 'Zoom Out',
+            onTap: () => _zoom(0.8),
+            icon: LucideIcons.minus,
+            color: AppColors.textMuted,
+          ),
+          _ToolbarDivider(borderColor: AppColors.border),
+          _ToolbarIcon(
+            tooltip: 'Show JSON',
+            onTap: () => _showJsonPayload(context),
+            icon: LucideIcons.code,
+            color: AppColors.textMuted,
+          ),
+          _ToolbarIcon(
+            tooltip: 'Clear Canvas',
+            onTap: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: colors.surface,
+                  title: const Text('Clear Canvas?'),
+                  content: const Text(
+                    'This will remove all nodes and connections.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.error,
+                        foregroundColor: colors.onError,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text('Clear'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) provider.clearCanvas();
+            },
+            icon: LucideIcons.trash2,
+            color: AppColors.error,
+          ),
+          _ToolbarIcon(
+            tooltip: 'Save Flow',
+            onTap: provider.isSaving
+                ? null
+                : () async {
+                    final flowProvider = context.read<FlowProvider>();
+                    final endpointProvider = context.read<EndpointProvider>();
+                    final scaffoldMessenger =
+                        AppNavigator.scaffoldMessengerKey.currentState;
+                    try {
+                      await provider.saveFlowConfiguration(
+                        int.parse(widget.flowId),
+                        flowProvider,
+                        endpoints: endpointProvider.endpoints,
+                        flows: flowProvider.flows,
+                      );
+                      scaffoldMessenger?.showSnackBar(
+                        const SnackBar(content: Text('Flow saved.')),
+                      );
+                    } catch (e) {
+                      scaffoldMessenger?.showSnackBar(
+                        SnackBar(content: Text('Error saving: $e')),
+                      );
+                    }
+                  },
+            icon: LucideIcons.save,
+            color: provider.isSaving
+                ? AppColors.textMuted
+                : AppColors.textSecondary,
+            loading: provider.isSaving,
+          ),
+        ],
+      ),
+    );
   }
 
   void _zoom(double factor) {
@@ -734,16 +745,24 @@ class _CanvasContentState extends State<_CanvasContent>
     for (final node in provider.nodes) {
       if (node.position.dx < minX) minX = node.position.dx;
       if (node.position.dy < minY) minY = node.position.dy;
-      if (node.position.dx + node.width > maxX) maxX = node.position.dx + node.width;
-      if (node.position.dy + node.height > maxY) maxY = node.position.dy + node.height;
+      if (node.position.dx + node.width > maxX)
+        maxX = node.position.dx + node.width;
+      if (node.position.dy + node.height > maxY)
+        maxY = node.position.dy + node.height;
     }
 
     final double graphWidth = maxX - minX;
     final double graphHeight = maxY - minY;
-    final Offset graphCenter = Offset(minX + graphWidth / 2, minY + graphHeight / 2);
+    final Offset graphCenter = Offset(
+      minX + graphWidth / 2,
+      minY + graphHeight / 2,
+    );
 
     final Size viewportSize = MediaQuery.of(context).size;
-    final Offset viewportCenter = Offset(viewportSize.width / 2, viewportSize.height / 2);
+    final Offset viewportCenter = Offset(
+      viewportSize.width / 2,
+      viewportSize.height / 2,
+    );
 
     final double scaleX = (viewportSize.width * 0.8) / graphWidth;
     final double scaleY = (viewportSize.height * 0.8) / graphHeight;
@@ -751,9 +770,13 @@ class _CanvasContentState extends State<_CanvasContent>
     scale = scale.clamp(0.2, 1.5);
 
     final Matrix4 matrix = Matrix4.identity()
-      ..multiply(Matrix4.translationValues(viewportCenter.dx, viewportCenter.dy, 0.0))
+      ..multiply(
+        Matrix4.translationValues(viewportCenter.dx, viewportCenter.dy, 0.0),
+      )
       ..multiply(Matrix4.diagonal3Values(scale, scale, 1.0))
-      ..multiply(Matrix4.translationValues(-graphCenter.dx, -graphCenter.dy, 0.0));
+      ..multiply(
+        Matrix4.translationValues(-graphCenter.dx, -graphCenter.dy, 0.0),
+      );
 
     setState(() {
       _transformationController.value = matrix;
@@ -770,8 +793,10 @@ class _CanvasContentState extends State<_CanvasContent>
 
     for (final node in nodes) {
       final rect = Rect.fromLTWH(
-        node.position.dx, node.position.dy,
-        node.actualWidth, node.actualHeight,
+        node.position.dx,
+        node.position.dy,
+        node.actualWidth,
+        node.actualHeight,
       );
       if (rect.inflate(4).contains(pos)) return null;
     }
@@ -781,8 +806,12 @@ class _CanvasContentState extends State<_CanvasContent>
       final target = nodeMap[conn.targetNodeId];
       if (source == null || target == null) continue;
 
-      final start = source.position + Offset(source.actualWidth / 2, source.actualHeight / 2);
-      final end = target.position + Offset(target.actualWidth / 2, target.actualHeight / 2);
+      final start =
+          source.position +
+          Offset(source.actualWidth / 2, source.actualHeight / 2);
+      final end =
+          target.position +
+          Offset(target.actualWidth / 2, target.actualHeight / 2);
 
       if (_distToSegment(pos, start, end) < hitRadius) return conn;
     }
@@ -801,26 +830,32 @@ class _CanvasContentState extends State<_CanvasContent>
 
   IconData _lineStyleIcon(ConnectionLineStyle s) {
     switch (s) {
-      case ConnectionLineStyle.straight: return LucideIcons.minus;
-      case ConnectionLineStyle.curved: return LucideIcons.activity;
-      case ConnectionLineStyle.orthogonal: return LucideIcons.cornerDownRight;
+      case ConnectionLineStyle.straight:
+        return LucideIcons.minus;
+      case ConnectionLineStyle.curved:
+        return LucideIcons.activity;
+      case ConnectionLineStyle.orthogonal:
+        return LucideIcons.cornerDownRight;
     }
   }
 
   String _lineStyleLabel(ConnectionLineStyle s) {
     switch (s) {
-      case ConnectionLineStyle.straight: return 'Straight';
-      case ConnectionLineStyle.curved: return 'Curved';
-      case ConnectionLineStyle.orthogonal: return 'Box';
+      case ConnectionLineStyle.straight:
+        return 'Straight';
+      case ConnectionLineStyle.curved:
+        return 'Curved';
+      case ConnectionLineStyle.orthogonal:
+        return 'Box';
     }
   }
 
   Widget _buildModeButton(
-      CanvasProvider provider,
-      CanvasMode mode,
-      IconData icon,
-      String label,
-      ) {
+    CanvasProvider provider,
+    CanvasMode mode,
+    IconData icon,
+    String label,
+  ) {
     final isSelected = provider.canvasMode == mode;
     return Tooltip(
       message: label,
@@ -888,8 +923,12 @@ class CanvasEdgePainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
 
-      final sourceCenter = source.position + Offset(source.actualWidth / 2, source.actualHeight / 2);
-      final targetCenter = target.position + Offset(target.actualWidth / 2, target.actualHeight / 2);
+      final sourceCenter =
+          source.position +
+          Offset(source.actualWidth / 2, source.actualHeight / 2);
+      final targetCenter =
+          target.position +
+          Offset(target.actualWidth / 2, target.actualHeight / 2);
 
       if (conn.sourceNodeId == conn.targetNodeId) {
         _drawSelfLoop(canvas, source, paint, lineColor);
@@ -904,7 +943,9 @@ class CanvasEdgePainter extends CustomPainter {
         case ConnectionLineStyle.straight:
           final start = _edgePoint(source, targetCenter);
           final end = _edgePoint(target, sourceCenter);
-          path = Path()..moveTo(start.dx, start.dy)..lineTo(end.dx, end.dy);
+          path = Path()
+            ..moveTo(start.dx, start.dy)
+            ..lineTo(end.dx, end.dy);
           arrowTip = end;
           arrowFrom = start;
           break;
@@ -930,7 +971,9 @@ class CanvasEdgePainter extends CustomPainter {
           final endDir = _exitDir(target, sourceCenter);
           final pts = _orthoPts(start, end, startDir, endDir);
           path = Path()..moveTo(start.dx, start.dy);
-          for (final p in pts) { path.lineTo(p.dx, p.dy); }
+          for (final p in pts) {
+            path.lineTo(p.dx, p.dy);
+          }
           arrowTip = end;
           arrowFrom = pts.length >= 2 ? pts[pts.length - 2] : start;
           break;
@@ -940,8 +983,12 @@ class CanvasEdgePainter extends CustomPainter {
       _drawArrow(canvas, arrowTip, arrowFrom, lineColor);
 
       if (source.type == FlowNodeType.branch) {
-        _drawLabel(canvas, sourceCenter, targetCenter,
-            conn.type == ConnectionType.trueType ? 'T' : 'F');
+        _drawLabel(
+          canvas,
+          sourceCenter,
+          targetCenter,
+          conn.type == ConnectionType.trueType ? 'T' : 'F',
+        );
       }
     }
   }
@@ -950,7 +997,8 @@ class CanvasEdgePainter extends CustomPainter {
       ((b.dx - a.dx).abs() + (b.dy - a.dy).abs()).clamp(60.0, 300.0) * 0.45;
 
   Offset _edgePoint(CanvasNode node, Offset toward) {
-    final center = node.position + Offset(node.actualWidth / 2, node.actualHeight / 2);
+    final center =
+        node.position + Offset(node.actualWidth / 2, node.actualHeight / 2);
     final dx = toward.dx - center.dx;
     final dy = toward.dy - center.dy;
     if (dx.abs() > dy.abs()) {
@@ -965,7 +1013,8 @@ class CanvasEdgePainter extends CustomPainter {
   }
 
   AxisDirection _exitDir(CanvasNode node, Offset toward) {
-    final center = node.position + Offset(node.actualWidth / 2, node.actualHeight / 2);
+    final center =
+        node.position + Offset(node.actualWidth / 2, node.actualHeight / 2);
     final dx = toward.dx - center.dx;
     final dy = toward.dy - center.dy;
     if (dx.abs() > dy.abs()) {
@@ -977,14 +1026,23 @@ class CanvasEdgePainter extends CustomPainter {
 
   Offset _dirOffset(AxisDirection dir, double dist) {
     switch (dir) {
-      case AxisDirection.right: return Offset(dist, 0);
-      case AxisDirection.left: return Offset(-dist, 0);
-      case AxisDirection.down: return Offset(0, dist);
-      case AxisDirection.up: return Offset(0, -dist);
+      case AxisDirection.right:
+        return Offset(dist, 0);
+      case AxisDirection.left:
+        return Offset(-dist, 0);
+      case AxisDirection.down:
+        return Offset(0, dist);
+      case AxisDirection.up:
+        return Offset(0, -dist);
     }
   }
 
-  List<Offset> _orthoPts(Offset start, Offset end, AxisDirection sd, AxisDirection ed) {
+  List<Offset> _orthoPts(
+    Offset start,
+    Offset end,
+    AxisDirection sd,
+    AxisDirection ed,
+  ) {
     const m = 24.0;
     final p1 = start + _dirOffset(sd, m);
     final p2 = end + _dirOffset(ed, m);
@@ -1019,7 +1077,12 @@ class CanvasEdgePainter extends CustomPainter {
     );
     final path = Path()..addArc(loopRect, 0, 2 * 3.14159265);
     _drawDashed(canvas, path, paint);
-    _drawArrow(canvas, Offset(cx + 20, top - 24), Offset(cx + 20, top - 8), color);
+    _drawArrow(
+      canvas,
+      Offset(cx + 20, top - 24),
+      Offset(cx + 20, top - 8),
+      color,
+    );
   }
 
   void _drawDashed(Canvas canvas, Path path, Paint paint) {
@@ -1048,12 +1111,20 @@ class CanvasEdgePainter extends CustomPainter {
     canvas.save();
     canvas.translate(tip.dx, tip.dy);
     canvas.rotate(angle);
-    canvas.drawPath(p, Paint()..color = color..style = PaintingStyle.fill);
+    canvas.drawPath(
+      p,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.fill,
+    );
     canvas.restore();
   }
 
   void _drawLabel(Canvas canvas, Offset start, Offset end, String text) {
-    final mid = Offset((start.dx * 3 + end.dx) / 4, (start.dy * 3 + end.dy) / 4);
+    final mid = Offset(
+      (start.dx * 3 + end.dx) / 4,
+      (start.dy * 3 + end.dy) / 4,
+    );
     final tp = TextPainter(
       text: TextSpan(
         text: text,
@@ -1102,9 +1173,11 @@ class CanvasNodeBody extends StatelessWidget {
   Widget _buildStandard() {
     final type = node.data['type'] ?? 'HTTP';
     final methodColor = _getTypeColor(type);
-    final hasPre = node.data['preProcessor'] != null &&
+    final hasPre =
+        node.data['preProcessor'] != null &&
         (node.data['preProcessor'] as Map).isNotEmpty;
-    final hasPost = node.data['postProcessor'] != null &&
+    final hasPost =
+        node.data['postProcessor'] != null &&
         (node.data['postProcessor'] as Map).isNotEmpty;
 
     return Container(
@@ -1114,12 +1187,12 @@ class CanvasNodeBody extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: colors.outlineVariant.withValues(alpha: 0.6)),
+        border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.6)),
         boxShadow: [
           BoxShadow(
-              color: AppColors.textPrimary.withValues(alpha: 0.08),
-              blurRadius: 12)
+            color: AppColors.textPrimary.withValues(alpha: 0.08),
+            blurRadius: 12,
+          ),
         ],
       ),
       child: Column(
@@ -1129,8 +1202,7 @@ class CanvasNodeBody extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: methodColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
@@ -1149,9 +1221,10 @@ class CanvasNodeBody extends StatelessWidget {
                 Text(
                   node.data['method'].toString().toUpperCase(),
                   style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                      color: colors.onSurfaceVariant),
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                    color: colors.onSurfaceVariant,
+                  ),
                 ),
               ],
             ],
@@ -1159,8 +1232,7 @@ class CanvasNodeBody extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             node.data['name'] ?? 'Endpoint',
-            style: const TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -1182,14 +1254,16 @@ class CanvasNodeBody extends StatelessWidget {
             children: [
               if (hasPre)
                 _InfoBadge(
-                    icon: LucideIcons.logIn,
-                    label: 'PRE',
-                    color: Colors.orange),
+                  icon: LucideIcons.logIn,
+                  label: 'PRE',
+                  color: Colors.orange,
+                ),
               if (hasPost)
                 _InfoBadge(
-                    icon: LucideIcons.logOut,
-                    label: 'POST',
-                    color: Colors.purple),
+                  icon: LucideIcons.logOut,
+                  label: 'POST',
+                  color: Colors.purple,
+                ),
             ],
           ),
         ],
@@ -1210,12 +1284,11 @@ class CanvasNodeBody extends StatelessWidget {
             color: AppColors.textPrimary.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Stack(
         children: [
-
           Positioned(
             left: 0,
             top: 0,
@@ -1241,8 +1314,11 @@ class CanvasNodeBody extends StatelessWidget {
                     color: colors.secondary.withValues(alpha: 0.1),
                     borderRadius: AppRadius.br8,
                   ),
-                  child: Icon(LucideIcons.network,
-                      size: 20, color: colors.secondary),
+                  child: Icon(
+                    LucideIcons.network,
+                    size: 20,
+                    color: colors.secondary,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1271,8 +1347,11 @@ class CanvasNodeBody extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(LucideIcons.chevronRight,
-                    size: 16, color: colors.onSurfaceVariant.withValues(alpha: 0.5)),
+                Icon(
+                  LucideIcons.chevronRight,
+                  size: 16,
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+                ),
               ],
             ),
           ),
@@ -1286,15 +1365,20 @@ class CanvasNodeBody extends StatelessWidget {
       width: 56,
       height: 56,
       decoration: BoxDecoration(
-        gradient: AppGradients.green(Theme.of(context).brightness == Brightness.dark),
+        gradient: AppGradients.green(
+          Theme.of(context).brightness == Brightness.dark,
+        ),
         borderRadius: AppRadius.br16,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.5),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.2),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColors.accent.withValues(alpha: 0.3),
             blurRadius: 12,
             spreadRadius: 2,
-          )
+          ),
         ],
       ),
       child: Column(
@@ -1323,7 +1407,6 @@ class CanvasNodeBody extends StatelessWidget {
         clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
-
           Transform.rotate(
             angle: 3.14159 / 4,
             child: Container(
@@ -1332,12 +1415,15 @@ class CanvasNodeBody extends StatelessWidget {
               decoration: BoxDecoration(
                 color: colors.surface,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: colors.primary.withValues(alpha: 0.5), width: 2),
+                border: Border.all(
+                  color: colors.primary.withValues(alpha: 0.5),
+                  width: 2,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: colors.primary.withValues(alpha: 0.1),
                     blurRadius: 8,
-                  )
+                  ),
                 ],
               ),
             ),
@@ -1364,7 +1450,8 @@ class CanvasNodeBody extends StatelessWidget {
               label: 'TRUE',
               shortLabel: 'T',
               color: AppColors.success,
-              isSelected: provider.selectedSourceNodeId == node.id &&
+              isSelected:
+                  provider.selectedSourceNodeId == node.id &&
                   provider.selectedSourceHandle == 'true',
               onTap: () => provider.selectSourceNode(node.id, 'true'),
             ),
@@ -1376,7 +1463,8 @@ class CanvasNodeBody extends StatelessWidget {
               label: 'FALSE',
               shortLabel: 'F',
               color: AppColors.error,
-              isSelected: provider.selectedSourceNodeId == node.id &&
+              isSelected:
+                  provider.selectedSourceNodeId == node.id &&
                   provider.selectedSourceHandle == 'false',
               onTap: () => provider.selectSourceNode(node.id, 'false'),
             ),
@@ -1403,8 +1491,11 @@ class _InfoBadge extends StatelessWidget {
   final String label;
   final Color color;
 
-  const _InfoBadge(
-      {required this.icon, required this.label, required this.color});
+  const _InfoBadge({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1420,11 +1511,14 @@ class _InfoBadge extends StatelessWidget {
         children: [
           Icon(icon, size: 10, color: color),
           const SizedBox(width: 2),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                  color: color)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 8,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
@@ -1463,10 +1557,12 @@ class _BranchHandle extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: isSelected ? color.withValues(alpha: 0.4) : AppColors.textPrimary.withValues(alpha: 0.1),
+                color: isSelected
+                    ? color.withValues(alpha: 0.4)
+                    : AppColors.textPrimary.withValues(alpha: 0.1),
                 blurRadius: isSelected ? 8 : 4,
                 spreadRadius: isSelected ? 1 : 0,
-              )
+              ),
             ],
           ),
           child: Center(
@@ -1528,8 +1624,10 @@ class _JsonPayloadDialog extends StatefulWidget {
   final String initialValue;
   final CanvasProvider provider;
 
-  const _JsonPayloadDialog(
-      {required this.initialValue, required this.provider});
+  const _JsonPayloadDialog({
+    required this.initialValue,
+    required this.provider,
+  });
 
   @override
   State<_JsonPayloadDialog> createState() => _JsonPayloadDialogState();
@@ -1541,10 +1639,7 @@ class _JsonPayloadDialogState extends State<_JsonPayloadDialog> {
   @override
   void initState() {
     super.initState();
-    _controller = CodeController(
-      text: widget.initialValue,
-      language: json,
-    );
+    _controller = CodeController(text: widget.initialValue, language: json);
   }
 
   @override
@@ -1562,7 +1657,10 @@ class _JsonPayloadDialogState extends State<_JsonPayloadDialog> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invalid JSON: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Invalid JSON: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -1636,8 +1734,9 @@ class _JsonPayloadDialogState extends State<_JsonPayloadDialog> {
                 FilledButton(
                   onPressed: () {
                     try {
-                      final List<dynamic> jsonList =
-                      jsonDecode(_controller.text);
+                      final List<dynamic> jsonList = jsonDecode(
+                        _controller.text,
+                      );
                       final newSteps = jsonList
                           .map((e) => flow.FlowStep.fromJson(e))
                           .toList();
@@ -1646,8 +1745,9 @@ class _JsonPayloadDialogState extends State<_JsonPayloadDialog> {
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text('Invalid JSON: $e'),
-                            backgroundColor: colors.error),
+                          content: Text('Invalid JSON: $e'),
+                          backgroundColor: colors.error,
+                        ),
                       );
                     }
                   },
@@ -1719,10 +1819,10 @@ class _ToolbarIconState extends State<_ToolbarIcon> {
             ),
             child: widget.loading
                 ? const SizedBox(
-              width: 14,
-              height: 14,
-              child: CircularProgressIndicator(strokeWidth: 1.5),
-            )
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 1.5),
+                  )
                 : Icon(widget.icon, size: 16, color: widget.color),
           ),
         ),
@@ -1730,4 +1830,3 @@ class _ToolbarIconState extends State<_ToolbarIcon> {
     );
   }
 }
-

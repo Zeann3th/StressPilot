@@ -4,7 +4,8 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart' as flow_domain;
+import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+    as flow_domain;
 import 'package:stress_pilot/features/projects/domain/models/project.dart';
 import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
@@ -107,14 +108,22 @@ class _WorkspacePageState extends State<WorkspacePage> {
                                     cursor: SystemMouseCursors.resizeColumn,
                                     child: GestureDetector(
                                       onHorizontalDragUpdate: (details) {
-                                        _sidebarWidth.value = (_sidebarWidth.value + details.delta.dx)
-                                            .clamp(_minSidebarWidth, _maxSidebarWidth);
+                                        _sidebarWidth.value =
+                                            (_sidebarWidth.value +
+                                                    details.delta.dx)
+                                                .clamp(
+                                                  _minSidebarWidth,
+                                                  _maxSidebarWidth,
+                                                );
                                       },
                                       child: Container(
                                         width: 8,
                                         color: Colors.transparent,
                                         child: Center(
-                                          child: Container(width: 1, color: AppColors.divider),
+                                          child: Container(
+                                            width: 1,
+                                            color: AppColors.divider,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -135,20 +144,29 @@ class _WorkspacePageState extends State<WorkspacePage> {
                                   child: Consumer<WorkspaceTabProvider>(
                                     builder: (context, tabProvider, _) {
                                       final tabs = tabProvider.tabs;
-                                      final activeTabIndex = tabProvider.activeTabIndex;
+                                      final activeTabIndex =
+                                          tabProvider.activeTabIndex;
 
                                       if (tabs.isEmpty) {
                                         return const _EmptyTabState();
                                       }
 
                                       return IndexedStack(
-                                        index: activeTabIndex == -1 ? 0 : activeTabIndex,
+                                        index: activeTabIndex == -1
+                                            ? 0
+                                            : activeTabIndex,
                                         children: tabs.map((tab) {
                                           switch (tab.type) {
                                             case WorkspaceTabType.flow:
-                                              return WorkspaceCanvas(selectedFlow: tab.data as flow_domain.Flow);
+                                              return WorkspaceCanvas(
+                                                selectedFlow:
+                                                    tab.data
+                                                        as flow_domain.Flow,
+                                              );
                                             case WorkspaceTabType.endpoint:
-                                              return EndpointEditor(endpoint: tab.data as Endpoint);
+                                              return EndpointEditor(
+                                                endpoint: tab.data as Endpoint,
+                                              );
                                           }
                                         }).toList(),
                                       );
@@ -163,9 +181,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
                     ),
                   ),
           ),
-          AppStatusBar(
-            projectName: project?.name,
-          ),
+          AppStatusBar(projectName: project?.name),
         ],
       ),
     );
@@ -181,7 +197,11 @@ class _EmptyTabState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(LucideIcons.layoutDashboard, size: 48, color: AppColors.textDisabled),
+          Icon(
+            LucideIcons.layoutDashboard,
+            size: 48,
+            color: AppColors.textDisabled,
+          ),
           const SizedBox(height: 16),
           Text(
             'Select an endpoint or open a flow',
@@ -207,8 +227,11 @@ class _ProjectSelectionViewState extends State<_ProjectSelectionView> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProjectProvider>();
-    final projects = provider.projects.where((p) =>
-        p.name.toLowerCase().contains(_searchCtrl.text.toLowerCase())).toList();
+    final projects = provider.projects
+        .where(
+          (p) => p.name.toLowerCase().contains(_searchCtrl.text.toLowerCase()),
+        )
+        .toList();
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.xl),
@@ -248,9 +271,18 @@ class _ProjectSelectionViewState extends State<_ProjectSelectionView> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(LucideIcons.folderX, size: 48, color: AppColors.textDisabled),
+                    Icon(
+                      LucideIcons.folderX,
+                      size: 48,
+                      color: AppColors.textDisabled,
+                    ),
                     const SizedBox(height: 16),
-                    Text('No projects found', style: AppTypography.body.copyWith(color: AppColors.textSecondary)),
+                    Text(
+                      'No projects found',
+                      style: AppTypography.body.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -273,7 +305,10 @@ class _ProjectSelectionViewState extends State<_ProjectSelectionView> {
               ),
             ),
           const SizedBox(height: 32),
-          Text('Recent Activity', style: AppTypography.heading.copyWith(fontSize: 18)),
+          Text(
+            'Recent Activity',
+            style: AppTypography.heading.copyWith(fontSize: 18),
+          ),
           const SizedBox(height: 16),
           const Expanded(flex: 1, child: _RecentActivitySummary()),
         ],
@@ -286,7 +321,10 @@ class _ProjectSelectionViewState extends State<_ProjectSelectionView> {
       context,
       onCreate: (name, description) async {
         final provider = context.read<ProjectProvider>();
-        final project = await provider.createProject(name: name, description: description);
+        final project = await provider.createProject(
+          name: name,
+          description: description,
+        );
         await provider.selectProject(project);
       },
     );
@@ -325,15 +363,20 @@ class _ProjectCardState extends State<_ProjectCard> {
         child: TweenAnimationBuilder<double>(
           duration: AppDurations.short,
           tween: Tween(begin: 1.0, end: _isPressed ? 0.98 : 1.0),
-          builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
+          builder: (context, scale, child) =>
+              Transform.scale(scale: scale, child: child),
           child: AnimatedContainer(
             duration: AppDurations.short,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: _isHovered ? AppColors.hoverItem : AppColors.sidebarBackground,
+              color: _isHovered
+                  ? AppColors.hoverItem
+                  : AppColors.sidebarBackground,
               borderRadius: AppRadius.br6,
               border: Border.all(
-                color: _isHovered ? AppColors.accent.withValues(alpha: 0.5) : AppColors.border,
+                color: _isHovered
+                    ? AppColors.accent.withValues(alpha: 0.5)
+                    : AppColors.border,
               ),
             ),
             child: Column(
@@ -341,14 +384,20 @@ class _ProjectCardState extends State<_ProjectCard> {
               children: [
                 Text(
                   widget.project.name,
-                  style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+                  style: AppTypography.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  widget.project.description.isEmpty ? 'No description' : widget.project.description,
-                  style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                  widget.project.description.isEmpty
+                      ? 'No description'
+                      : widget.project.description,
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

@@ -73,7 +73,6 @@ class ResultsProvider extends ChangeNotifier {
     if (isCompleted) {
       stopChart();
     } else {
-
       if (_refreshTimer == null || !_refreshTimer!.isActive) {
         _refreshTimer = Timer.periodic(const Duration(seconds: 1), (_) {
           _updateChartAndNotify();
@@ -133,7 +132,6 @@ class ResultsProvider extends ChangeNotifier {
       }
       _updateTotalsIncremental(processingLogs);
     } else {
-
       _rpsBuckets.clear();
       _rtBuckets.clear();
       _lastPlottedSecond = -1;
@@ -248,7 +246,6 @@ class ResultsProvider extends ChangeNotifier {
 
     if (_lastPlottedSecond == -1) {
       _lastPlottedSecond = lastCompletedSecond - 61;
-
     }
 
     bool addedNewPoints = false;
@@ -277,8 +274,9 @@ class ResultsProvider extends ChangeNotifier {
     if (_runStartTime != null && _totalRequests > 0) {
       final elapsedSeconds =
           DateTime.now().difference(_runStartTime!).inMilliseconds / 1000.0;
-      _requestsPerSecond =
-          elapsedSeconds > 0 ? _totalRequests / elapsedSeconds : 0;
+      _requestsPerSecond = elapsedSeconds > 0
+          ? _totalRequests / elapsedSeconds
+          : 0;
     } else {
       _requestsPerSecond = 0;
     }
@@ -293,7 +291,6 @@ class ResultsProvider extends ChangeNotifier {
   }
 
   void _cleanupOldBuckets(int currentSecond) {
-
     final cutoff = currentSecond - 120;
     _rpsBuckets.removeWhere((k, v) => k < cutoff);
     _rtBuckets.removeWhere((k, v) => k < cutoff);

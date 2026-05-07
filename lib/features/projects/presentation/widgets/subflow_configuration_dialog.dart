@@ -17,7 +17,8 @@ class SubflowConfigurationDialog extends StatefulWidget {
       _SubflowConfigurationDialogState();
 }
 
-class _SubflowConfigurationDialogState extends State<SubflowConfigurationDialog> {
+class _SubflowConfigurationDialogState
+    extends State<SubflowConfigurationDialog> {
   final TextEditingController _searchController = TextEditingController();
   List<Flow> _filteredFlows = [];
   Timer? _debounce;
@@ -34,7 +35,9 @@ class _SubflowConfigurationDialogState extends State<SubflowConfigurationDialog>
 
     final flowProvider = context.read<FlowProvider>();
     final flows = flowProvider.flows;
-    final found = flows.where((f) => f.id.toString() == widget.initialFlowId).firstOrNull;
+    final found = flows
+        .where((f) => f.id.toString() == widget.initialFlowId)
+        .firstOrNull;
 
     if (found != null) {
       setState(() {
@@ -84,7 +87,9 @@ class _SubflowConfigurationDialogState extends State<SubflowConfigurationDialog>
         children: [
           Text(
             'Select a flow to execute as a subflow.',
-            style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 20),
           PilotInput(
@@ -105,10 +110,8 @@ class _SubflowConfigurationDialogState extends State<SubflowConfigurationDialog>
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: _filteredFlows.length,
-                separatorBuilder: (context, index) => Divider(
-                  height: 1,
-                  color: AppColors.border,
-                ),
+                separatorBuilder: (context, index) =>
+                    Divider(height: 1, color: AppColors.border),
                 itemBuilder: (context, index) {
                   final flow = _filteredFlows[index];
                   return ListTile(

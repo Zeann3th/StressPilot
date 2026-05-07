@@ -25,7 +25,13 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   }) {
-    _log(message, level: LogLevel.debug, name: name, error: error, stackTrace: stackTrace);
+    _log(
+      message,
+      level: LogLevel.debug,
+      name: name,
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 
   static void info(
@@ -34,7 +40,13 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   }) {
-    _log(message, level: LogLevel.info, name: name, error: error, stackTrace: stackTrace);
+    _log(
+      message,
+      level: LogLevel.info,
+      name: name,
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 
   static void warning(
@@ -43,7 +55,13 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   }) {
-    _log(message, level: LogLevel.warning, name: name, error: error, stackTrace: stackTrace);
+    _log(
+      message,
+      level: LogLevel.warning,
+      name: name,
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 
   static void error(
@@ -52,7 +70,13 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   }) {
-    _log(message, level: LogLevel.error, name: name, error: error, stackTrace: stackTrace);
+    _log(
+      message,
+      level: LogLevel.error,
+      name: name,
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 
   static void critical(
@@ -61,7 +85,13 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   }) {
-    _log(message, level: LogLevel.critical, name: name, error: error, stackTrace: stackTrace);
+    _log(
+      message,
+      level: LogLevel.critical,
+      name: name,
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 
   static void _log(
@@ -86,17 +116,20 @@ class AppLogger {
   }
 
   static Future<T> measure<T>(
-      String operation,
-      Future<T> Function() function, {
-        String? name,
-      }) async {
+    String operation,
+    Future<T> Function() function, {
+    String? name,
+  }) async {
     final stopwatch = Stopwatch()..start();
     info('Starting: $operation', name: name);
 
     try {
       final result = await function();
       stopwatch.stop();
-      info('Completed: $operation in ${stopwatch.elapsedMilliseconds}ms', name: name);
+      info(
+        'Completed: $operation in ${stopwatch.elapsedMilliseconds}ms',
+        name: name,
+      );
       return result;
     } catch (e, st) {
       stopwatch.stop();

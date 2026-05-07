@@ -14,8 +14,9 @@ class RunProvider extends ChangeNotifier {
     syncRunningRuns();
   }
 
-  bool get isAnyRunRunning => _runningRuns.values.any((run) =>
-  run.status == 'RUNNING' || run.status == 'STARTING');
+  bool get isAnyRunRunning => _runningRuns.values.any(
+    (run) => run.status == 'RUNNING' || run.status == 'STARTING',
+  );
 
   List<Run> get runningRuns => _runningRuns.values.toList();
 
@@ -28,8 +29,9 @@ class RunProvider extends ChangeNotifier {
   Future<void> syncRunningRuns() async {
     try {
       final allRuns = await _runRepository.getRuns();
-      final running = allRuns.where((run) =>
-      run.status == 'RUNNING' || run.status == 'STARTING');
+      final running = allRuns.where(
+        (run) => run.status == 'RUNNING' || run.status == 'STARTING',
+      );
 
       for (var run in running) {
         if (!_trackedRunIds.contains(run.id)) {
@@ -69,7 +71,8 @@ class RunProvider extends ChangeNotifier {
               title: run.status == 'COMPLETED'
                   ? 'Stress Test Completed'
                   : 'Stress Test Aborted',
-              body: 'Run #$runId for Flow #${run.flowId} has ${run.status.toLowerCase()}.',
+              body:
+                  'Run #$runId for Flow #${run.flowId} has ${run.status.toLowerCase()}.',
             );
             notification.show();
           } else {

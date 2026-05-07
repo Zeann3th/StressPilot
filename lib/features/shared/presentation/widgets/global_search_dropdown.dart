@@ -10,7 +10,8 @@ import 'package:stress_pilot/core/network/http_client.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart';
 import 'package:stress_pilot/features/projects/data/repositories/project_repository_impl.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart' as flow_domain;
+import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+    as flow_domain;
 import 'package:stress_pilot/features/projects/domain/models/project.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
@@ -85,7 +86,10 @@ class _GlobalSearchDropdownState extends State<GlobalSearchDropdown> {
     }
 
     setState(() => _isLoading = true);
-    _debounce = Timer(const Duration(milliseconds: 350), () => _search(query.trim()));
+    _debounce = Timer(
+      const Duration(milliseconds: 350),
+      () => _search(query.trim()),
+    );
   }
 
   Future<void> _search(String query) async {
@@ -121,7 +125,9 @@ class _GlobalSearchDropdownState extends State<GlobalSearchDropdown> {
         queryParameters: {'name': query, 'page': 0, 'size': 5},
       );
       final content = response.data['data']['content'] as List? ?? [];
-      return content.map((e) => Project.fromJson(e as Map<String, dynamic>)).toList();
+      return content
+          .map((e) => Project.fromJson(e as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -134,7 +140,9 @@ class _GlobalSearchDropdownState extends State<GlobalSearchDropdown> {
         queryParameters: {'name': query, 'page': 0, 'size': 5},
       );
       final content = response.data['data']['content'] as List? ?? [];
-      return content.map((e) => flow_domain.Flow.fromJson(e as Map<String, dynamic>)).toList();
+      return content
+          .map((e) => flow_domain.Flow.fromJson(e as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -147,7 +155,9 @@ class _GlobalSearchDropdownState extends State<GlobalSearchDropdown> {
         queryParameters: {'name': query, 'page': 0, 'size': 5},
       );
       final content = response.data['data']['content'] as List? ?? [];
-      return content.map((e) => Endpoint.fromJson(e as Map<String, dynamic>)).toList();
+      return content
+          .map((e) => Endpoint.fromJson(e as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -222,7 +232,9 @@ class _GlobalSearchDropdownState extends State<GlobalSearchDropdown> {
     final flowProvider = context.read<FlowProvider>();
 
     try {
-      final project = await ProjectRepositoryImpl().getProjectDetail(flow.projectId);
+      final project = await ProjectRepositoryImpl().getProjectDetail(
+        flow.projectId,
+      );
       if (!mounted) return;
       await projectProvider.selectProject(project);
       await flowProvider.selectFlow(flow);
@@ -238,7 +250,9 @@ class _GlobalSearchDropdownState extends State<GlobalSearchDropdown> {
     final projectProvider = context.read<ProjectProvider>();
 
     try {
-      final project = await ProjectRepositoryImpl().getProjectDetail(endpoint.projectId);
+      final project = await ProjectRepositoryImpl().getProjectDetail(
+        endpoint.projectId,
+      );
       if (!mounted) return;
       await projectProvider.selectProject(project);
       AppNavigator.pushNamed(AppRouter.workspaceRoute);
@@ -259,10 +273,7 @@ class _GlobalSearchDropdownState extends State<GlobalSearchDropdown> {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: AppRadius.br8,
-          border: Border.all(
-            color: borderColor,
-            width: _isFocused ? 2 : 1,
-          ),
+          border: Border.all(color: borderColor, width: _isFocused ? 2 : 1),
           boxShadow: _isFocused
               ? [
                   BoxShadow(
@@ -283,10 +294,14 @@ class _GlobalSearchDropdownState extends State<GlobalSearchDropdown> {
                 controller: _controller,
                 focusNode: _focusNode,
                 onChanged: _onChanged,
-                style: AppTypography.body.copyWith(color: AppColors.textPrimary),
+                style: AppTypography.body.copyWith(
+                  color: AppColors.textPrimary,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Search projects, flows, endpoints...',
-                  hintStyle: AppTypography.body.copyWith(color: AppColors.textMuted),
+                  hintStyle: AppTypography.body.copyWith(
+                    color: AppColors.textMuted,
+                  ),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -340,12 +355,16 @@ class _SearchDropdownPanel extends StatelessWidget {
     if (results.projects.isNotEmpty) {
       sections.add(_SectionLabel(label: 'Projects', icon: LucideIcons.folder));
       for (final project in results.projects) {
-        sections.add(NavigationItem(
-          title: project.name,
-          subtitle: project.description.isNotEmpty ? project.description : null,
-          icon: LucideIcons.folder,
-          onTap: () => onProjectTap(project),
-        ));
+        sections.add(
+          NavigationItem(
+            title: project.name,
+            subtitle: project.description.isNotEmpty
+                ? project.description
+                : null,
+            icon: LucideIcons.folder,
+            onTap: () => onProjectTap(project),
+          ),
+        );
       }
     }
 
@@ -353,12 +372,14 @@ class _SearchDropdownPanel extends StatelessWidget {
       if (sections.isNotEmpty) sections.add(_Divider());
       sections.add(_SectionLabel(label: 'Flows', icon: LucideIcons.gitBranch));
       for (final flow in results.flows) {
-        sections.add(NavigationItem(
-          title: flow.name,
-          subtitle: flow.description,
-          icon: LucideIcons.gitBranch,
-          onTap: () => onFlowTap(flow),
-        ));
+        sections.add(
+          NavigationItem(
+            title: flow.name,
+            subtitle: flow.description,
+            icon: LucideIcons.gitBranch,
+            onTap: () => onFlowTap(flow),
+          ),
+        );
       }
     }
 
@@ -366,13 +387,18 @@ class _SearchDropdownPanel extends StatelessWidget {
       if (sections.isNotEmpty) sections.add(_Divider());
       sections.add(_SectionLabel(label: 'Endpoints', icon: LucideIcons.zap));
       for (final endpoint in results.endpoints) {
-        sections.add(NavigationItem(
-          title: endpoint.name,
-          subtitle: endpoint.url ?? endpoint.grpcServiceName ?? endpoint.graphqlOperationType,
-          badge: endpoint.type,
-          icon: LucideIcons.zap,
-          onTap: () => onEndpointTap(endpoint),
-        ));
+        sections.add(
+          NavigationItem(
+            title: endpoint.name,
+            subtitle:
+                endpoint.url ??
+                endpoint.grpcServiceName ??
+                endpoint.graphqlOperationType,
+            badge: endpoint.type,
+            icon: LucideIcons.zap,
+            onTap: () => onEndpointTap(endpoint),
+          ),
+        );
       }
     }
 
@@ -381,10 +407,7 @@ class _SearchDropdownPanel extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Center(
-            child: Text(
-              'No results found',
-              style: AppTypography.caption,
-            ),
+            child: Text('No results found', style: AppTypography.caption),
           ),
         ),
       );

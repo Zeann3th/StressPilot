@@ -126,14 +126,19 @@ class _ProjectTableRowState extends State<_ProjectTableRow> {
         child: TweenAnimationBuilder<double>(
           duration: AppDurations.short,
           tween: Tween(begin: 1.0, end: _isPressed ? 0.99 : 1.0),
-          builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
+          builder: (context, scale, child) =>
+              Transform.scale(scale: scale, child: child),
           child: AnimatedContainer(
             duration: AppDurations.micro,
             decoration: BoxDecoration(
-              color: _isHovered ? AppColors.activeItem.withValues(alpha: 0.5) : surface,
+              color: _isHovered
+                  ? AppColors.activeItem.withValues(alpha: 0.5)
+                  : surface,
               borderRadius: AppRadius.br6,
               border: Border.all(
-                color: _isHovered ? AppColors.accent.withValues(alpha: 0.3) : border,
+                color: _isHovered
+                    ? AppColors.accent.withValues(alpha: 0.3)
+                    : border,
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -160,7 +165,9 @@ class _ProjectTableRowState extends State<_ProjectTableRow> {
                 ),
                 Expanded(
                   child: Text(
-                    widget.project.description.isEmpty ? 'No description' : widget.project.description,
+                    widget.project.description.isEmpty
+                        ? 'No description'
+                        : widget.project.description,
                     style: AppTypography.body.copyWith(
                       color: AppColors.textSecondary,
                     ),

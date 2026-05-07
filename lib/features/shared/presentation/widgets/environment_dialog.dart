@@ -78,7 +78,9 @@ class _EnvironmentManagerDialogState extends State<EnvironmentManagerDialog> {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: AppColors.elevatedSurface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(8),
+              ),
               border: Border(bottom: BorderSide(color: AppColors.border)),
             ),
             child: Row(

@@ -36,16 +36,16 @@ class Schedule {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'flowId': flowId,
-        'quartzExpr': quartzExpr,
-        'enabled': enabled,
-        'threads': threads,
-        'duration': duration,
-        'rampUp': rampUp,
-        'createdAt': createdAt.toIso8601String(),
-        'updatedAt': updatedAt.toIso8601String(),
-      };
+    'id': id,
+    'flowId': flowId,
+    'quartzExpr': quartzExpr,
+    'enabled': enabled,
+    'threads': threads,
+    'duration': duration,
+    'rampUp': rampUp,
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
+  };
 
   Schedule copyWith({
     int? flowId,
@@ -87,11 +87,11 @@ class CreateScheduleRequest {
   });
 
   Map<String, dynamic> toJson() => {
-        'flowId': flowId,
-        'quartzExpr': quartzExpr,
-        'threads': threads,
-        'duration': duration,
-        'rampUp': rampUp,
-        'enabled': enabled,
-      };
+    'flowId': flowId,
+    'quartzExpr': quartzExpr,
+    'threads': threads,
+    'duration': duration,
+    'rampUp': rampUp,
+    'enabled': enabled,
+  };
 }

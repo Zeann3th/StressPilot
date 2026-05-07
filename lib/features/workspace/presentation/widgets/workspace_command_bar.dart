@@ -22,7 +22,6 @@ class WorkspaceCommandBar extends StatelessWidget {
       color: Colors.transparent,
       child: Row(
         children: [
-
           _BackButton(
             onTap: () {
               Navigator.of(context).pushReplacement(

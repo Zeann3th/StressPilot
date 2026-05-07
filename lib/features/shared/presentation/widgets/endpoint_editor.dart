@@ -21,7 +21,8 @@ class EndpointEditor extends StatefulWidget {
   State<EndpointEditor> createState() => _EndpointEditorState();
 }
 
-class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStateMixin {
+class _EndpointEditorState extends State<EndpointEditor>
+    with TickerProviderStateMixin {
   late TextEditingController _urlCtrl;
   late String _method;
   late TextEditingController _bodyCtrl;
@@ -73,20 +74,30 @@ class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStat
       if (widget.endpoint.body is String) {
         bodyText = widget.endpoint.body;
       } else {
-        bodyText = const JsonEncoder.withIndent('  ').convert(widget.endpoint.body);
+        bodyText = const JsonEncoder.withIndent(
+          '  ',
+        ).convert(widget.endpoint.body);
       }
     }
     _bodyCtrl = TextEditingController(text: bodyText);
-    _successConditionCtrl = TextEditingController(text: widget.endpoint.successCondition ?? '');
+    _successConditionCtrl = TextEditingController(
+      text: widget.endpoint.successCondition ?? '',
+    );
 
     if (widget.endpoint.httpHeaders != null) {
-      widget.endpoint.httpHeaders!.forEach((k, v) => _headers[k] = v.toString());
+      widget.endpoint.httpHeaders!.forEach(
+        (k, v) => _headers[k] = v.toString(),
+      );
     }
     if (widget.endpoint.httpParameters != null) {
-      widget.endpoint.httpParameters!.forEach((k, v) => _params[k] = v.toString());
+      widget.endpoint.httpParameters!.forEach(
+        (k, v) => _params[k] = v.toString(),
+      );
     }
     if (widget.endpoint.variables != null) {
-      widget.endpoint.variables!.forEach((k, v) => _variables[k] = v.toString());
+      widget.endpoint.variables!.forEach(
+        (k, v) => _variables[k] = v.toString(),
+      );
     }
 
     _reqTabCtrl = TabController(length: 4, vsync: this);
@@ -100,13 +111,16 @@ class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStat
   void _startTimer() {
     _executionTimer?.cancel();
     _elapsedMsNotifier.value = 0;
-    _executionTimer = async_timer.Timer.periodic(const Duration(milliseconds: 10), (timer) {
-      if (mounted) {
-        _elapsedMsNotifier.value += 10;
-      } else {
-        timer.cancel();
-      }
-    });
+    _executionTimer = async_timer.Timer.periodic(
+      const Duration(milliseconds: 10),
+      (timer) {
+        if (mounted) {
+          _elapsedMsNotifier.value += 10;
+        } else {
+          timer.cancel();
+        }
+      },
+    );
   }
 
   void _stopTimer() {
@@ -125,7 +139,8 @@ class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStat
     final cachedResult = provider.getExecutionResult(widget.endpoint.id);
     if (cachedResult != null) {
       _response = cachedResult;
-      final responseData = cachedResult.containsKey('data') && cachedResult['data'] is Map
+      final responseData =
+          cachedResult.containsKey('data') && cachedResult['data'] is Map
           ? cachedResult['data'] as Map<String, dynamic>
           : cachedResult;
       _statusCode = responseData['statusCode'];
@@ -138,7 +153,10 @@ class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStat
 
   void _queueSync() {
     _syncTimer?.cancel();
-    _syncTimer = async_timer.Timer(const Duration(milliseconds: 500), _syncToProvider);
+    _syncTimer = async_timer.Timer(
+      const Duration(milliseconds: 500),
+      _syncToProvider,
+    );
   }
 
   void _syncToProvider() {
@@ -162,7 +180,10 @@ class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStat
       'successCondition': _successConditionCtrl.text,
     };
 
-    context.read<EndpointProvider>().updateTransientState(widget.endpoint.id, transientData);
+    context.read<EndpointProvider>().updateTransientState(
+      widget.endpoint.id,
+      transientData,
+    );
   }
 
   void _handleUrlChanged(String value) {
@@ -172,10 +193,12 @@ class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStat
       if (value.trim().toLowerCase().startsWith('curl ')) {
         final data = CurlParser.parse(value);
         setState(() {
-          if (data.url != null && data.url!.isNotEmpty) _urlCtrl.text = data.url!;
+          if (data.url != null && data.url!.isNotEmpty)
+            _urlCtrl.text = data.url!;
           if (data.method != null) _method = data.method!;
           if (data.headers != null) _headers.addAll(data.headers!);
-          if (data.body != null && data.body!.isNotEmpty) _bodyCtrl.text = data.body!;
+          if (data.body != null && data.body!.isNotEmpty)
+            _bodyCtrl.text = data.body!;
         });
         _queueSync();
       }
@@ -215,7 +238,11 @@ class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStat
       curl += ' \\\n  -H "$key: $value"';
     });
 
-    if (body.isNotEmpty && (method == 'POST' || method == 'PUT' || method == 'PATCH' || method == 'DELETE')) {
+    if (body.isNotEmpty &&
+        (method == 'POST' ||
+            method == 'PUT' ||
+            method == 'PATCH' ||
+            method == 'DELETE')) {
       final escapedBody = body.replaceAll("'", "'\\''");
       curl += " \\\n  -d '$escapedBody'";
     }
@@ -297,7 +324,10 @@ class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStat
         'projectId': widget.endpoint.projectId,
       };
 
-      await context.read<EndpointProvider>().updateEndpoint(widget.endpoint.id, data);
+      await context.read<EndpointProvider>().updateEndpoint(
+        widget.endpoint.id,
+        data,
+      );
       if (mounted) PilotToast.show(context, 'Saved');
     } catch (e) {
       if (mounted) PilotToast.show(context, 'Error: $e', isError: true);
@@ -314,7 +344,8 @@ class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStat
       onKeyEvent: (event) {
         if (event is KeyDownEvent &&
             event.logicalKey == LogicalKeyboardKey.keyF &&
-            (HardwareKeyboard.instance.isControlPressed || HardwareKeyboard.instance.isMetaPressed)) {
+            (HardwareKeyboard.instance.isControlPressed ||
+                HardwareKeyboard.instance.isMetaPressed)) {
           setState(() {
             _showSearch = !_showSearch;
             if (_showSearch) {
@@ -379,13 +410,16 @@ class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStat
                       EndpointEditorResponsePanel(
                         response: _response,
                         showRaw: _showRaw,
-                        isExecuting: endpointProvider.isEndpointExecuting(widget.endpoint.id),
+                        isExecuting: endpointProvider.isEndpointExecuting(
+                          widget.endpoint.id,
+                        ),
                         elapsedMsNotifier: _elapsedMsNotifier,
                         statusCode: _statusCode,
                         responseTime: _responseTime,
                         isSuccess: _isSuccess,
                         onToggleRaw: () => setState(() => _showRaw = !_showRaw),
-                        onClose: () => endpointProvider.setResponsePanelVisible(false),
+                        onClose: () =>
+                            endpointProvider.setResponsePanelVisible(false),
                         heightNotifier: _responsePanelHeight,
                         maxHeight: constraints.maxHeight - 100.0,
                         showSearch: _showSearch,
@@ -393,15 +427,26 @@ class _EndpointEditorState extends State<EndpointEditor> with TickerProviderStat
                         searchFocusNode: _searchFocusNode,
                         currentSearchMatchIndex: _currentSearchMatchIndex,
                         totalMatchesCount: _totalMatchesCount,
-                        onSearchChanged: (v) => setState(() => _currentSearchMatchIndex = 0),
+                        onSearchChanged: (v) =>
+                            setState(() => _currentSearchMatchIndex = 0),
                         onSearchNext: () {
                           if (_totalMatchesCount > 0) {
-                            setState(() => _currentSearchMatchIndex = (_currentSearchMatchIndex + 1) % _totalMatchesCount);
+                            setState(
+                              () => _currentSearchMatchIndex =
+                                  (_currentSearchMatchIndex + 1) %
+                                  _totalMatchesCount,
+                            );
                           }
                         },
                         onSearchPrev: () {
                           if (_totalMatchesCount > 0) {
-                            setState(() => _currentSearchMatchIndex = (_currentSearchMatchIndex - 1 + _totalMatchesCount) % _totalMatchesCount);
+                            setState(
+                              () => _currentSearchMatchIndex =
+                                  (_currentSearchMatchIndex -
+                                      1 +
+                                      _totalMatchesCount) %
+                                  _totalMatchesCount,
+                            );
                           }
                         },
                         onCloseSearch: () => setState(() {

@@ -47,10 +47,7 @@ class RealtimeChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: AppTypography.heading.copyWith(fontSize: 13),
-          ),
+          Text(title, style: AppTypography.heading.copyWith(fontSize: 13)),
           const SizedBox(height: AppSpacing.xl),
           Expanded(
             child: data.isEmpty

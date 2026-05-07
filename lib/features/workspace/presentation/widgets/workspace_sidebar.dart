@@ -567,16 +567,17 @@ class _EndpointRowState extends State<_EndpointRow> {
               decoration: BoxDecoration(
                 color: widget.isSelected
                     ? (widget.isFocused
-                        ? AppColors.activeItem
-                        : AppColors.activeItem.withValues(alpha: 0.5))
+                          ? AppColors.activeItem
+                          : AppColors.activeItem.withValues(alpha: 0.5))
                     : (_isHovered ? AppColors.hoverItem : Colors.transparent),
                 borderRadius: AppRadius.br4,
               ),
               child: Row(
                 children: [
                   Opacity(
-                    opacity:
-                        (widget.isSelected && !widget.isFocused) ? 0.5 : 1.0,
+                    opacity: (widget.isSelected && !widget.isFocused)
+                        ? 0.5
+                        : 1.0,
                     child: _TypeBadge(type: type, color: typeColor),
                   ),
                   const SizedBox(width: 8),
@@ -586,8 +587,8 @@ class _EndpointRowState extends State<_EndpointRow> {
                       style: AppTypography.code.copyWith(
                         color: widget.isSelected
                             ? (widget.isFocused
-                                ? AppColors.textPrimary
-                                : AppColors.textSecondary)
+                                  ? AppColors.textPrimary
+                                  : AppColors.textSecondary)
                             : AppColors.textSecondary,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -729,8 +730,8 @@ class _FlowRowState extends State<_FlowRow> {
               decoration: BoxDecoration(
                 color: widget.isSelected
                     ? (widget.isFocused
-                        ? AppColors.activeItem
-                        : AppColors.activeItem.withValues(alpha: 0.5))
+                          ? AppColors.activeItem
+                          : AppColors.activeItem.withValues(alpha: 0.5))
                     : (_isHovered ? AppColors.hoverItem : Colors.transparent),
                 borderRadius: AppRadius.br4,
               ),
@@ -741,8 +742,8 @@ class _FlowRowState extends State<_FlowRow> {
                     size: 14,
                     color: widget.isSelected
                         ? (widget.isFocused
-                            ? AppColors.accent
-                            : AppColors.accent.withValues(alpha: 0.5))
+                              ? AppColors.accent
+                              : AppColors.accent.withValues(alpha: 0.5))
                         : AppColors.textSecondary,
                   ),
                   const SizedBox(width: 8),
@@ -752,8 +753,8 @@ class _FlowRowState extends State<_FlowRow> {
                       style: AppTypography.body.copyWith(
                         color: widget.isSelected
                             ? (widget.isFocused
-                                ? AppColors.textPrimary
-                                : AppColors.textSecondary)
+                                  ? AppColors.textPrimary
+                                  : AppColors.textSecondary)
                             : AppColors.textSecondary,
                       ),
                       overflow: TextOverflow.ellipsis,

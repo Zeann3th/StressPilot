@@ -26,12 +26,17 @@ class PluginSettingsProvider extends ChangeNotifier {
     try {
       _plugins = await _repository.listPlugins();
       if (_selectedPlugin != null) {
-
-        final stillExists = _plugins.any((p) => p.pluginId == _selectedPlugin!.pluginId);
+        final stillExists = _plugins.any(
+          (p) => p.pluginId == _selectedPlugin!.pluginId,
+        );
         if (!stillExists) _selectedPlugin = null;
       }
     } catch (e) {
-      AppLogger.error('Failed to load plugins', name: 'PluginSettingsProvider', error: e);
+      AppLogger.error(
+        'Failed to load plugins',
+        name: 'PluginSettingsProvider',
+        error: e,
+      );
       _error = e.toString();
     } finally {
       _isLoading = false;
@@ -49,7 +54,11 @@ class PluginSettingsProvider extends ChangeNotifier {
       await _repository.reloadPlugin(pluginId);
       await loadPlugins();
     } catch (e) {
-      AppLogger.error('Failed to reload plugin: $pluginId', name: 'PluginSettingsProvider', error: e);
+      AppLogger.error(
+        'Failed to reload plugin: $pluginId',
+        name: 'PluginSettingsProvider',
+        error: e,
+      );
       rethrow;
     }
   }
@@ -59,7 +68,11 @@ class PluginSettingsProvider extends ChangeNotifier {
       await _repository.reloadAllPlugins();
       await loadPlugins();
     } catch (e) {
-      AppLogger.error('Failed to reload all plugins', name: 'PluginSettingsProvider', error: e);
+      AppLogger.error(
+        'Failed to reload all plugins',
+        name: 'PluginSettingsProvider',
+        error: e,
+      );
       rethrow;
     }
   }

@@ -44,10 +44,7 @@ class MetricsCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  title,
-                  style: AppTypography.caption,
-                ),
+                Text(title, style: AppTypography.caption),
                 const SizedBox(height: 2),
                 Text(
                   value,

@@ -30,7 +30,10 @@ class _AppErrorBoundaryState extends State<AppErrorBoundary> {
   }
 
   void _recover() {
-    AppLogger.info('Recovering from error — rebuilding app', name: 'ErrorBoundary');
+    AppLogger.info(
+      'Recovering from error — rebuilding app',
+      name: 'ErrorBoundary',
+    );
     setState(() {
       _error = null;
       _rebuildKey++;
@@ -60,11 +63,19 @@ class _AppErrorBoundaryState extends State<AppErrorBoundary> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 48),
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.amber,
+                  size: 48,
+                ),
                 const SizedBox(height: 16),
                 const Text(
                   'Something went wrong',
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Padding(
@@ -89,9 +100,6 @@ class _AppErrorBoundaryState extends State<AppErrorBoundary> {
       );
     }
 
-    return KeyedSubtree(
-      key: ValueKey(_rebuildKey),
-      child: widget.child,
-    );
+    return KeyedSubtree(key: ValueKey(_rebuildKey), child: widget.child);
   }
 }

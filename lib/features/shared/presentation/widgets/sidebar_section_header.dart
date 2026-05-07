@@ -32,10 +32,7 @@ class SidebarSectionHeader extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(
-                label.toUpperCase(),
-                style: AppTypography.label,
-              ),
+              child: Text(label.toUpperCase(), style: AppTypography.label),
             ),
             trailing ?? const SizedBox.shrink(),
           ],

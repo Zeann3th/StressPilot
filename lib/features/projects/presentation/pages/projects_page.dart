@@ -48,10 +48,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
           AppNavBar(
             onToggleSidebar: _toggleSidebar,
             isSidebarOpen: _isSidebarOpen,
-            center: const SizedBox(
-              width: 400,
-              child: GlobalSearchDropdown(),
-            ),
+            center: const SizedBox(width: 400, child: GlobalSearchDropdown()),
           ),
           Expanded(
             child: Padding(
@@ -75,14 +72,21 @@ class _ProjectsPageState extends State<ProjectsPage> {
                               cursor: SystemMouseCursors.resizeColumn,
                               child: GestureDetector(
                                 onHorizontalDragUpdate: (details) {
-                                  _sidebarWidth.value = (_sidebarWidth.value + details.delta.dx)
-                                      .clamp(_minSidebarWidth, _maxSidebarWidth);
+                                  _sidebarWidth.value =
+                                      (_sidebarWidth.value + details.delta.dx)
+                                          .clamp(
+                                            _minSidebarWidth,
+                                            _maxSidebarWidth,
+                                          );
                                 },
                                 child: Container(
                                   width: 8,
                                   color: Colors.transparent,
                                   child: Center(
-                                    child: Container(width: 1, color: AppColors.divider),
+                                    child: Container(
+                                      width: 1,
+                                      color: AppColors.divider,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -93,7 +97,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       },
                     ),
                   ],
-                  
+
                   // Main Content: Recent Activity
                   Expanded(
                     child: PilotPanel(

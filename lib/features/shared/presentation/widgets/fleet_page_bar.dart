@@ -23,9 +23,7 @@ class FleetPageBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.baseBackground,
-        border: Border(
-          bottom: BorderSide(color: AppColors.border),
-        ),
+        border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Row(
         children: [
@@ -73,7 +71,9 @@ class _BackButtonState extends State<_BackButton> {
           duration: AppDurations.micro,
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           decoration: BoxDecoration(
-            color: _hovered ? AppColors.accent.withValues(alpha: 0.08) : Colors.transparent,
+            color: _hovered
+                ? AppColors.accent.withValues(alpha: 0.08)
+                : Colors.transparent,
             borderRadius: AppRadius.br4,
           ),
           child: Row(

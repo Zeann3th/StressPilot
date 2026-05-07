@@ -50,7 +50,8 @@ class EndpointProvider extends ChangeNotifier {
     _transientStates[endpointId] = state;
   }
 
-  Map<String, dynamic>? getTransientState(int endpointId) => _transientStates[endpointId];
+  Map<String, dynamic>? getTransientState(int endpointId) =>
+      _transientStates[endpointId];
 
   bool get isLoading => _isLoading;
   bool get isLoadingMore => _isLoadingMore;
@@ -60,14 +61,18 @@ class EndpointProvider extends ChangeNotifier {
 
   String? get error => _error;
 
-  Map<String, dynamic>? getExecutionResult(int endpointId) => _executionResults[endpointId];
+  Map<String, dynamic>? getExecutionResult(int endpointId) =>
+      _executionResults[endpointId];
 
   void clearExecutionResult(int endpointId) {
     _executionResults.remove(endpointId);
     notifyListeners();
   }
 
-  Future<void> loadEndpoints({required int projectId, int pageSize = 20}) async {
+  Future<void> loadEndpoints({
+    required int projectId,
+    int pageSize = 20,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -81,11 +86,12 @@ class EndpointProvider extends ChangeNotifier {
         await HttpClient.waitForBackend();
       }
 
-      final PagedResponse<Endpoint> page = await _endpointRepository.fetchEndpoints(
-        projectId: projectId,
-        page: _currentPage,
-        size: _pageSize,
-      );
+      final PagedResponse<Endpoint> page = await _endpointRepository
+          .fetchEndpoints(
+            projectId: projectId,
+            page: _currentPage,
+            size: _pageSize,
+          );
 
       _endpoints = page.content;
       _hasMore = _currentPage < (page.totalPages - 1);
@@ -106,18 +112,18 @@ class EndpointProvider extends ChangeNotifier {
 
     try {
       final nextPage = _currentPage + 1;
-      final PagedResponse<Endpoint> page = await _endpointRepository.fetchEndpoints(
-        projectId: projectId,
-        page: nextPage,
-        size: _pageSize,
-      );
+      final PagedResponse<Endpoint> page = await _endpointRepository
+          .fetchEndpoints(
+            projectId: projectId,
+            page: nextPage,
+            size: _pageSize,
+          );
 
       _endpoints.addAll(page.content);
       _currentPage = page.pageNumber;
       _hasMore = _currentPage < (page.totalPages - 1);
     } catch (e) {
       _error = e.toString();
-
     }
 
     _isLoadingMore = false;
@@ -220,7 +226,10 @@ class EndpointProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _endpointRepository.uploadEndpoints(filePath: filePath, projectId: projectId);
+      await _endpointRepository.uploadEndpoints(
+        filePath: filePath,
+        projectId: projectId,
+      );
       await loadEndpoints(projectId: projectId);
     } catch (e) {
       _error = e.toString();
@@ -283,5 +292,6 @@ class EndpointProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool isEndpointExecuting(int endpointId) => _cancelTokens.containsKey(endpointId);
+  bool isEndpointExecuting(int endpointId) =>
+      _cancelTokens.containsKey(endpointId);
 }

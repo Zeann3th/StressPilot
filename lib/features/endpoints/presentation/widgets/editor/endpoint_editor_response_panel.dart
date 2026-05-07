@@ -69,7 +69,10 @@ class EndpointEditorResponsePanel extends StatelessWidget {
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onVerticalDragUpdate: (d) {
-              heightNotifier.value = (heightNotifier.value - d.delta.dy).clamp(40.0, maxHeight);
+              heightNotifier.value = (heightNotifier.value - d.delta.dy).clamp(
+                40.0,
+                maxHeight,
+              );
             },
             child: Container(
               height: 8,
@@ -103,25 +106,50 @@ class EndpointEditorResponsePanel extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: surface,
-                        border: Border(bottom: BorderSide(color: border.withValues(alpha: 0.1))),
+                        border: Border(
+                          bottom: BorderSide(
+                            color: border.withValues(alpha: 0.1),
+                          ),
+                        ),
                       ),
                       child: Row(
                         children: [
-                          EditorTabButton(label: 'Response', active: !showRaw, onTap: onToggleRaw),
+                          EditorTabButton(
+                            label: 'Response',
+                            active: !showRaw,
+                            onTap: onToggleRaw,
+                          ),
                           const SizedBox(width: 4),
-                          EditorTabButton(label: 'Raw', active: showRaw, onTap: onToggleRaw),
+                          EditorTabButton(
+                            label: 'Raw',
+                            active: showRaw,
+                            onTap: onToggleRaw,
+                          ),
                           const Spacer(),
                           if (isExecuting)
                             ValueListenableBuilder<int>(
                               valueListenable: elapsedMsNotifier,
                               builder: (context, ms, _) {
-                                return Text('$ms ms', style: AppTypography.codeSm.copyWith(color: secondaryText));
+                                return Text(
+                                  '$ms ms',
+                                  style: AppTypography.codeSm.copyWith(
+                                    color: secondaryText,
+                                  ),
+                                );
                               },
                             )
                           else if (statusCode != null) ...[
-                            _StatusBadge(success: isSuccess ?? (statusCode! < 400), code: statusCode!),
+                            _StatusBadge(
+                              success: isSuccess ?? (statusCode! < 400),
+                              code: statusCode!,
+                            ),
                             const SizedBox(width: 10),
-                            Text('$responseTime ms', style: AppTypography.codeSm.copyWith(color: secondaryText)),
+                            Text(
+                              '$responseTime ms',
+                              style: AppTypography.codeSm.copyWith(
+                                color: secondaryText,
+                              ),
+                            ),
                           ],
                           const SizedBox(width: 8),
                           EditorIconButton(
@@ -135,14 +163,25 @@ class EndpointEditorResponsePanel extends StatelessWidget {
                     if (showSearch)
                       Container(
                         height: 38,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: surface,
-                          border: Border(bottom: BorderSide(color: border.withValues(alpha: 0.1))),
+                          border: Border(
+                            bottom: BorderSide(
+                              color: border.withValues(alpha: 0.1),
+                            ),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            Icon(LucideIcons.search, size: 14, color: secondaryText),
+                            Icon(
+                              LucideIcons.search,
+                              size: 14,
+                              color: secondaryText,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: TextField(
@@ -154,7 +193,10 @@ class EndpointEditorResponsePanel extends StatelessWidget {
                                   border: InputBorder.none,
                                   isDense: true,
                                 ),
-                                style: TextStyle(fontSize: 13, color: textColor),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: textColor,
+                                ),
                                 onChanged: onSearchChanged,
                                 onSubmitted: (_) {
                                   onSearchNext();
@@ -165,7 +207,11 @@ class EndpointEditorResponsePanel extends StatelessWidget {
                             if (totalMatchesCount > 0) ...[
                               Text(
                                 '${currentSearchMatchIndex + 1} / $totalMatchesCount',
-                                style: TextStyle(fontSize: 11, color: secondaryText, fontFamily: 'JetBrains Mono'),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: secondaryText,
+                                  fontFamily: 'JetBrains Mono',
+                                ),
                               ),
                               const SizedBox(width: 12),
                               EditorIconButton(
@@ -198,13 +244,16 @@ class EndpointEditorResponsePanel extends StatelessWidget {
                               child: showRaw
                                   ? SelectableText(
                                       _getRawResponse(response!),
-                                      style: AppTypography.code.copyWith(fontSize: 12),
+                                      style: AppTypography.code.copyWith(
+                                        fontSize: 12,
+                                      ),
                                     )
                                   : JsonViewer(
                                       json: _getResponseData(response!),
                                       searchQuery: searchController.text,
                                       activeMatchIndex: currentSearchMatchIndex,
-                                      onMatchesCountChanged: onMatchesCountChanged,
+                                      onMatchesCountChanged:
+                                          onMatchesCountChanged,
                                     ),
                             ),
                     ),
@@ -230,13 +279,15 @@ class EndpointEditorResponsePanel extends StatelessWidget {
 
       // Fallback: return outerData without metadata
       final cleaned = Map<String, dynamic>.from(outerData);
-      cleaned.removeWhere((k, _) => const {
-            'statusCode',
-            'success',
-            'responseTimeMs',
-            'message',
-            'rawResponse'
-          }.contains(k));
+      cleaned.removeWhere(
+        (k, _) => const {
+          'statusCode',
+          'success',
+          'responseTimeMs',
+          'message',
+          'rawResponse',
+        }.contains(k),
+      );
       return cleaned;
     }
     return r;
@@ -311,7 +362,12 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         success ? 'SUCCESS ($code)' : 'FAILED ($code)',
-        style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 10, letterSpacing: 0.5),
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w700,
+          fontSize: 10,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }
@@ -327,9 +383,16 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(LucideIcons.send, size: 32, color: secondaryText.withValues(alpha: 0.2)),
+          Icon(
+            LucideIcons.send,
+            size: 32,
+            color: secondaryText.withValues(alpha: 0.2),
+          ),
           const SizedBox(height: 12),
-          Text('Run endpoint to see results', style: TextStyle(color: secondaryText, fontSize: 13)),
+          Text(
+            'Run endpoint to see results',
+            style: TextStyle(color: secondaryText, fontSize: 13),
+          ),
         ],
       ),
     );
@@ -341,7 +404,12 @@ class EditorIconButton extends StatefulWidget {
   final VoidCallback onTap;
   final bool compact;
 
-  const EditorIconButton({super.key, required this.icon, required this.onTap, this.compact = false});
+  const EditorIconButton({
+    super.key,
+    required this.icon,
+    required this.onTap,
+    this.compact = false,
+  });
 
   @override
   State<EditorIconButton> createState() => _EditorIconButtonState();

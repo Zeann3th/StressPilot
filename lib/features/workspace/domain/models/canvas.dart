@@ -17,8 +17,12 @@ class CanvasNode {
     this.data = const {},
     this.width = 160,
     this.height = 90,
-  }) : actualWidth = type == FlowNodeType.branch ? 80 : (type == FlowNodeType.start ? 56 : width),
-       actualHeight = type == FlowNodeType.branch ? 80 : (type == FlowNodeType.start ? 56 : height);
+  }) : actualWidth = type == FlowNodeType.branch
+           ? 80
+           : (type == FlowNodeType.start ? 56 : width),
+       actualHeight = type == FlowNodeType.branch
+           ? 80
+           : (type == FlowNodeType.start ? 56 : height);
 
   final double actualWidth;
   final double actualHeight;
@@ -91,12 +95,12 @@ class CanvasConnection {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'sourceNodeId': sourceNodeId,
-        'targetNodeId': targetNodeId,
-        'sourceHandle': sourceHandle,
-        'type': type.toString().split('.').last,
-      };
+    'id': id,
+    'sourceNodeId': sourceNodeId,
+    'targetNodeId': targetNodeId,
+    'sourceHandle': sourceHandle,
+    'type': type.toString().split('.').last,
+  };
 
   factory CanvasConnection.fromJson(Map<String, dynamic> json) {
     final typeStr = json['type'];

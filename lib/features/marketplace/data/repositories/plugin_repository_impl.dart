@@ -66,6 +66,8 @@ class PluginRepositoryImpl implements PluginRepository {
   Future<List<PluginDescriptor>> listPlugins() async {
     final response = await _apiClient.get('/api/v1/plugins/list');
     final List<dynamic> data = response.data['data'] as List<dynamic>;
-    return data.map((e) => PluginDescriptor.fromJson(e as Map<String, dynamic>)).toList();
+    return data
+        .map((e) => PluginDescriptor.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 }

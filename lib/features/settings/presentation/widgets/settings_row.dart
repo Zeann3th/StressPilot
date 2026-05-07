@@ -61,7 +61,8 @@ class _SettingsRowState extends State<SettingsRow> {
       actions: [
         PilotButton.ghost(
           label: 'Cancel',
-          onPressed: () => Navigator.of(context, rootNavigator: true).pop(false),
+          onPressed: () =>
+              Navigator.of(context, rootNavigator: true).pop(false),
         ),
         PilotButton.primary(
           label: 'Confirm',
@@ -83,7 +84,9 @@ class _SettingsRowState extends State<SettingsRow> {
   Widget build(BuildContext context) {
     final textColor = AppColors.textPrimary;
 
-    final isBool = widget.value.toLowerCase() == 'true' || widget.value.toLowerCase() == 'false';
+    final isBool =
+        widget.value.toLowerCase() == 'true' ||
+        widget.value.toLowerCase() == 'false';
     final boolValue = widget.value.toLowerCase() == 'true';
 
     return MouseRegion(
@@ -136,46 +139,50 @@ class _SettingsRowState extends State<SettingsRow> {
                         child: Switch(
                           value: boolValue,
                           activeThumbColor: AppColors.accent,
-                          activeTrackColor: AppColors.accent.withValues(alpha: 0.2),
+                          activeTrackColor: AppColors.accent.withValues(
+                            alpha: 0.2,
+                          ),
                           onChanged: (val) => widget.onSave(val.toString()),
                         ),
                       )
                     : _isEditing
-                        ? Focus(
-                            onFocusChange: (hasFocus) {
-                              if (!hasFocus) _handleSubmission();
-                            },
-                            child: PilotInput(
-                              controller: _controller,
-                              autofocus: true,
-                              onSubmitted: (_) => _handleSubmission(),
+                    ? Focus(
+                        onFocusChange: (hasFocus) {
+                          if (!hasFocus) _handleSubmission();
+                        },
+                        child: PilotInput(
+                          controller: _controller,
+                          autofocus: true,
+                          onSubmitted: (_) => _handleSubmission(),
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              widget.value.isEmpty ? 'Not set' : widget.value,
+                              style: AppTypography.codeSm.copyWith(
+                                color: widget.value.isEmpty
+                                    ? AppColors.textMuted
+                                    : AppColors.accent,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.right,
                             ),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  widget.value.isEmpty ? 'Not set' : widget.value,
-                                  style: AppTypography.codeSm.copyWith(
-                                    color: widget.value.isEmpty
-                                        ? AppColors.textMuted
-                                        : AppColors.accent,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.right,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Icon(
-                                Icons.edit_rounded,
-                                size: 14,
-                                color: _isHovered ? AppColors.textSecondary : Colors.transparent,
-                              ),
-                            ],
                           ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.edit_rounded,
+                            size: 14,
+                            color: _isHovered
+                                ? AppColors.textSecondary
+                                : Colors.transparent,
+                          ),
+                        ],
+                      ),
               ),
             ],
           ),

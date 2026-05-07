@@ -9,22 +9,27 @@ import 'package:path/path.dart' as path;
 import 'package:stress_pilot/core/config/app_config.dart';
 import 'package:stress_pilot/core/system/logger.dart';
 
-final _kernel32 = Platform.isWindows ? DynamicLibrary.open('kernel32.dll') : null;
+final _kernel32 = Platform.isWindows
+    ? DynamicLibrary.open('kernel32.dll')
+    : null;
 
-final _openProcess = _kernel32?.lookupFunction<
-    IntPtr Function(Uint32, Bool, Uint32),
-    int Function(int, bool, int)>('OpenProcess');
+final _openProcess = _kernel32
+    ?.lookupFunction<
+      IntPtr Function(Uint32, Bool, Uint32),
+      int Function(int, bool, int)
+    >('OpenProcess');
 
-final _terminateProcess = _kernel32?.lookupFunction<
-    Bool Function(IntPtr, Uint32),
-    bool Function(int, int)>('TerminateProcess');
+final _terminateProcess = _kernel32
+    ?.lookupFunction<Bool Function(IntPtr, Uint32), bool Function(int, int)>(
+      'TerminateProcess',
+    );
 
-final _closeHandle = _kernel32?.lookupFunction<
-    Bool Function(IntPtr),
-    bool Function(int)>('CloseHandle');
+final _closeHandle = _kernel32
+    ?.lookupFunction<Bool Function(IntPtr), bool Function(int)>('CloseHandle');
 
 void _winTerminatePid(int pid) {
-  if (_openProcess == null || _terminateProcess == null || _closeHandle == null) return;
+  if (_openProcess == null || _terminateProcess == null || _closeHandle == null)
+    return;
   final handle = _openProcess!(0x0001, false, pid);
   if (handle == 0) return;
   try {
@@ -42,8 +47,10 @@ class PilotProcess {
 
   final List<String> outputBuffer = [];
 
-  final StreamController<String> _outputController = StreamController<String>.broadcast();
-  final StreamController<List<int>> _rawOutputController = StreamController<List<int>>.broadcast();
+  final StreamController<String> _outputController =
+      StreamController<String>.broadcast();
+  final StreamController<List<int>> _rawOutputController =
+      StreamController<List<int>>.broadcast();
 
   PilotProcess(this.name);
 
@@ -82,20 +89,21 @@ class ProcessManager {
   final Dio _dio;
 
   ProcessManager()
-      : _dio = Dio(
-    BaseOptions(
-      baseUrl: AppConfig.apiBaseUrl,
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 5),
-    ),
-  );
+    : _dio = Dio(
+        BaseOptions(
+          baseUrl: AppConfig.apiBaseUrl,
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ),
+      );
 
   bool get isDebugMode => kDebugMode;
 
   static Future<int?> _getJavaVersion(String javaPath) async {
     try {
-      final result = await Process.run(javaPath, ['-version'],
-          stderrEncoding: const SystemEncoding());
+      final result = await Process.run(javaPath, [
+        '-version',
+      ], stderrEncoding: const SystemEncoding());
 
       final output = result.stderr as String;
 
@@ -103,7 +111,6 @@ class ProcessManager {
       if (match != null) {
         final versionStr = match.group(1)!;
         if (versionStr == '1') {
-
           final subVersion = match.group(2);
           if (subVersion != null && subVersion.startsWith('.8')) {
             return 8;
@@ -127,7 +134,10 @@ class ProcessManager {
     try {
       return await _findBestSystemJava();
     } catch (e) {
-      AppLogger.warning('Smart Java search failed: $e. Falling back to system "java" command.', name: _logName);
+      AppLogger.warning(
+        'Smart Java search failed: $e. Falling back to system "java" command.',
+        name: _logName,
+      );
       return 'java';
     }
   }
@@ -154,7 +164,10 @@ class ProcessManager {
       if (version == null) continue;
 
       if (version == targetVersion) {
-        AppLogger.info('Found target Java $targetVersion at $p', name: _logName);
+        AppLogger.info(
+          'Found target Java $targetVersion at $p',
+          name: _logName,
+        );
         return p;
       }
 
@@ -165,16 +178,22 @@ class ProcessManager {
     }
 
     if (bestPath != null) {
-      AppLogger.info('Using best available Java ($bestVersion) at $bestPath', name: _logName);
+      AppLogger.info(
+        'Using best available Java ($bestVersion) at $bestPath',
+        name: _logName,
+      );
       return bestPath;
     }
 
-    throw Exception('No compatible Java version found (target: $targetVersion, minimum: $minVersion)');
+    throw Exception(
+      'No compatible Java version found (target: $targetVersion, minimum: $minVersion)',
+    );
   }
 
   List<String> _getWindowsJavaPaths() {
     final List<String> paths = [];
-    final programFiles = Platform.environment['ProgramFiles'] ?? 'C:\\Program Files';
+    final programFiles =
+        Platform.environment['ProgramFiles'] ?? 'C:\\Program Files';
     final javaDir = Directory(path.join(programFiles, 'Java'));
 
     if (javaDir.existsSync()) {
@@ -220,14 +239,20 @@ class ProcessManager {
   }
 
   Future<String> _getJsaPath() async {
-    final home = Platform.environment[Platform.isWindows ? 'USERPROFILE' : 'HOME'] ?? '';
-    final pilotHome = Platform.environment['PILOT_HOME'] ?? path.join(home, '.pilot');
+    final home =
+        Platform.environment[Platform.isWindows ? 'USERPROFILE' : 'HOME'] ?? '';
+    final pilotHome =
+        Platform.environment['PILOT_HOME'] ?? path.join(home, '.pilot');
     final jsaDir = path.join(pilotHome, 'core', 'scripts');
     await Directory(jsaDir).create(recursive: true);
     return path.join(jsaDir, 'app.jsa');
   }
 
-  Future<void> _generateJsa(String javaPath, String jarPath, String jsaPath) async {
+  Future<void> _generateJsa(
+    String javaPath,
+    String jarPath,
+    String jsaPath,
+  ) async {
     AppLogger.info('Generating AppCDS cache...', name: _logName);
     try {
       await Process.run(javaPath, [
@@ -239,7 +264,10 @@ class ProcessManager {
       if (await File(jsaPath).exists()) {
         AppLogger.info('AppCDS cache generated at $jsaPath', name: _logName);
       } else {
-        AppLogger.warning('AppCDS cache generation failed, will start without cache', name: _logName);
+        AppLogger.warning(
+          'AppCDS cache generation failed, will start without cache',
+          name: _logName,
+        );
       }
     } catch (e) {
       AppLogger.warning('AppCDS generation error: $e', name: _logName);
@@ -250,7 +278,9 @@ class ProcessManager {
     if (kDebugMode) {
       return path.join(Directory.current.path, 'assets', assetName);
     } else {
-      final String executableDir = File(Platform.resolvedExecutable).parent.path;
+      final String executableDir = File(
+        Platform.resolvedExecutable,
+      ).parent.path;
       return path.join(
         executableDir,
         'data',
@@ -270,12 +300,22 @@ class ProcessManager {
     try {
       final result = await Process.run('chmod', ['+x', filePath]);
       if (result.exitCode != 0) {
-        AppLogger.warning('Failed to make executable: $filePath (${result.stderr})', name: _logName);
+        AppLogger.warning(
+          'Failed to make executable: $filePath (${result.stderr})',
+          name: _logName,
+        );
       } else {
-        AppLogger.info('Successfully made executable: $filePath', name: _logName);
+        AppLogger.info(
+          'Successfully made executable: $filePath',
+          name: _logName,
+        );
       }
     } catch (e) {
-      AppLogger.warning('Error while making executable: $filePath', name: _logName, error: e);
+      AppLogger.warning(
+        'Error while making executable: $filePath',
+        name: _logName,
+        error: e,
+      );
     }
   }
 
@@ -292,7 +332,10 @@ class ProcessManager {
     final javaPath = await _getJavaExecutable();
     final workingDir = _getExecutableDir();
 
-    AppLogger.info('Starting backend: java=$javaPath, jar=$jarPath', name: _logName);
+    AppLogger.info(
+      'Starting backend: java=$javaPath, jar=$jarPath',
+      name: _logName,
+    );
 
     if (!await File(jarPath).exists()) {
       AppLogger.critical('JAR file not found at $jarPath', name: _logName);
@@ -335,7 +378,10 @@ class ProcessManager {
           AppLogger.error(data.trim(), name: 'backend.stderr');
         });
         process.exitCode.then((code) async {
-          AppLogger.error('Backend process exited with code: $code', name: _logName);
+          AppLogger.error(
+            'Backend process exited with code: $code',
+            name: _logName,
+          );
           _processes.remove('backend');
           if (onExit != null) {
             onExit(code);
@@ -348,7 +394,12 @@ class ProcessManager {
       AppLogger.info('Backend started (pid=${process.pid})', name: _logName);
       await _waitForHealth();
     } catch (e, st) {
-      AppLogger.critical('Failed to start backend', name: _logName, error: e, stackTrace: st);
+      AppLogger.critical(
+        'Failed to start backend',
+        name: _logName,
+        error: e,
+        stackTrace: st,
+      );
       rethrow;
     }
   }
@@ -371,17 +422,17 @@ class ProcessManager {
         .transform(utf8.decoder)
         .transform(const LineSplitter())
         .listen((line) {
-      p.addOutput(line);
-      AppLogger.info(line.trim(), name: '${p.name}.stdout');
-    });
+          p.addOutput(line);
+          AppLogger.info(line.trim(), name: '${p.name}.stdout');
+        });
 
     p.stderrSub = stderrBroadcast
         .transform(utf8.decoder)
         .transform(const LineSplitter())
         .listen((line) {
-      p.addOutput(line);
-      AppLogger.error(line.trim(), name: '${p.name}.stderr');
-    });
+          p.addOutput(line);
+          AppLogger.error(line.trim(), name: '${p.name}.stderr');
+        });
   }
 
   Future<void> stopProcess(String name) async {
@@ -406,7 +457,10 @@ class ProcessManager {
           ),
         );
         if (resp.statusCode != null) {
-          AppLogger.info('Backend up after ${i + 1} attempts (status: ${resp.statusCode})', name: _logName);
+          AppLogger.info(
+            'Backend up after ${i + 1} attempts (status: ${resp.statusCode})',
+            name: _logName,
+          );
           return;
         }
       } catch (_) {}
@@ -424,8 +478,10 @@ class ProcessManager {
 
     try {
       if (Platform.isWindows) {
-
-        final result = await Process.run('cmd', ['/c', 'netstat -ano | findstr :52000']);
+        final result = await Process.run('cmd', [
+          '/c',
+          'netstat -ano | findstr :52000',
+        ]);
         for (var line in result.stdout.toString().split('\n')) {
           if (line.contains('LISTENING')) {
             final pid = line.trim().split(RegExp(r'\s+')).last;
@@ -438,7 +494,7 @@ class ProcessManager {
         await Process.run('powershell', [
           '-NoProfile',
           '-Command',
-          'Get-CimInstance Win32_Process | Where-Object { \$_.CommandLine -like "*app.jar*" } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force }'
+          'Get-CimInstance Win32_Process | Where-Object { \$_.CommandLine -like "*app.jar*" } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force }',
         ]);
       }
     } catch (_) {}

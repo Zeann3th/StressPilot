@@ -90,7 +90,6 @@ class ShortcutParser {
   }
 
   static LogicalKeyboardKey? parseKey(String label) {
-
     return _keyMap[label] ?? _keyMap[label.toUpperCase()];
   }
 
@@ -114,8 +113,8 @@ class ShortcutParser {
     final isMetaPressed = HardwareKeyboard.instance.isMetaPressed;
 
     return hasControl == isControlPressed &&
-           hasShift == isShiftPressed &&
-           hasAlt == isAltPressed &&
-           hasMeta == isMetaPressed;
+        hasShift == isShiftPressed &&
+        hasAlt == isAltPressed &&
+        hasMeta == isMetaPressed;
   }
 }

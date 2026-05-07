@@ -21,7 +21,6 @@ class EnvironmentPage extends StatefulWidget {
 }
 
 class _EnvironmentPageState extends State<EnvironmentPage> {
-
   @override
   void initState() {
     super.initState();
@@ -36,9 +35,7 @@ class _EnvironmentPageState extends State<EnvironmentPage> {
       backgroundColor: AppColors.baseBackground,
       body: Column(
         children: [
-          const FleetPageBar(
-            title: 'Environment Settings',
-          ),
+          const FleetPageBar(title: 'Environment Settings'),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.md),

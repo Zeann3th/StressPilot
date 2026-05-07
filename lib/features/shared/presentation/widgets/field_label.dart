@@ -9,10 +9,7 @@ class FieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
-      child: Text(
-        text,
-        style: AppTypography.label,
-      ),
+      child: Text(text, style: AppTypography.label),
     );
   }
 }

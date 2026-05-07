@@ -28,7 +28,9 @@ class SchedulingProvider extends ChangeNotifier {
       _schedules = paged.content;
 
       if (_selectedSchedule != null) {
-        final stillExists = _schedules.indexWhere((s) => s.id == _selectedSchedule!.id);
+        final stillExists = _schedules.indexWhere(
+          (s) => s.id == _selectedSchedule!.id,
+        );
         if (stillExists != -1) {
           _selectedSchedule = _schedules[stillExists];
         } else {
@@ -36,7 +38,11 @@ class SchedulingProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      AppLogger.error('Failed to load schedules', name: 'SchedulingProvider', error: e);
+      AppLogger.error(
+        'Failed to load schedules',
+        name: 'SchedulingProvider',
+        error: e,
+      );
       _error = e.toString();
     } finally {
       _isLoading = false;
@@ -49,7 +55,10 @@ class SchedulingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveSchedule(Schedule schedule, {CreateScheduleRequest? createRequest}) async {
+  Future<void> saveSchedule(
+    Schedule schedule, {
+    CreateScheduleRequest? createRequest,
+  }) async {
     try {
       Schedule result;
       if (createRequest != null) {
@@ -69,7 +78,11 @@ class SchedulingProvider extends ChangeNotifier {
       _selectedSchedule = result;
       notifyListeners();
     } catch (e) {
-      AppLogger.error('Failed to save schedule', name: 'SchedulingProvider', error: e);
+      AppLogger.error(
+        'Failed to save schedule',
+        name: 'SchedulingProvider',
+        error: e,
+      );
       rethrow;
     }
   }
@@ -82,13 +95,16 @@ class SchedulingProvider extends ChangeNotifier {
       }
       await loadSchedules();
     } catch (e) {
-      AppLogger.error('Failed to delete schedule', name: 'SchedulingProvider', error: e);
+      AppLogger.error(
+        'Failed to delete schedule',
+        name: 'SchedulingProvider',
+        error: e,
+      );
       rethrow;
     }
   }
 
   void createNew() {
-
     _selectedSchedule = null;
     notifyListeners();
   }

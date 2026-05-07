@@ -34,7 +34,6 @@ import 'package:stress_pilot/core/window/window_manager.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 
 class AppRoot extends StatefulWidget {
-
   const AppRoot({super.key});
 
   @override
@@ -54,7 +53,10 @@ class _AppRootState extends State<AppRoot> {
 
   Future<void> _init() async {
     try {
-      AppLogger.info('Starting application initialization (non-blocking)', name: 'AppRoot');
+      AppLogger.info(
+        'Starting application initialization (non-blocking)',
+        name: 'AppRoot',
+      );
 
       // Core sync/fast initializations
       await getIt<ThemeManager>().initialize();
@@ -69,8 +71,10 @@ class _AppRootState extends State<AppRoot> {
         await getIt<ProcessManager>().startBackend(
           attachLogs: kDebugMode,
           onExit: (code) {
-            appStateManager.markFailed('Backend Process',
-                error: 'Process exited with code $code');
+            appStateManager.markFailed(
+              'Backend Process',
+              error: 'Process exited with code $code',
+            );
           },
         );
       });
@@ -80,13 +84,25 @@ class _AppRootState extends State<AppRoot> {
       });
 
       // Launch background processes
-      unawaited(appStateManager.recover('Backend Process').catchError((e) {
-        AppLogger.error('Backend background startup failed', name: 'AppRoot', error: e);
-      }));
+      unawaited(
+        appStateManager.recover('Backend Process').catchError((e) {
+          AppLogger.error(
+            'Backend background startup failed',
+            name: 'AppRoot',
+            error: e,
+          );
+        }),
+      );
 
-      unawaited(appStateManager.recover('Session Manager').catchError((e) {
-        AppLogger.error('Session background initialization failed', name: 'AppRoot', error: e);
-      }));
+      unawaited(
+        appStateManager.recover('Session Manager').catchError((e) {
+          AppLogger.error(
+            'Session background initialization failed',
+            name: 'AppRoot',
+            error: e,
+          );
+        }),
+      );
 
       if (mounted) {
         setState(() {
@@ -106,7 +122,6 @@ class _AppRootState extends State<AppRoot> {
 
       AppLogger.info('Application shell initialized', name: 'AppRoot');
     } catch (e, st) {
-
       AppLogger.critical(
         'Critical application initialization failed',
         name: 'AppRoot',
@@ -152,9 +167,7 @@ class _AppRootState extends State<AppRoot> {
         ChangeNotifierProvider<ResultsProvider>(
           create: (_) => getIt<ResultsProvider>(),
         ),
-        ChangeNotifierProvider<RunProvider>.value(
-          value: getIt<RunProvider>(),
-        ),
+        ChangeNotifierProvider<RunProvider>.value(value: getIt<RunProvider>()),
         ChangeNotifierProvider<ThemeManager>.value(
           value: getIt<ThemeManager>(),
         ),
@@ -170,7 +183,7 @@ class _AppRootState extends State<AppRoot> {
         ChangeNotifierProvider<SchedulingProvider>.value(
           value: getIt<SchedulingProvider>(),
         ),
-        ],
+      ],
 
       child: _initialized && !_hasError
           ? GlobalShortcutListener(
@@ -217,7 +230,9 @@ class _AppTheme extends StatelessWidget {
     final themeManager = context.watch<ThemeManager>();
 
     return ShadApp(
-      key: ValueKey(themeManager.currentTheme.id), // FORCE REBUILD ON THEME CHANGE
+      key: ValueKey(
+        themeManager.currentTheme.id,
+      ), // FORCE REBUILD ON THEME CHANGE
       title: 'Stress Pilot',
       debugShowCheckedModeBanner: false,
       navigatorKey: AppNavigator.navigatorKey,

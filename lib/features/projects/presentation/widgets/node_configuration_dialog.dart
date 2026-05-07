@@ -6,7 +6,8 @@ import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
 import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
-import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart' as domain_endpoint;
+import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart'
+    as domain_endpoint;
 
 class NodeConfigurationDialog extends StatefulWidget {
   final CanvasNode node;
@@ -23,7 +24,7 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
   late TabController _tabController;
   late Map<String, dynamic> _preProcessor;
   late Map<String, dynamic> _postProcessor;
-  
+
   domain_endpoint.Endpoint? _endpointDetail;
   bool _isLoadingEndpoint = false;
 
@@ -81,9 +82,7 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
           children: [
             Text(
               'ID: ${widget.node.id}',
-              style: AppTypography.caption.copyWith(
-                color: AppColors.textMuted,
-              ),
+              style: AppTypography.caption.copyWith(color: AppColors.textMuted),
             ),
             const SizedBox(height: 16),
             TabBar(
@@ -96,7 +95,9 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
               labelColor: AppColors.accent,
               unselectedLabelColor: AppColors.textSecondary,
               indicatorColor: AppColors.accent,
-              labelStyle: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+              labelStyle: AppTypography.body.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
               unselectedLabelStyle: AppTypography.body,
               isScrollable: true,
             ),
@@ -128,10 +129,9 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
             label: 'Navigate to Endpoint',
             icon: LucideIcons.externalLink,
             onPressed: () {
-              Navigator.of(context).pop({
-                'action': 'navigate',
-                'endpoint': _endpointDetail,
-              });
+              Navigator.of(
+                context,
+              ).pop({'action': 'navigate', 'endpoint': _endpointDetail});
             },
           ),
         PilotButton.ghost(
@@ -182,23 +182,56 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildDetailSection('Basic Information', [
-            _buildDetailRow('Name', endpoint.name, primaryTextColor, secondaryTextColor),
-            _buildDetailRow('Type', endpoint.type, primaryTextColor, secondaryTextColor),
-            _buildDetailRow('URL', endpoint.url ?? '—', primaryTextColor, secondaryTextColor),
+            _buildDetailRow(
+              'Name',
+              endpoint.name,
+              primaryTextColor,
+              secondaryTextColor,
+            ),
+            _buildDetailRow(
+              'Type',
+              endpoint.type,
+              primaryTextColor,
+              secondaryTextColor,
+            ),
+            _buildDetailRow(
+              'URL',
+              endpoint.url ?? '—',
+              primaryTextColor,
+              secondaryTextColor,
+            ),
             if (endpoint.httpMethod != null)
-              _buildDetailRow('Method', endpoint.httpMethod!.toUpperCase(), primaryTextColor, secondaryTextColor),
+              _buildDetailRow(
+                'Method',
+                endpoint.httpMethod!.toUpperCase(),
+                primaryTextColor,
+                secondaryTextColor,
+              ),
           ]),
 
           if (endpoint.type == 'GRPC')
             _buildDetailSection('gRPC Configuration', [
-              _buildDetailRow('Service', endpoint.grpcServiceName ?? '—', primaryTextColor, secondaryTextColor),
-              _buildDetailRow('Method', endpoint.grpcMethodName ?? '—', primaryTextColor, secondaryTextColor),
+              _buildDetailRow(
+                'Service',
+                endpoint.grpcServiceName ?? '—',
+                primaryTextColor,
+                secondaryTextColor,
+              ),
+              _buildDetailRow(
+                'Method',
+                endpoint.grpcMethodName ?? '—',
+                primaryTextColor,
+                secondaryTextColor,
+              ),
             ]),
 
           const SizedBox(height: 8),
           Text(
             'DATA & PAYLOAD',
-            style: AppTypography.label.copyWith(fontWeight: FontWeight.bold, color: AppColors.accent),
+            style: AppTypography.label.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.accent,
+            ),
           ),
           const Divider(),
 
@@ -220,7 +253,10 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
       children: [
         Text(
           title.toUpperCase(),
-          style: AppTypography.label.copyWith(fontWeight: FontWeight.bold, color: AppColors.accent),
+          style: AppTypography.label.copyWith(
+            fontWeight: FontWeight.bold,
+            color: AppColors.accent,
+          ),
         ),
         const Divider(),
         const SizedBox(height: 8),
@@ -230,7 +266,12 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
     );
   }
 
-  Widget _buildDetailRow(String label, String value, Color primaryColor, Color secondaryColor) {
+  Widget _buildDetailRow(
+    String label,
+    String value,
+    Color primaryColor,
+    Color secondaryColor,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -247,10 +288,7 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
             ),
           ),
           Expanded(
-            child: SelectableText(
-              value,
-              style: TextStyle(color: primaryColor),
-            ),
+            child: SelectableText(value, style: TextStyle(color: primaryColor)),
           ),
         ],
       ),
@@ -283,10 +321,7 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
           ),
           child: SelectableText(
             formattedCode,
-            style: const TextStyle(
-              fontFamily: 'JetBrains Mono',
-              fontSize: 12,
-            ),
+            style: const TextStyle(fontFamily: 'JetBrains Mono', fontSize: 12),
           ),
         ),
       ],
@@ -481,14 +516,20 @@ class _ProcessorEditorState extends State<_ProcessorEditor> {
       children: [
         Row(
           children: [
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
             if (hasError) ...[
               const SizedBox(width: 8),
-              const Text('Invalid JSON',
-                  style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold)),
+              const Text(
+                'Invalid JSON',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ],
         ),

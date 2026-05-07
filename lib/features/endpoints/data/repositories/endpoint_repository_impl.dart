@@ -16,11 +16,7 @@ class EndpointRepositoryImpl implements EndpointRepository {
   }) async {
     final response = await _dio.get(
       '/api/v1/endpoints',
-      queryParameters: {
-        'projectId': projectId,
-        'page': page,
-        'size': size,
-      },
+      queryParameters: {'projectId': projectId, 'page': page, 'size': size},
     );
 
     if (response.statusCode == 200) {
@@ -63,7 +59,7 @@ class EndpointRepositoryImpl implements EndpointRepository {
       'httpHeaders',
       'httpParameters',
       'graphqlVariables',
-      'variables'
+      'variables',
     ];
 
     for (final field in complexFields) {
@@ -144,8 +140,8 @@ class EndpointRepositoryImpl implements EndpointRepository {
           'data': {
             'statusCode': response.statusCode ?? 500,
             'responseTimeMs': 0,
-            'error': 'Server error ${response.statusCode}'
-          }
+            'error': 'Server error ${response.statusCode}',
+          },
         };
       }
     } on DioException catch (e) {
@@ -160,7 +156,7 @@ class EndpointRepositoryImpl implements EndpointRepository {
           data['data'] = {
             'statusCode': data['statusCode'] ?? 500,
             'responseTimeMs': 0,
-            'error': data['message'] ?? data['error'] ?? 'API Error'
+            'error': data['message'] ?? data['error'] ?? 'API Error',
           };
         }
         return data;
@@ -172,19 +168,15 @@ class EndpointRepositoryImpl implements EndpointRepository {
         'data': {
           'statusCode': 500,
           'responseTimeMs': 0,
-          'error': e.message ?? 'Unknown error'
-        }
+          'error': e.message ?? 'Unknown error',
+        },
       };
     } catch (e) {
       return {
         'statusCode': 500,
         'success': false,
         'message': e.toString(),
-        'data': {
-          'statusCode': 500,
-          'responseTimeMs': 0,
-          'error': e.toString()
-        }
+        'data': {'statusCode': 500, 'responseTimeMs': 0, 'error': e.toString()},
       };
     }
   }
@@ -216,8 +208,8 @@ class EndpointRepositoryImpl implements EndpointRepository {
           'data': {
             'statusCode': response.statusCode ?? 500,
             'responseTimeMs': 0,
-            'error': 'Server error ${response.statusCode}'
-          }
+            'error': 'Server error ${response.statusCode}',
+          },
         };
       }
     } on DioException catch (e) {
@@ -230,7 +222,7 @@ class EndpointRepositoryImpl implements EndpointRepository {
           data['data'] = {
             'statusCode': data['statusCode'] ?? 500,
             'responseTimeMs': 0,
-            'error': data['message'] ?? data['error'] ?? 'API Error'
+            'error': data['message'] ?? data['error'] ?? 'API Error',
           };
         }
         return data;
@@ -242,19 +234,15 @@ class EndpointRepositoryImpl implements EndpointRepository {
         'data': {
           'statusCode': 500,
           'responseTimeMs': 0,
-          'error': e.message ?? 'Unknown error'
-        }
+          'error': e.message ?? 'Unknown error',
+        },
       };
     } catch (e) {
       return {
         'statusCode': 500,
         'success': false,
         'message': e.toString(),
-        'data': {
-          'statusCode': 500,
-          'responseTimeMs': 0,
-          'error': e.toString()
-        }
+        'data': {'statusCode': 500, 'responseTimeMs': 0, 'error': e.toString()},
       };
     }
   }

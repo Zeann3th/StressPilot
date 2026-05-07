@@ -32,10 +32,7 @@ class _PilotJsonEditorState extends State<PilotJsonEditor> {
   @override
   void initState() {
     super.initState();
-    _controller = CodeController(
-      text: widget.initialValue,
-      language: json,
-    );
+    _controller = CodeController(text: widget.initialValue, language: json);
     _controller.addListener(_handleChanged);
   }
 
@@ -56,17 +53,17 @@ class _PilotJsonEditorState extends State<PilotJsonEditor> {
     _beautifyTimer?.cancel();
     _beautifyTimer = Timer(const Duration(milliseconds: 800), () {
       if (!mounted) return;
-      
+
       final text = _controller.text.trim();
       if (text.isEmpty) return;
 
       try {
         final decoded = jsonDecode(text);
         final pretty = const JsonEncoder.withIndent('  ').convert(decoded);
-        
+
         if (pretty != _controller.text) {
           final selection = _controller.selection;
-          
+
           // Only update if the text is valid JSON and actually changed
           _controller.removeListener(_handleChanged);
           _controller.value = TextEditingValue(
@@ -106,7 +103,9 @@ class _PilotJsonEditorState extends State<PilotJsonEditor> {
             showLineNumbers: true,
             showFoldingHandles: true,
             background: AppColors.sidebarBackground,
-            textStyle: AppTypography.codeSm.copyWith(color: AppColors.textMuted),
+            textStyle: AppTypography.codeSm.copyWith(
+              color: AppColors.textMuted,
+            ),
           ),
           textStyle: AppTypography.code.copyWith(fontSize: 13),
         ),

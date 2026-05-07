@@ -36,10 +36,7 @@ class EndpointEditorHeader extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                _MethodDropdown(
-                  value: method,
-                  onChanged: onMethodChanged,
-                ),
+                _MethodDropdown(value: method, onChanged: onMethodChanged),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _UrlField(
@@ -83,18 +80,31 @@ class _MethodDropdown extends StatelessWidget {
       child: DropdownButton<String>(
         value: value,
         dropdownColor: AppColors.elevatedSurface,
-        icon: Icon(LucideIcons.chevronDown, size: 12, color: AppColors.textSecondary),
+        icon: Icon(
+          LucideIcons.chevronDown,
+          size: 12,
+          color: AppColors.textSecondary,
+        ),
         items: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].map((m) {
-          final methodColor = {
-            'GET': const Color(0xFF10B981),
-            'POST': const Color(0xFF3B82F6),
-            'PUT': const Color(0xFFF59E0B),
-            'DELETE': const Color(0xFFEF4444),
-            'PATCH': const Color(0xFF8B5CF6),
-          }[m] ?? accentColor;
+          final methodColor =
+              {
+                'GET': const Color(0xFF10B981),
+                'POST': const Color(0xFF3B82F6),
+                'PUT': const Color(0xFFF59E0B),
+                'DELETE': const Color(0xFFEF4444),
+                'PATCH': const Color(0xFF8B5CF6),
+              }[m] ??
+              accentColor;
           return DropdownMenuItem(
             value: m,
-            child: Text(m, style: TextStyle(color: methodColor, fontSize: 13, fontWeight: FontWeight.w700))
+            child: Text(
+              m,
+              style: TextStyle(
+                color: methodColor,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           );
         }).toList(),
         onChanged: onChanged,
@@ -123,7 +133,10 @@ class _UrlField extends StatelessWidget {
         style: AppTypography.code.copyWith(fontSize: 13),
         decoration: InputDecoration(
           hintText: 'https://api.example.com/v1/resource',
-          hintStyle: AppTypography.code.copyWith(color: AppColors.textDisabled, fontSize: 13),
+          hintStyle: AppTypography.code.copyWith(
+            color: AppColors.textDisabled,
+            fontSize: 13,
+          ),
           border: InputBorder.none,
           isDense: true,
         ),

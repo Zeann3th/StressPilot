@@ -10,7 +10,7 @@ import 'package:local_notifier/local_notifier.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   if (!WindowSetup.isSupported) {
     await wm.windowManager.ensureInitialized();
     const windowOptions = wm.WindowOptions(
@@ -31,14 +31,15 @@ void main() async {
     WindowSetup.initialize();
   }
 
-  await localNotifier.setup(appName: 'Stress Pilot', shortcutPolicy: ShortcutPolicy.requireCreate);
+  await localNotifier.setup(
+    appName: 'Stress Pilot',
+    shortcutPolicy: ShortcutPolicy.requireCreate,
+  );
 
   setupDependencies();
 
   final shutdownHandler = ShutdownHandler(getIt<ProcessManager>());
   shutdownHandler.setup();
 
-  runApp(
-    const AppErrorBoundary(child: AppRoot()),
-  );
+  runApp(const AppErrorBoundary(child: AppRoot()));
 }

@@ -14,14 +14,13 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
   }) async {
     final response = await _dio.get(
       '/api/v1/schedules',
-      queryParameters: {
-        'page': page,
-        'size': size,
-      },
+      queryParameters: {'page': page, 'size': size},
     );
 
     return PagedResponse.fromJson(
-        response.data['data'], (json) => Schedule.fromJson(json));
+      response.data['data'],
+      (json) => Schedule.fromJson(json),
+    );
   }
 
   @override
@@ -32,7 +31,10 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
 
   @override
   Future<Schedule> createSchedule(CreateScheduleRequest request) async {
-    final response = await _dio.post('/api/v1/schedules', data: request.toJson());
+    final response = await _dio.post(
+      '/api/v1/schedules',
+      data: request.toJson(),
+    );
     return Schedule.fromJson(response.data['data']);
   }
 

@@ -12,7 +12,8 @@ class PilotSkeleton extends StatefulWidget {
   State<PilotSkeleton> createState() => _PilotSkeletonState();
 }
 
-class _PilotSkeletonState extends State<PilotSkeleton> with SingleTickerProviderStateMixin {
+class _PilotSkeletonState extends State<PilotSkeleton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _opacity;
 
@@ -20,13 +21,14 @@ class _PilotSkeletonState extends State<PilotSkeleton> with SingleTickerProvider
   void initState() {
     super.initState();
     _controller = AnimationController(
-      vsync: this, 
+      vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
-    
-    _opacity = Tween<double>(begin: 0.2, end: 0.5).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+
+    _opacity = Tween<double>(
+      begin: 0.2,
+      end: 0.5,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override

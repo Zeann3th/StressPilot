@@ -14,11 +14,13 @@ class HttpClient {
   /// Pings the backend until it responds or 20 seconds elapse.
   /// Used by providers to handle backend cold starts (20s uptime requirement).
   static Future<void> waitForBackend() async {
-    final dio = Dio(BaseOptions(
-      baseUrl: AppConfig.apiBaseUrl,
-      connectTimeout: const Duration(seconds: 2),
-      receiveTimeout: const Duration(seconds: 2),
-    ));
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: AppConfig.apiBaseUrl,
+        connectTimeout: const Duration(seconds: 2),
+        receiveTimeout: const Duration(seconds: 2),
+      ),
+    );
 
     int elapsedMs = 0;
     int currentDelayMs = 500;
@@ -43,7 +45,10 @@ class HttpClient {
       currentDelayMs = (currentDelayMs * 1.5).toInt().clamp(500, 3000);
     }
 
-    AppLogger.error('Backend did not become ready within ${maxTimeMs / 1000}s', name: 'HTTP');
+    AppLogger.error(
+      'Backend did not become ready within ${maxTimeMs / 1000}s',
+      name: 'HTTP',
+    );
   }
 
   static Dio getInstance({SessionManager? sessionManager, String? baseUrl}) {
@@ -70,16 +75,18 @@ class HttpClient {
 
     dio.interceptors.add(CookieManager(jar));
 
-    dio.interceptors.add(InterceptorsWrapper(
-      onError: (error, handler) {
-        AppLogger.error(
-          'HTTP Error: ${error.type} - ${error.message} (Path: ${error.requestOptions.path})',
-          name: 'HTTP',
-          error: error.error,
-        );
-        return handler.next(error);
-      },
-    ));
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onError: (error, handler) {
+          AppLogger.error(
+            'HTTP Error: ${error.type} - ${error.message} (Path: ${error.requestOptions.path})',
+            name: 'HTTP',
+            error: error.error,
+          );
+          return handler.next(error);
+        },
+      ),
+    );
 
     dio.interceptors.add(
       InterceptorsWrapper(

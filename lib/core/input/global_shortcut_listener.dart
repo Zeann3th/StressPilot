@@ -77,7 +77,9 @@ class _GlobalShortcutListenerState extends State<GlobalShortcutListener> {
         return true;
       case 'project.view_all':
         getIt<ProjectProvider>().clearProject();
-        AppNavigator.navigatorKey.currentState?.pushReplacementNamed(AppRouter.projectsRoute);
+        AppNavigator.navigatorKey.currentState?.pushReplacementNamed(
+          AppRouter.projectsRoute,
+        );
         return true;
       case 'project.environment':
         final project = getIt<ProjectProvider>().selectedProject;
@@ -102,7 +104,6 @@ class _GlobalShortcutListenerState extends State<GlobalShortcutListener> {
         return true;
 
       case 'flow.save':
-
         return true;
 
       default:

@@ -93,7 +93,12 @@ class _RunsListWidgetState extends State<RunsListWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: surface,
-            border: Border(bottom: BorderSide(color: border.withValues(alpha: 0.3), width: 1)),
+            border: Border(
+              bottom: BorderSide(
+                color: border.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
           ),
           child: Row(
             children: [
@@ -118,58 +123,56 @@ class _RunsListWidgetState extends State<RunsListWidget> {
                   itemBuilder: (context, index) => _RunSkeleton(isDark: isDark),
                 )
               : _runs == null
-                  ? Center(
-                      child: Text(
-                        'Failed to load runs',
-                        style: AppTypography.body.copyWith(
-                          color: AppColors.textSecondary,
+              ? Center(
+                  child: Text(
+                    'Failed to load runs',
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                )
+              : _runs!.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          borderRadius: AppRadius.br12,
+                          border: Border.all(color: border),
+                        ),
+                        child: Icon(
+                          Icons.play_disabled_rounded,
+                          size: 32,
+                          color: AppColors.textMuted,
                         ),
                       ),
-                    )
-                  : _runs!.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 72,
-                                height: 72,
-                                decoration: BoxDecoration(
-                                  borderRadius: AppRadius.br12,
-                                  border: Border.all(color: border),
-                                ),
-                                child: Icon(
-                                  Icons.play_disabled_rounded,
-                                  size: 32,
-                                  color: AppColors.textMuted,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No runs found',
-                                style: AppTypography.heading.copyWith(
-                                  color: textColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : RefreshIndicator(
-                          onRefresh: _loadRuns,
-                          color: AppColors.accent,
-                          backgroundColor: surface,
-                          child: ListView.separated(
-                            padding: const EdgeInsets.all(16),
-                            itemCount: _runs!.length,
-                            separatorBuilder: (context, _) => const SizedBox(height: 8),
-                            itemBuilder: (context, index) => _RunTile(
-                              run: _runs![index],
-                              isExporting: _exportingRunIds.contains(_runs![index].id),
-                              onTap: () => _handleRunTap(_runs![index]),
-                              onRefresh: _loadRuns,
-                            ),
-                          ),
-                        ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No runs found',
+                        style: AppTypography.heading.copyWith(color: textColor),
+                      ),
+                    ],
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: _loadRuns,
+                  color: AppColors.accent,
+                  backgroundColor: surface,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _runs!.length,
+                    separatorBuilder: (context, _) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) => _RunTile(
+                      run: _runs![index],
+                      isExporting: _exportingRunIds.contains(_runs![index].id),
+                      onTap: () => _handleRunTap(_runs![index]),
+                      onRefresh: _loadRuns,
+                    ),
+                  ),
+                ),
         ),
       ],
     );
@@ -303,14 +306,19 @@ class _RunTileState extends State<_RunTile> {
         child: TweenAnimationBuilder<double>(
           duration: AppDurations.short,
           tween: Tween(begin: 1.0, end: _isPressed ? 0.98 : 1.0),
-          builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
+          builder: (context, scale, child) =>
+              Transform.scale(scale: scale, child: child),
           child: AnimatedContainer(
             duration: AppDurations.micro,
             decoration: BoxDecoration(
-              color: _hovered ? AppColors.accent.withValues(alpha: 0.02) : surface,
+              color: _hovered
+                  ? AppColors.accent.withValues(alpha: 0.02)
+                  : surface,
               borderRadius: AppRadius.br10,
               border: Border.all(
-                color: _hovered ? AppColors.accent.withValues(alpha: 0.2) : border,
+                color: _hovered
+                    ? AppColors.accent.withValues(alpha: 0.2)
+                    : border,
               ),
               boxShadow: _hovered ? AppShadows.subtle : null,
             ),
@@ -333,7 +341,11 @@ class _RunTileState extends State<_RunTile> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          PilotBadge(label: status, color: statusColor, compact: true),
+                          PilotBadge(
+                            label: status,
+                            color: statusColor,
+                            compact: true,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 1),
@@ -346,7 +358,9 @@ class _RunTileState extends State<_RunTile> {
                       ),
                       const SizedBox(height: 1),
                       Text(
-                        DateFormat('yyyy-MM-dd HH:mm:ss').format(widget.run.startedAt.toLocal()),
+                        DateFormat(
+                          'yyyy-MM-dd HH:mm:ss',
+                        ).format(widget.run.startedAt.toLocal()),
                         style: AppTypography.caption.copyWith(
                           color: AppColors.textMuted,
                           fontSize: 10,
@@ -363,19 +377,29 @@ class _RunTileState extends State<_RunTile> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : IconButton(
-                          icon: const Icon(Icons.stop_circle_outlined, color: Colors.red),
+                          icon: const Icon(
+                            Icons.stop_circle_outlined,
+                            color: Colors.red,
+                          ),
                           tooltip: 'Abort Run',
                           onPressed: () async {
                             setState(() => _isInterrupting = true);
                             try {
-                              await context.read<RunProvider>().interruptRun(widget.run.id);
+                              await context.read<RunProvider>().interruptRun(
+                                widget.run.id,
+                              );
                               widget.onRefresh();
                             } catch (e) {
                               if (mounted && context.mounted) {
-                                PilotToast.show(context, 'Failed to abort: $e', isError: true);
+                                PilotToast.show(
+                                  context,
+                                  'Failed to abort: $e',
+                                  isError: true,
+                                );
                               }
                             } finally {
-                              if (mounted) setState(() => _isInterrupting = false);
+                              if (mounted)
+                                setState(() => _isInterrupting = false);
                             }
                           },
                         ),

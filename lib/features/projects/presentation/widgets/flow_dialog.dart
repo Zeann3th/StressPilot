@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stress_pilot/core/di/locator.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart' as flow_domain;
+import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+    as flow_domain;
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/features/shared/domain/repositories/utility_repository.dart';
@@ -252,9 +253,7 @@ class FlowDialog {
       decoration: BoxDecoration(
         color: AppColors.elevated,
         borderRadius: AppRadius.br8,
-        border: Border.all(
-          color: AppColors.border,
-        ),
+        border: Border.all(color: AppColors.border),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -265,9 +264,7 @@ class FlowDialog {
               .toList(),
           onChanged: onChanged,
           dropdownColor: AppColors.surface,
-          style: AppTypography.body.copyWith(
-            color: AppColors.textPrimary,
-          ),
+          style: AppTypography.body.copyWith(color: AppColors.textPrimary),
         ),
       ),
     );

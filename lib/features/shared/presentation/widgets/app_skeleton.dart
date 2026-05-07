@@ -41,7 +41,6 @@ class _AppSkeletonState extends State<AppSkeleton>
       backgroundColor: bg,
       body: Column(
         children: [
-
           const DashboardTopBar(),
 
           Expanded(
@@ -57,21 +56,40 @@ class _AppSkeletonState extends State<AppSkeleton>
                 borderRadius: AppRadius.br16,
                 child: Column(
                   children: [
-
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-
                           Padding(
                             padding: const EdgeInsets.all(16),
                             child: Row(
                               children: [
-                                _ShimmerBox(ctrl: _shimmerCtrl, w: 240, h: 36, r: 8, base: shimmerBase, highlight: shimmerHighlight),
+                                _ShimmerBox(
+                                  ctrl: _shimmerCtrl,
+                                  w: 240,
+                                  h: 36,
+                                  r: 8,
+                                  base: shimmerBase,
+                                  highlight: shimmerHighlight,
+                                ),
                                 const Spacer(),
-                                _ShimmerBox(ctrl: _shimmerCtrl, w: 90, h: 36, r: 8, base: shimmerBase, highlight: shimmerHighlight),
+                                _ShimmerBox(
+                                  ctrl: _shimmerCtrl,
+                                  w: 90,
+                                  h: 36,
+                                  r: 8,
+                                  base: shimmerBase,
+                                  highlight: shimmerHighlight,
+                                ),
                                 const SizedBox(width: 8),
-                                _ShimmerBox(ctrl: _shimmerCtrl, w: 120, h: 36, r: 8, base: shimmerBase, highlight: shimmerHighlight),
+                                _ShimmerBox(
+                                  ctrl: _shimmerCtrl,
+                                  w: 120,
+                                  h: 36,
+                                  r: 8,
+                                  base: shimmerBase,
+                                  highlight: shimmerHighlight,
+                                ),
                               ],
                             ),
                           ),
@@ -79,18 +97,34 @@ class _AppSkeletonState extends State<AppSkeleton>
 
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: _ShimmerBox(ctrl: _shimmerCtrl, w: double.infinity, h: 24, r: 4, base: shimmerBase, highlight: shimmerHighlight),
+                            child: _ShimmerBox(
+                              ctrl: _shimmerCtrl,
+                              w: double.infinity,
+                              h: 24,
+                              r: 4,
+                              base: shimmerBase,
+                              highlight: shimmerHighlight,
+                            ),
                           ),
                           const SizedBox(height: 16),
 
                           Expanded(
                             child: SingleChildScrollView(
                               physics: const NeverScrollableScrollPhysics(),
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               child: Column(
                                 children: [
                                   for (int i = 0; i < 4; i++) ...[
-                                    _ShimmerBox(ctrl: _shimmerCtrl, w: double.infinity, h: 56, r: 8, base: shimmerBase, highlight: shimmerHighlight),
+                                    _ShimmerBox(
+                                      ctrl: _shimmerCtrl,
+                                      w: double.infinity,
+                                      h: 56,
+                                      r: 8,
+                                      base: shimmerBase,
+                                      highlight: shimmerHighlight,
+                                    ),
                                     const SizedBox(height: 12),
                                   ],
                                 ],
@@ -105,39 +139,53 @@ class _AppSkeletonState extends State<AppSkeleton>
                       height: MediaQuery.of(context).size.height * 0.4,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        border: Border(top: BorderSide(color: border.withValues(alpha: 0.3))),
+                        border: Border(
+                          top: BorderSide(color: border.withValues(alpha: 0.3)),
+                        ),
                       ),
                       child: Row(
                         children: [
-
                           Expanded(
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: AppColors.background.withValues(alpha: 0.5),
-                                border: Border.all(color: border.withValues(alpha: 0.5)),
+                                color: AppColors.background.withValues(
+                                  alpha: 0.5,
+                                ),
+                                border: Border.all(
+                                  color: border.withValues(alpha: 0.5),
+                                ),
                                 borderRadius: AppRadius.br12,
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-
-                                  _ShimmerBox(ctrl: _shimmerCtrl, w: 140, h: 24, r: 4, base: shimmerBase, highlight: shimmerHighlight),
+                                  _ShimmerBox(
+                                    ctrl: _shimmerCtrl,
+                                    w: 140,
+                                    h: 24,
+                                    r: 4,
+                                    base: shimmerBase,
+                                    highlight: shimmerHighlight,
+                                  ),
                                   const SizedBox(height: 16),
                                   Expanded(
                                     child: ListView.separated(
                                       scrollDirection: Axis.horizontal,
-                                      physics: const NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       itemCount: 3,
-                                      separatorBuilder: (context, index) => const SizedBox(width: 12),
-                                      itemBuilder: (context, index) => _ShimmerBox(
-                                        ctrl: _shimmerCtrl,
-                                        w: 280,
-                                        h: double.infinity,
-                                        r: 8,
-                                        base: shimmerBase,
-                                        highlight: shimmerHighlight,
-                                      ),
+                                      separatorBuilder: (context, index) =>
+                                          const SizedBox(width: 12),
+                                      itemBuilder: (context, index) =>
+                                          _ShimmerBox(
+                                            ctrl: _shimmerCtrl,
+                                            w: 280,
+                                            h: double.infinity,
+                                            r: 8,
+                                            base: shimmerBase,
+                                            highlight: shimmerHighlight,
+                                          ),
                                     ),
                                   ),
                                 ],
@@ -151,15 +199,25 @@ class _AppSkeletonState extends State<AppSkeleton>
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: AppColors.background.withValues(alpha: 0.5),
-                                border: Border.all(color: border.withValues(alpha: 0.5)),
+                                color: AppColors.background.withValues(
+                                  alpha: 0.5,
+                                ),
+                                border: Border.all(
+                                  color: border.withValues(alpha: 0.5),
+                                ),
                                 borderRadius: AppRadius.br12,
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-
-                                  _ShimmerBox(ctrl: _shimmerCtrl, w: 100, h: 24, r: 4, base: shimmerBase, highlight: shimmerHighlight),
+                                  _ShimmerBox(
+                                    ctrl: _shimmerCtrl,
+                                    w: 100,
+                                    h: 24,
+                                    r: 4,
+                                    base: shimmerBase,
+                                    highlight: shimmerHighlight,
+                                  ),
                                   const SizedBox(height: 24),
 
                                   Expanded(

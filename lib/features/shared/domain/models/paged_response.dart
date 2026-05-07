@@ -14,9 +14,9 @@ class PagedResponse<T> {
   });
 
   factory PagedResponse.fromJson(
-      Map<String, dynamic> json,
-      T Function(Map<String, dynamic>) fromJsonT,
-      ) {
+    Map<String, dynamic> json,
+    T Function(Map<String, dynamic>) fromJsonT,
+  ) {
     final page = json['page'] as Map<String, dynamic>;
     final items = (json['content'] as List).map((e) => fromJsonT(e)).toList();
 

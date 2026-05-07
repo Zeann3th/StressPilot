@@ -19,16 +19,8 @@ class _ProjectsSidebarState extends State<ProjectsSidebar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.transparent,
-      ),
-      child: const Column(
-        children: [
-          Expanded(
-            child: _ProjectsList(),
-          ),
-        ],
-      ),
+      decoration: const BoxDecoration(color: Colors.transparent),
+      child: const Column(children: [Expanded(child: _ProjectsList())]),
     );
   }
 }
@@ -66,7 +58,8 @@ class _ProjectsList extends StatelessWidget {
                       ? null
                       : () => provider.exportProject(
                           provider.selectedProject!.id,
-                          provider.selectedProject!.name),
+                          provider.selectedProject!.name,
+                        ),
                 ),
                 const SizedBox(width: 4),
                 _SidebarIconButton(
@@ -189,14 +182,18 @@ class _ProjectSidebarRowState extends State<_ProjectSidebarRow> {
               Icon(
                 LucideIcons.folder,
                 size: 14,
-                color: widget.isSelected ? AppColors.accent : AppColors.textSecondary,
+                color: widget.isSelected
+                    ? AppColors.accent
+                    : AppColors.textSecondary,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   widget.project.name,
                   style: AppTypography.body.copyWith(
-                    color: widget.isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                    color: widget.isSelected
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
                     fontSize: 12,
                   ),
                   overflow: TextOverflow.ellipsis,

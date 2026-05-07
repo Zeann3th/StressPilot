@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart' hide Flow;
 import 'package:stress_pilot/features/projects/domain/models/flow.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
-import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart' as domain_endpoint;
+import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart'
+    as domain_endpoint;
 import 'package:uuid/uuid.dart';
 
 import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
@@ -94,7 +95,8 @@ class CanvasProvider extends ChangeNotifier {
     if (_isLocked) return;
     _nodes.removeWhere((n) => n.id == id);
     _connections.removeWhere(
-            (c) => c.sourceNodeId == id || c.targetNodeId == id);
+      (c) => c.sourceNodeId == id || c.targetNodeId == id,
+    );
     if (_selectedNodeId == id) _selectedNodeId = null;
     if (_selectedSourceNodeId == id) _selectedSourceNodeId = null;
     notifyListeners();
@@ -139,7 +141,9 @@ class CanvasProvider extends ChangeNotifier {
   }
 
   void connectToTarget(String targetNodeId) {
-    if (_isLocked || _canvasMode != CanvasMode.connect || _selectedSourceNodeId == null) {
+    if (_isLocked ||
+        _canvasMode != CanvasMode.connect ||
+        _selectedSourceNodeId == null) {
       return;
     }
 
@@ -147,17 +151,21 @@ class CanvasProvider extends ChangeNotifier {
     if (_selectedSourceHandle == 'true') connType = ConnectionType.trueType;
     if (_selectedSourceHandle == 'false') connType = ConnectionType.falseType;
 
-    _connections.removeWhere((c) =>
-    c.sourceNodeId == _selectedSourceNodeId &&
-        c.sourceHandle == _selectedSourceHandle);
+    _connections.removeWhere(
+      (c) =>
+          c.sourceNodeId == _selectedSourceNodeId &&
+          c.sourceHandle == _selectedSourceHandle,
+    );
 
-    _connections.add(CanvasConnection(
-      id: const Uuid().v4(),
-      sourceNodeId: _selectedSourceNodeId!,
-      targetNodeId: targetNodeId,
-      sourceHandle: _selectedSourceHandle ?? 'default',
-      type: connType,
-    ));
+    _connections.add(
+      CanvasConnection(
+        id: const Uuid().v4(),
+        sourceNodeId: _selectedSourceNodeId!,
+        targetNodeId: targetNodeId,
+        sourceHandle: _selectedSourceHandle ?? 'default',
+        type: connType,
+      ),
+    );
 
     _selectedSourceNodeId = null;
     _selectedSourceHandle = null;
@@ -166,10 +174,10 @@ class CanvasProvider extends ChangeNotifier {
   }
 
   Future<void> loadFlowLayout(
-      String flowId,
-      FlowProvider flowProvider, [
-        List<domain_endpoint.Endpoint>? endpoints,
-      ]) async {
+    String flowId,
+    FlowProvider flowProvider, [
+    List<domain_endpoint.Endpoint>? endpoints,
+  ]) async {
     if (_loadedFlowId == flowId && !_isLoading) return;
 
     _isLoading = true;
@@ -182,7 +190,6 @@ class CanvasProvider extends ChangeNotifier {
       final flow = await flowProvider.getFlow(int.parse(flowId));
       rebuildFromSteps(flow.steps, endpoints, flowProvider.flows);
     } catch (_) {
-
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -190,11 +197,11 @@ class CanvasProvider extends ChangeNotifier {
   }
 
   Future<void> saveFlowConfiguration(
-      int flowId,
-      FlowProvider flowProvider, {
-        List<domain_endpoint.Endpoint>? endpoints,
-        List<Flow>? flows,
-      }) async {
+    int flowId,
+    FlowProvider flowProvider, {
+    List<domain_endpoint.Endpoint>? endpoints,
+    List<Flow>? flows,
+  }) async {
     _isSaving = true;
     notifyListeners();
 
@@ -203,12 +210,10 @@ class CanvasProvider extends ChangeNotifier {
 
     try {
       final steps = generateFlowConfiguration();
-      final updatedSteps =
-      await flowProvider.configureFlow(flowId, steps);
+      final updatedSteps = await flowProvider.configureFlow(flowId, steps);
 
       rebuildFromSteps(updatedSteps, endpoints, flows);
     } catch (e) {
-
       _nodes = snapshotNodes;
       _connections = snapshotConnections;
       notifyListeners();
@@ -246,8 +251,7 @@ class CanvasProvider extends ChangeNotifier {
       String? nextIfTrue;
       String? nextIfFalse;
 
-      for (final conn
-      in _connections.where((c) => c.sourceNodeId == node.id)) {
+      for (final conn in _connections.where((c) => c.sourceNodeId == node.id)) {
         if (node.type == FlowNodeType.branch) {
           if (conn.sourceHandle == 'true') nextIfTrue = conn.targetNodeId;
           if (conn.sourceHandle == 'false') nextIfFalse = conn.targetNodeId;
@@ -269,10 +273,7 @@ class CanvasProvider extends ChangeNotifier {
         preProcessor['endpoint_method'] = node.data['method'];
       }
 
-      preProcessor['location'] = {
-        'x': node.position.dx,
-        'y': node.position.dy,
-      };
+      preProcessor['location'] = {'x': node.position.dx, 'y': node.position.dy};
       preProcessor['temp_sync_id'] = node.id;
 
       return FlowStep(
@@ -299,8 +300,7 @@ class CanvasProvider extends ChangeNotifier {
       final endpointId = _nodes[i].data['id'];
       if (endpointId == null) continue;
 
-      final endpoint =
-          endpoints.where((e) => e.id == endpointId).firstOrNull;
+      final endpoint = endpoints.where((e) => e.id == endpointId).firstOrNull;
       if (endpoint == null) continue;
 
       final newData = Map<String, dynamic>.from(_nodes[i].data);
@@ -349,10 +349,10 @@ class CanvasProvider extends ChangeNotifier {
   }
 
   void rebuildFromSteps(
-      List<FlowStep> steps, [
-        List<domain_endpoint.Endpoint>? endpoints,
-        List<Flow>? flows,
-      ]) {
+    List<FlowStep> steps, [
+    List<domain_endpoint.Endpoint>? endpoints,
+    List<Flow>? flows,
+  ]) {
     final Map<String, Offset> oldPositions = {
       for (final node in _nodes) node.id: node.position,
     };
@@ -402,11 +402,13 @@ class CanvasProvider extends ChangeNotifier {
       savedX ??= (step.preProcessor?['_canvas_x'] as num?)?.toDouble();
       savedY ??= (step.preProcessor?['_canvas_y'] as num?)?.toDouble();
 
-      final double x = savedX ??
+      final double x =
+          savedX ??
           (tempSyncId != null ? oldPositions[tempSyncId]?.dx : null) ??
           oldPositions[step.id]?.dx ??
           (startX + (i % 4) * spacingX);
-      final double y = savedY ??
+      final double y =
+          savedY ??
           (tempSyncId != null ? oldPositions[tempSyncId]?.dy : null) ??
           oldPositions[step.id]?.dy ??
           (startY + (i ~/ 4) * spacingY);
@@ -420,22 +422,25 @@ class CanvasProvider extends ChangeNotifier {
         nodeData[type == FlowNodeType.subflow ? 'subflowId' : 'condition'] =
             step.condition;
       }
-      if (step.preProcessor != null) nodeData['preProcessor'] = step.preProcessor;
-      if (step.postProcessor != null) nodeData['postProcessor'] = step.postProcessor;
+      if (step.preProcessor != null)
+        nodeData['preProcessor'] = step.preProcessor;
+      if (step.postProcessor != null)
+        nodeData['postProcessor'] = step.postProcessor;
 
       if (type == FlowNodeType.endpoint) {
         if (step.endpointName != null) {
-          nodeData['name']   = step.endpointName;
-          nodeData['url']    = step.endpointUrl;
-          nodeData['type']   = step.endpointType;
+          nodeData['name'] = step.endpointName;
+          nodeData['url'] = step.endpointUrl;
+          nodeData['type'] = step.endpointType;
           nodeData['method'] = step.endpointMethod;
         } else if (step.endpointId != null && endpoints != null) {
-          final endpoint =
-              endpoints.where((e) => e.id == step.endpointId).firstOrNull;
+          final endpoint = endpoints
+              .where((e) => e.id == step.endpointId)
+              .firstOrNull;
           if (endpoint != null) {
-            nodeData['name']   = endpoint.name;
-            nodeData['url']    = endpoint.url;
-            nodeData['type']   = endpoint.type;
+            nodeData['name'] = endpoint.name;
+            nodeData['url'] = endpoint.url;
+            nodeData['type'] = endpoint.type;
             nodeData['method'] = endpoint.httpMethod;
           }
         }
@@ -450,47 +455,55 @@ class CanvasProvider extends ChangeNotifier {
         if (flow != null) nodeData['flowName'] = flow.name;
       }
 
-      _nodes.add(CanvasNode(
-        id: step.id,
-        type: type,
-        position: Offset(x, y),
-        data: nodeData,
-        width: type == FlowNodeType.start
-            ? 48
-            : (type == FlowNodeType.branch
-            ? 120
-            : (type == FlowNodeType.subflow ? 180 : 160)),
-        height: type == FlowNodeType.start
-            ? 48
-            : (type == FlowNodeType.branch
-            ? 120
-            : (type == FlowNodeType.subflow ? 64 : 100)),
-      ));
+      _nodes.add(
+        CanvasNode(
+          id: step.id,
+          type: type,
+          position: Offset(x, y),
+          data: nodeData,
+          width: type == FlowNodeType.start
+              ? 48
+              : (type == FlowNodeType.branch
+                    ? 120
+                    : (type == FlowNodeType.subflow ? 180 : 160)),
+          height: type == FlowNodeType.start
+              ? 48
+              : (type == FlowNodeType.branch
+                    ? 120
+                    : (type == FlowNodeType.subflow ? 64 : 100)),
+        ),
+      );
     }
 
     for (final step in steps) {
       if (step.nextIfTrue != null &&
           _nodes.any((n) => n.id == step.nextIfTrue)) {
-        _connections.add(CanvasConnection(
-          id: const Uuid().v4(),
-          sourceNodeId: step.id,
-          targetNodeId: step.nextIfTrue!,
-          sourceHandle: step.type.toUpperCase() == 'BRANCH' ? 'true' : 'default',
-          type: step.type.toUpperCase() == 'BRANCH'
-              ? ConnectionType.trueType
-              : ConnectionType.defaultType,
-        ));
+        _connections.add(
+          CanvasConnection(
+            id: const Uuid().v4(),
+            sourceNodeId: step.id,
+            targetNodeId: step.nextIfTrue!,
+            sourceHandle: step.type.toUpperCase() == 'BRANCH'
+                ? 'true'
+                : 'default',
+            type: step.type.toUpperCase() == 'BRANCH'
+                ? ConnectionType.trueType
+                : ConnectionType.defaultType,
+          ),
+        );
       }
       if (step.nextIfFalse != null &&
           step.type.toUpperCase() == 'BRANCH' &&
           _nodes.any((n) => n.id == step.nextIfFalse)) {
-        _connections.add(CanvasConnection(
-          id: const Uuid().v4(),
-          sourceNodeId: step.id,
-          targetNodeId: step.nextIfFalse!,
-          sourceHandle: 'false',
-          type: ConnectionType.falseType,
-        ));
+        _connections.add(
+          CanvasConnection(
+            id: const Uuid().v4(),
+            sourceNodeId: step.id,
+            targetNodeId: step.nextIfFalse!,
+            sourceHandle: 'false',
+            type: ConnectionType.falseType,
+          ),
+        );
       }
     }
 
@@ -500,10 +513,10 @@ class CanvasProvider extends ChangeNotifier {
   Future<void> saveFlowLayout(String flowId, {bool silent = false}) async {}
 
   void syncWithBackend(
-      List<FlowStep> responseSteps, [
-        List<domain_endpoint.Endpoint>? endpoints,
-        List<Flow>? flows,
-      ]) {
+    List<FlowStep> responseSteps, [
+    List<domain_endpoint.Endpoint>? endpoints,
+    List<Flow>? flows,
+  ]) {
     rebuildFromSteps(responseSteps, endpoints, flows);
   }
 
@@ -516,12 +529,14 @@ class CanvasProvider extends ChangeNotifier {
       final newData = Map<String, dynamic>.from(node.data);
 
       if (step.preProcessor != null) {
-        final existingPre = newData['preProcessor'] as Map<String, dynamic>? ?? {};
+        final existingPre =
+            newData['preProcessor'] as Map<String, dynamic>? ?? {};
         newData['preProcessor'] = Map<String, dynamic>.from(existingPre)
           ..addAll(step.preProcessor!);
       }
       if (step.postProcessor != null) {
-        final existingPost = newData['postProcessor'] as Map<String, dynamic>? ?? {};
+        final existingPost =
+            newData['postProcessor'] as Map<String, dynamic>? ?? {};
         newData['postProcessor'] = Map<String, dynamic>.from(existingPost)
           ..addAll(step.postProcessor!);
       }
@@ -539,25 +554,32 @@ class CanvasProvider extends ChangeNotifier {
     for (final step in steps) {
       if (step.nextIfTrue != null &&
           _nodes.any((n) => n.id == step.nextIfTrue)) {
-        final isBranch = _nodes
-            .any((n) => n.id == step.id && n.type == FlowNodeType.branch);
-        _connections.add(CanvasConnection(
-          id: const Uuid().v4(),
-          sourceNodeId: step.id,
-          targetNodeId: step.nextIfTrue!,
-          sourceHandle: isBranch ? 'true' : 'default',
-          type: isBranch ? ConnectionType.trueType : ConnectionType.defaultType,
-        ));
+        final isBranch = _nodes.any(
+          (n) => n.id == step.id && n.type == FlowNodeType.branch,
+        );
+        _connections.add(
+          CanvasConnection(
+            id: const Uuid().v4(),
+            sourceNodeId: step.id,
+            targetNodeId: step.nextIfTrue!,
+            sourceHandle: isBranch ? 'true' : 'default',
+            type: isBranch
+                ? ConnectionType.trueType
+                : ConnectionType.defaultType,
+          ),
+        );
       }
       if (step.nextIfFalse != null &&
           _nodes.any((n) => n.id == step.nextIfFalse)) {
-        _connections.add(CanvasConnection(
-          id: const Uuid().v4(),
-          sourceNodeId: step.id,
-          targetNodeId: step.nextIfFalse!,
-          sourceHandle: 'false',
-          type: ConnectionType.falseType,
-        ));
+        _connections.add(
+          CanvasConnection(
+            id: const Uuid().v4(),
+            sourceNodeId: step.id,
+            targetNodeId: step.nextIfFalse!,
+            sourceHandle: 'false',
+            type: ConnectionType.falseType,
+          ),
+        );
       }
     }
 

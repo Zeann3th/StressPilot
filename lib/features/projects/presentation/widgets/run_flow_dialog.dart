@@ -3,7 +3,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart' as flow_domain;
+import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+    as flow_domain;
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/navigation/app_router.dart';
@@ -112,7 +113,10 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
 
       if (!mounted) return;
       Navigator.of(context).pop();
-      AppNavigator.pushNamed(AppRouter.resultsRoute, arguments: {'runId': runId});
+      AppNavigator.pushNamed(
+        AppRouter.resultsRoute,
+        arguments: {'runId': runId},
+      );
     } catch (e) {
       if (mounted) {
         PilotToast.show(context, 'Error: $e', isError: true);
@@ -186,19 +190,28 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
               onTap: _pickFile,
               borderRadius: AppRadius.br12,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.elevated,
                   borderRadius: AppRadius.br12,
                   border: Border.all(
-                    color: _selectedFile != null ? AppColors.accent : AppColors.border,
+                    color: _selectedFile != null
+                        ? AppColors.accent
+                        : AppColors.border,
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      _selectedFile != null ? LucideIcons.fileText : LucideIcons.upload,
-                      color: _selectedFile != null ? AppColors.accent : AppColors.textMuted,
+                      _selectedFile != null
+                          ? LucideIcons.fileText
+                          : LucideIcons.upload,
+                      color: _selectedFile != null
+                          ? AppColors.accent
+                          : AppColors.textMuted,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -208,13 +221,17 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
                           Text(
                             _selectedFile?.name ?? 'Select Data File (JSON)',
                             style: AppTypography.body.copyWith(
-                              fontWeight: _selectedFile != null ? FontWeight.w600 : FontWeight.normal,
+                              fontWeight: _selectedFile != null
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
                             ),
                           ),
                           if (_selectedFile == null)
                             Text(
                               'Optional: Upload CSV or JSON data source',
-                              style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+                              style: AppTypography.caption.copyWith(
+                                color: AppColors.textMuted,
+                              ),
                             ),
                         ],
                       ),
@@ -246,7 +263,9 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
             if (_variables.isEmpty)
               Text(
                 'No custom variables defined.',
-                style: AppTypography.caption.copyWith(fontStyle: FontStyle.italic),
+                style: AppTypography.caption.copyWith(
+                  fontStyle: FontStyle.italic,
+                ),
               ),
             ..._variables.asMap().entries.map((entry) {
               return Padding(
@@ -270,7 +289,11 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
                     ),
                     IconButton(
                       onPressed: () => _removeVariable(entry.key),
-                      icon: Icon(LucideIcons.circleMinus, color: AppColors.error, size: 20),
+                      icon: Icon(
+                        LucideIcons.circleMinus,
+                        color: AppColors.error,
+                        size: 20,
+                      ),
                     ),
                   ],
                 ),

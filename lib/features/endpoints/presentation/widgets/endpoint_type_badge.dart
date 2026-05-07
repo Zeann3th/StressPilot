@@ -15,7 +15,7 @@ class EndpointTypeBadge extends StatelessWidget {
 
   Color _colorForType(BuildContext context, String type) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     Color baseColor;
     switch (type.toUpperCase()) {
       case 'HTTP':

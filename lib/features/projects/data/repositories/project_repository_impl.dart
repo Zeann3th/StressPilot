@@ -24,7 +24,7 @@ class ProjectRepositoryImpl implements ProjectRepository {
 
     return PagedResponse.fromJson(
       response.data['data'],
-          (json) => Project.fromJson(json),
+      (json) => Project.fromJson(json),
     );
   }
 
@@ -63,7 +63,10 @@ class ProjectRepositoryImpl implements ProjectRepository {
       'environmentId': environmentId,
     };
 
-    final response = await _dio.patch('/api/v1/projects/$projectId', data: body);
+    final response = await _dio.patch(
+      '/api/v1/projects/$projectId',
+      data: body,
+    );
     return Project.fromJson(response.data['data']);
   }
 

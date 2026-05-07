@@ -21,10 +21,14 @@ class ShutdownHandler with WindowListener, TrayListener {
   }
 
   void _setupSignalHandlers() {
-    ProcessSignal.sigint.watch().listen((_) async => await _handleSignal('SIGINT'));
+    ProcessSignal.sigint.watch().listen(
+      (_) async => await _handleSignal('SIGINT'),
+    );
 
     if (!Platform.isWindows) {
-      ProcessSignal.sigterm.watch().listen((_) async => await _handleSignal('SIGTERM'));
+      ProcessSignal.sigterm.watch().listen(
+        (_) async => await _handleSignal('SIGTERM'),
+      );
     }
   }
 
@@ -48,7 +52,9 @@ class ShutdownHandler with WindowListener, TrayListener {
       context: context,
       builder: (context) => ShadDialog(
         title: const Text('Exit Stress Pilot'),
-        description: const Text('Would you like to minimize to the system tray or exit?'),
+        description: const Text(
+          'Would you like to minimize to the system tray or exit?',
+        ),
         actions: [
           ShadButton.outline(
             child: const Text('System Tray'),
@@ -79,19 +85,15 @@ class ShutdownHandler with WindowListener, TrayListener {
   Future<void> _initTray() async {
     try {
       await trayManager.setIcon(
-        Platform.isWindows ? 'assets/images/logo.png' : 'assets/images/logo.png',
+        Platform.isWindows
+            ? 'assets/images/logo.png'
+            : 'assets/images/logo.png',
       );
       final Menu menu = Menu(
         items: [
-          MenuItem(
-            key: 'open_window',
-            label: 'Open Stress Pilot',
-          ),
+          MenuItem(key: 'open_window', label: 'Open Stress Pilot'),
           MenuItem.separator(),
-          MenuItem(
-            key: 'exit',
-            label: 'Exit',
-          ),
+          MenuItem(key: 'exit', label: 'Exit'),
         ],
       );
       await trayManager.setContextMenu(menu);

@@ -40,7 +40,6 @@ class _ResultsPageState extends State<ResultsPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _loadRun();
       if (_currentRun != null && mounted) {
-
         _startTimers();
       }
     });
@@ -81,13 +80,10 @@ class _ResultsPageState extends State<ResultsPage> {
       final remaining = Duration(seconds: _currentRun!.duration) - elapsed;
 
       if (remaining.inSeconds <= 5 || elapsed.inSeconds <= 10) {
-
         nextDelay = const Duration(seconds: 2);
       } else if (remaining.inSeconds > 0) {
-
         nextDelay = const Duration(seconds: 5);
       } else {
-
         nextDelay = _currentPollInterval + const Duration(seconds: 2);
         if (nextDelay > const Duration(seconds: 10)) {
           nextDelay = const Duration(seconds: 10);
@@ -132,7 +128,6 @@ class _ResultsPageState extends State<ResultsPage> {
       final isTerminal = _isTerminalStatus(run.status);
 
       if (mounted) {
-
         context.read<ResultsProvider>().setRun(
           run.id,
           run.flowId,
@@ -275,7 +270,8 @@ class _ResultsPageState extends State<ResultsPage> {
                             flex: 2,
                             child: MetricsCard(
                               title: 'Avg Response',
-                              value: '${provider.avgResponseTime.toStringAsFixed(0)} ms',
+                              value:
+                                  '${provider.avgResponseTime.toStringAsFixed(0)} ms',
                               icon: LucideIcons.timer,
                               color: Colors.orange,
                             ),
@@ -285,7 +281,9 @@ class _ResultsPageState extends State<ResultsPage> {
                             flex: 2,
                             child: MetricsCard(
                               title: 'Req / Sec',
-                              value: provider.requestsPerSecond.toStringAsFixed(1),
+                              value: provider.requestsPerSecond.toStringAsFixed(
+                                1,
+                              ),
                               icon: LucideIcons.gauge,
                               color: Colors.green,
                             ),
@@ -350,19 +348,31 @@ class _ResultsPageState extends State<ResultsPage> {
           value: provider.selectedEndpointId,
           hint: Text(
             'All Endpoints',
-            style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
           dropdownColor: AppColors.elevatedSurface,
-          icon: Icon(LucideIcons.chevronDown, size: 14, color: AppColors.textSecondary),
+          icon: Icon(
+            LucideIcons.chevronDown,
+            size: 14,
+            color: AppColors.textSecondary,
+          ),
           items: [
             DropdownMenuItem(
               value: null,
-              child: Text('All Endpoints', style: AppTypography.body.copyWith(fontSize: 12)),
+              child: Text(
+                'All Endpoints',
+                style: AppTypography.body.copyWith(fontSize: 12),
+              ),
             ),
             ...provider.endpointNames.entries.map(
               (e) => DropdownMenuItem(
                 value: e.key,
-                child: Text(e.value, style: AppTypography.body.copyWith(fontSize: 12)),
+                child: Text(
+                  e.value,
+                  style: AppTypography.body.copyWith(fontSize: 12),
+                ),
               ),
             ),
           ],
@@ -375,12 +385,17 @@ class _ResultsPageState extends State<ResultsPage> {
   Widget _buildAbortButton() {
     return Consumer<RunProvider>(
       builder: (context, runProvider, child) {
-        final isTerminal = _currentRun == null || _isTerminalStatus(_currentRun!.status);
+        final isTerminal =
+            _currentRun == null || _isTerminalStatus(_currentRun!.status);
         if (isTerminal) return const SizedBox.shrink();
         return Tooltip(
           message: 'Abort Run',
           child: IconButton(
-            icon: const Icon(Icons.stop_circle_outlined, color: Colors.red, size: 20),
+            icon: const Icon(
+              Icons.stop_circle_outlined,
+              color: Colors.red,
+              size: 20,
+            ),
             onPressed: () async {
               try {
                 await runProvider.interruptRun(_currentRun!.id);
@@ -400,7 +415,8 @@ class _ResultsPageState extends State<ResultsPage> {
   }
 
   Widget _buildExportButton() {
-    final isTerminal = _currentRun != null && _isTerminalStatus(_currentRun!.status);
+    final isTerminal =
+        _currentRun != null && _isTerminalStatus(_currentRun!.status);
     if (!isTerminal) return const SizedBox.shrink();
 
     return Tooltip(
@@ -410,7 +426,10 @@ class _ResultsPageState extends State<ResultsPage> {
             ? SizedBox(
                 width: 18,
                 height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.accent),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.accent,
+                ),
               )
             : Icon(LucideIcons.fileDown, color: AppColors.accent, size: 20),
         onPressed: !_exporting ? () => _exportRun() : null,
@@ -452,11 +471,14 @@ class _ResultsPageState extends State<ResultsPage> {
     final statusColor = status == 'COMPLETED'
         ? AppColors.success
         : (status == 'FAILED' || status == 'ABORTED' || status == 'CANCELED'
-            ? AppColors.error
-            : AppColors.info);
+              ? AppColors.error
+              : AppColors.info);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
       decoration: BoxDecoration(
         color: AppColors.elevatedSurface,
         borderRadius: AppRadius.br12,
@@ -477,11 +499,7 @@ class _ResultsPageState extends State<ResultsPage> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              PilotBadge(
-                label: status,
-                color: statusColor,
-                compact: true,
-              ),
+              PilotBadge(label: status, color: statusColor, compact: true),
             ],
           ),
           const SizedBox(height: AppSpacing.md),

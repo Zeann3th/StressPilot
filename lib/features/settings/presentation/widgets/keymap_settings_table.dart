@@ -56,7 +56,7 @@ class _KeymapSettingsTableState extends State<KeymapSettingsTable> {
                       _buildRow(context, entry.key, entry.value),
                       if (entry.key != keymap.keys.last)
                         Divider(height: 1, color: AppColors.divider),
-                    ]
+                    ],
                   ],
                 ),
               ),
@@ -83,20 +83,27 @@ class _KeymapSettingsTableState extends State<KeymapSettingsTable> {
         .join(' ');
   }
 
-  Future<void> _editShortcut(BuildContext context, String actionId, String current) async {
+  Future<void> _editShortcut(
+    BuildContext context,
+    String actionId,
+    String current,
+  ) async {
     final provider = context.read<KeymapProvider>();
     String? newShortcut = await PilotDialog.show<String>(
       context: context,
       title: 'Edit Shortcut for ${_humanizeActionId(actionId)}',
-      content: _ShortcutListener(initial: current, onRecorded: (val) {
-         Navigator.pop(context, val);
-      }),
+      content: _ShortcutListener(
+        initial: current,
+        onRecorded: (val) {
+          Navigator.pop(context, val);
+        },
+      ),
       actions: [
-         PilotButton.ghost(
-            label: 'Cancel',
-            onPressed: () => Navigator.pop(context),
-          ),
-      ]
+        PilotButton.ghost(
+          label: 'Cancel',
+          onPressed: () => Navigator.pop(context),
+        ),
+      ],
     );
 
     if (newShortcut != null) {
@@ -135,7 +142,9 @@ class _ShortcutRowState extends State<_ShortcutRow> {
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: AppDurations.micro,
-          color: _hovered ? AppColors.accent.withValues(alpha: 0.04) : Colors.transparent,
+          color: _hovered
+              ? AppColors.accent.withValues(alpha: 0.04)
+              : Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
           child: Row(
             children: [
@@ -156,7 +165,10 @@ class _ShortcutRowState extends State<_ShortcutRow> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.accent.withValues(alpha: 0.1),
                         borderRadius: AppRadius.br4,
@@ -236,7 +248,9 @@ class _ShortcutListenerState extends State<_ShortcutListener> {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: AppColors.accent.withValues(alpha: 0.05),
-              border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: AppColors.accent.withValues(alpha: 0.3),
+              ),
               borderRadius: AppRadius.br8,
             ),
             alignment: Alignment.center,
@@ -269,7 +283,20 @@ class _ShortcutListenerState extends State<_ShortcutListener> {
     if (HardwareKeyboard.instance.isMetaPressed) keys.add('Meta');
 
     final keyLabel = event.logicalKey.keyLabel;
-    if (!['Control', 'Shift', 'Alt', 'Meta', 'Control Left', 'Control Right', 'Shift Left', 'Shift Right', 'Alt Left', 'Alt Right', 'Meta Left', 'Meta Right'].contains(keyLabel)) {
+    if (![
+      'Control',
+      'Shift',
+      'Alt',
+      'Meta',
+      'Control Left',
+      'Control Right',
+      'Shift Left',
+      'Shift Right',
+      'Alt Left',
+      'Alt Right',
+      'Meta Left',
+      'Meta Right',
+    ].contains(keyLabel)) {
       keys.add(keyLabel);
       setState(() {
         _current = keys.join('+');

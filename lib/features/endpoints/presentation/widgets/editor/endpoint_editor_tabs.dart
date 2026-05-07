@@ -61,7 +61,9 @@ class EndpointEditorTabs extends StatelessWidget {
             dividerColor: Colors.transparent,
             labelColor: AppColors.textPrimary,
             unselectedLabelColor: AppColors.textSecondary,
-            labelStyle: AppTypography.label.copyWith(fontWeight: FontWeight.w600),
+            labelStyle: AppTypography.label.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             tabs: const [
               Tab(text: 'Params'),
@@ -111,13 +113,22 @@ class EndpointEditorTabs extends StatelessWidget {
     );
   }
 
-  Widget _buildConfigurationTab(Color textColor, Color secondaryText, Color border) {
+  Widget _buildConfigurationTab(
+    Color textColor,
+    Color secondaryText,
+    Color border,
+  ) {
     return ListView(
       controller: settingsScrollCtrl,
       padding: const EdgeInsets.all(24), // Increased padding
       children: [
-        Text('Success Condition (SpEL)', 
-          style: AppTypography.bodyMd.copyWith(fontWeight: FontWeight.bold, color: textColor)),
+        Text(
+          'Success Condition (SpEL)',
+          style: AppTypography.bodyMd.copyWith(
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+        ),
         const SizedBox(height: 12),
         PilotInput(
           controller: successConditionController,
@@ -125,13 +136,20 @@ class EndpointEditorTabs extends StatelessWidget {
           maxLines: 3,
         ),
         const SizedBox(height: 8),
-        Text('Available variables: #statusCode, #body, #headers, #responseTime',
-            style: AppTypography.caption.copyWith(color: secondaryText)),
-        
+        Text(
+          'Available variables: #statusCode, #body, #headers, #responseTime',
+          style: AppTypography.caption.copyWith(color: secondaryText),
+        ),
+
         const SizedBox(height: 40), // More space between sections
-        
-        Text('Run Variables', 
-          style: AppTypography.bodyMd.copyWith(fontWeight: FontWeight.bold, color: textColor)),
+
+        Text(
+          'Run Variables',
+          style: AppTypography.bodyMd.copyWith(
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+        ),
         const SizedBox(height: 12),
         SizedBox(
           height: 300,
@@ -142,8 +160,10 @@ class EndpointEditorTabs extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Text('Extract values from response into flow-level variables.',
-            style: AppTypography.caption.copyWith(color: secondaryText)),
+        Text(
+          'Extract values from response into flow-level variables.',
+          style: AppTypography.caption.copyWith(color: secondaryText),
+        ),
       ],
     );
   }

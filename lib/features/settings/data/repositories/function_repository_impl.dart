@@ -13,7 +13,9 @@ class FunctionRepositoryImpl implements FunctionRepository {
     final data = response.data['data'];
     if (data is Map && data.containsKey('content')) {
       final List<dynamic> content = data['content'];
-      return content.map((e) => UserFunction.fromJson(e as Map<String, dynamic>)).toList();
+      return content
+          .map((e) => UserFunction.fromJson(e as Map<String, dynamic>))
+          .toList();
     }
     return [];
   }

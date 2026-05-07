@@ -13,7 +13,8 @@ class CapabilityDto {
     return CapabilityDto(
       endpointExecutors: List<String>.from(json['endpointExecutors'] ?? []),
       flowExecutors: List<String>.from(json['flowExecutors'] ?? []),
-      parsers: (json['parsers'] as List?)
+      parsers:
+          (json['parsers'] as List?)
               ?.map((e) => ParserCapability.fromJson(e))
               .toList() ??
           [],
@@ -25,10 +26,7 @@ class ParserCapability {
   final String name;
   final List<String> formats;
 
-  ParserCapability({
-    required this.name,
-    required this.formats,
-  });
+  ParserCapability({required this.name, required this.formats});
 
   factory ParserCapability.fromJson(Map<String, dynamic> json) {
     return ParserCapability(

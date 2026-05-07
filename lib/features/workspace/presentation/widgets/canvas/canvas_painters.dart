@@ -18,7 +18,6 @@ class GridPainter extends CustomPainter {
 
     for (double x = 0; x < size.width; x += spacing) {
       for (double y = 0; y < size.height; y += spacing) {
-
         canvas.drawCircle(Offset(x, y), 1.2 / scale, paint);
       }
     }
@@ -150,13 +149,11 @@ class ConnectionPainter extends CustomPainter {
   ) {
     if (node.type == FlowNodeType.branch) {
       if (handle == 'true') {
-
         return (
           node.position + Offset(node.width * 0.15, node.height * 0.85),
           AxisDirection.down,
         );
       } else if (handle == 'false') {
-
         return (
           node.position + Offset(node.width * 0.85, node.height * 0.85),
           AxisDirection.down,
@@ -247,10 +244,7 @@ class ConnectionPainter extends CustomPainter {
         final double endDist = (distance + dashWidth).clamp(0.0, metric.length);
 
         if (startDist < endDist) {
-          canvas.drawPath(
-            metric.extractPath(startDist, endDist),
-            paint,
-          );
+          canvas.drawPath(metric.extractPath(startDist, endDist), paint);
         }
         distance += dashWidth + dashSpace;
       }

@@ -39,10 +39,14 @@ class _SettingsTableState extends State<SettingsTable> {
     final Map<String, List<MapEntry<String, String>>> grouped = {};
     for (var entry in configs.entries) {
       final parts = entry.key.split('_');
-      String category = parts.length > 1 ? parts.first.toUpperCase() : 'GENERAL';
+      String category = parts.length > 1
+          ? parts.first.toUpperCase()
+          : 'GENERAL';
       if (entry.key.startsWith('AI_MODEL')) category = 'AI MODEL';
 
-      if (category == 'HTTP' || category == 'FLOW' || category == 'BREAKPOINT') {
+      if (category == 'HTTP' ||
+          category == 'FLOW' ||
+          category == 'BREAKPOINT') {
         category = 'CONFIGURATIONS';
       }
 
@@ -60,7 +64,8 @@ class _SettingsTableState extends State<SettingsTable> {
     ];
 
     final staticCats = categories.toSet();
-    final dynamicCats = grouped.keys.where((c) => !staticCats.contains(c)).toList()..sort();
+    final dynamicCats =
+        grouped.keys.where((c) => !staticCats.contains(c)).toList()..sort();
     categories.addAll(dynamicCats);
 
     if (_selectedCategory == null && categories.isNotEmpty) {
@@ -70,7 +75,6 @@ class _SettingsTableState extends State<SettingsTable> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         Container(
           width: 200,
           margin: const EdgeInsets.only(right: 24),
@@ -97,8 +101,12 @@ class _SettingsTableState extends State<SettingsTable> {
                   label: cat,
                   icon: icon,
                   onPressed: () => setState(() => _selectedCategory = cat),
-                  foregroundOverride: isSelected ? AppColors.accent : AppColors.textSecondary,
-                  backgroundOverride: isSelected ? AppColors.accent.withValues(alpha: 0.1) : null,
+                  foregroundOverride: isSelected
+                      ? AppColors.accent
+                      : AppColors.textSecondary,
+                  backgroundOverride: isSelected
+                      ? AppColors.accent.withValues(alpha: 0.1)
+                      : null,
                   alignment: MainAxisAlignment.start,
                 ),
               );
@@ -109,14 +117,16 @@ class _SettingsTableState extends State<SettingsTable> {
         VerticalDivider(width: 1, thickness: 1, color: border),
         const SizedBox(width: 24),
 
-        Expanded(
-          child: _buildContent(grouped, textColor, border),
-        ),
+        Expanded(child: _buildContent(grouped, textColor, border)),
       ],
     );
   }
 
-  Widget _buildContent(Map<String, List<MapEntry<String, String>>> grouped, Color textColor, Color border) {
+  Widget _buildContent(
+    Map<String, List<MapEntry<String, String>>> grouped,
+    Color textColor,
+    Color border,
+  ) {
     if (_selectedCategory == 'THEME') {
       return _ThemeSettings();
     }
@@ -146,8 +156,14 @@ class _SettingsTableState extends State<SettingsTable> {
 
     if (_selectedCategory == 'CONFIGURATIONS') {
       final entries = grouped['CONFIGURATIONS'] ?? [];
-      final flowEntries = entries.where((e) => e.key.startsWith('FLOW') || e.key.startsWith('BREAKPOINT')).toList();
-      final httpEntries = entries.where((e) => e.key.startsWith('HTTP')).toList();
+      final flowEntries = entries
+          .where(
+            (e) => e.key.startsWith('FLOW') || e.key.startsWith('BREAKPOINT'),
+          )
+          .toList();
+      final httpEntries = entries
+          .where((e) => e.key.startsWith('HTTP'))
+          .toList();
 
       return SingleChildScrollView(
         controller: _scrollController,
@@ -160,7 +176,10 @@ class _SettingsTableState extends State<SettingsTable> {
               children: [
                 Text(
                   'Configurations',
-                  style: AppTypography.heading.copyWith(color: textColor, fontSize: 20),
+                  style: AppTypography.heading.copyWith(
+                    color: textColor,
+                    fontSize: 20,
+                  ),
                 ),
                 const SizedBox(height: 24),
 
@@ -196,7 +215,10 @@ class _SettingsTableState extends State<SettingsTable> {
             children: [
               Text(
                 _selectedCategory!,
-                style: AppTypography.heading.copyWith(color: textColor, fontSize: 20),
+                style: AppTypography.heading.copyWith(
+                  color: textColor,
+                  fontSize: 20,
+                ),
               ),
               const SizedBox(height: 24),
               _buildSettingsContainer(entries, border),
@@ -207,7 +229,10 @@ class _SettingsTableState extends State<SettingsTable> {
     );
   }
 
-  Widget _buildSettingsContainer(List<MapEntry<String, String>> entries, Color border) {
+  Widget _buildSettingsContainer(
+    List<MapEntry<String, String>> entries,
+    Color border,
+  ) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: AppRadius.br8,
@@ -222,7 +247,10 @@ class _SettingsTableState extends State<SettingsTable> {
               keyName: entries[i].key,
               value: entries[i].value,
               onSave: (val) async {
-                await context.read<SettingProvider>().setConfig(entries[i].key, val);
+                await context.read<SettingProvider>().setConfig(
+                  entries[i].key,
+                  val,
+                );
                 if (mounted) {
                   PilotToast.show(context, 'Setting saved');
                 }
@@ -256,12 +284,17 @@ class _ThemeSettings extends StatelessWidget {
             children: [
               Text(
                 'Appearance',
-                style: AppTypography.heading.copyWith(color: textColor, fontSize: 20),
+                style: AppTypography.heading.copyWith(
+                  color: textColor,
+                  fontSize: 20,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Customize how Stress Pilot looks on your machine.',
-                style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
               const SizedBox(height: 32),
 
@@ -295,7 +328,10 @@ class _ThemeSettings extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 'External themes are loaded from ~/.pilot/client/themes/*.json',
-                style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11),
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 11,
+                ),
               ),
             ],
           ),
@@ -331,8 +367,8 @@ class _ThemeOptionState extends State<_ThemeOption> {
     final bg = widget.isSelected
         ? AppColors.accent.withValues(alpha: 0.1)
         : _isHovered
-            ? AppColors.hoverItem
-            : Colors.transparent;
+        ? AppColors.hoverItem
+        : Colors.transparent;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -344,9 +380,7 @@ class _ThemeOptionState extends State<_ThemeOption> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           decoration: BoxDecoration(
             color: bg,
-            border: Border(
-              bottom: BorderSide(color: border),
-            ),
+            border: Border(bottom: BorderSide(color: border)),
           ),
           child: Row(
             children: [
@@ -356,7 +390,9 @@ class _ThemeOptionState extends State<_ThemeOption> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: widget.isSelected ? AppColors.accent : AppColors.textSecondary,
+                    color: widget.isSelected
+                        ? AppColors.accent
+                        : AppColors.textSecondary,
                     width: 2,
                   ),
                 ),
@@ -381,12 +417,17 @@ class _ThemeOptionState extends State<_ThemeOption> {
                     widget.theme.name,
                     style: AppTypography.body.copyWith(
                       color: textColor,
-                      fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: widget.isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                   Text(
                     widget.theme.isDark ? 'Dark Theme' : 'Light Theme',
-                    style: AppTypography.caption.copyWith(color: AppColors.textSecondary, fontSize: 11),
+                    style: AppTypography.caption.copyWith(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),

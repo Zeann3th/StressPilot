@@ -10,10 +10,7 @@ import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_p
 class AppStatusBar extends StatelessWidget {
   final String? projectName;
 
-  const AppStatusBar({
-    super.key,
-    this.projectName,
-  });
+  const AppStatusBar({super.key, this.projectName});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +27,9 @@ class AppStatusBar extends StatelessWidget {
           Text(
             projectName ?? '<No Project Selected>',
             style: AppTypography.caption.copyWith(
-              color: projectName != null ? AppColors.textSecondary : AppColors.textDisabled,
+              color: projectName != null
+                  ? AppColors.textSecondary
+                  : AppColors.textDisabled,
             ),
           ),
           const Spacer(),
@@ -88,7 +87,11 @@ class _IndexingIndicatorState extends State<_IndexingIndicator>
       children: [
         RotationTransition(
           turns: _ctrl,
-          child: Icon(LucideIcons.refreshCcw, size: 10, color: AppColors.accent),
+          child: Icon(
+            LucideIcons.refreshCcw,
+            size: 10,
+            color: AppColors.accent,
+          ),
         ),
         const SizedBox(width: 4),
         Text(
@@ -107,7 +110,11 @@ class _StatusIconButton extends StatefulWidget {
   final IconData icon;
   final String tooltip;
   final VoidCallback onTap;
-  const _StatusIconButton({required this.icon, required this.tooltip, required this.onTap});
+  const _StatusIconButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
 
   @override
   State<_StatusIconButton> createState() => _StatusIconButtonState();

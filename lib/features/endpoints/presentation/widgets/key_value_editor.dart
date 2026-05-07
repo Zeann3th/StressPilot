@@ -35,7 +35,6 @@ class _KeyValueEditorState extends State<KeyValueEditor> {
   void didUpdateWidget(KeyValueEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.data != oldWidget.data) {
-
       bool needsRebuild = false;
       if (widget.data.length != _controllers.length - 1) {
         needsRebuild = true;

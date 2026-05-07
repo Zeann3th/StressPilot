@@ -6,7 +6,10 @@ class UpdateDialog extends StatefulWidget {
 
   const UpdateDialog({super.key, required this.info});
 
-  static Future<void> checkAndShow(BuildContext context, {bool manual = false}) async {
+  static Future<void> checkAndShow(
+    BuildContext context, {
+    bool manual = false,
+  }) async {
     if (manual) {
       AppUpdater.resetCheck();
     }
@@ -68,18 +71,19 @@ class _UpdateDialogState extends State<UpdateDialog>
 
   void _startDownload() {
     setState(() => _phase = _Phase.downloading);
-    AppUpdater.downloadAndInstall(
-      widget.info.downloadUrl,
-      (progress, speed, eta) {
-        if (!mounted) return;
-        setState(() {
-          _progress = progress;
-          _speedMbps = speed;
-          _eta = eta;
-          if (progress >= 1.0) _phase = _Phase.installing;
-        });
-      },
-    ).catchError((e) {
+    AppUpdater.downloadAndInstall(widget.info.downloadUrl, (
+      progress,
+      speed,
+      eta,
+    ) {
+      if (!mounted) return;
+      setState(() {
+        _progress = progress;
+        _speedMbps = speed;
+        _eta = eta;
+        if (progress >= 1.0) _phase = _Phase.installing;
+      });
+    }).catchError((e) {
       if (!mounted) return;
       setState(() {
         _phase = _Phase.error;
@@ -216,10 +220,7 @@ class _UpdateDialogState extends State<UpdateDialog>
             if (_speedMbps > 0)
               Text(
                 '${_speedMbps.toStringAsFixed(1)} MB/s · $_eta remaining',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: colors.onSurfaceVariant,
-                ),
+                style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
               ),
           ],
         ),
@@ -234,11 +235,7 @@ class _UpdateDialogState extends State<UpdateDialog>
         AnimatedBuilder(
           animation: _pulse,
           builder: (_, child) => Opacity(opacity: _pulse.value, child: child),
-          child: Icon(
-            Icons.settings_rounded,
-            size: 48,
-            color: colors.primary,
-          ),
+          child: Icon(Icons.settings_rounded, size: 48, color: colors.primary),
         ),
         const SizedBox(height: 16),
         Text(

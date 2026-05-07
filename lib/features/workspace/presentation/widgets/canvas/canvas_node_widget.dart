@@ -41,7 +41,8 @@ class _CanvasNodeWidgetState extends State<CanvasNodeWidget> {
         onTap: widget.onTap,
         onDoubleTap: widget.onDoubleTap,
         onPanUpdate: (d) => widget.onDragUpdate(d.delta),
-        onPanEnd: (d) => widget.onDragEnd(Offset.zero), // Actual offset not needed for end
+        onPanEnd: (d) =>
+            widget.onDragEnd(Offset.zero), // Actual offset not needed for end
         child: MouseRegion(
           onEnter: (_) => setState(() => _isHovered = true),
           onExit: (_) => setState(() => _isHovered = false),
@@ -55,14 +56,19 @@ class _CanvasNodeWidgetState extends State<CanvasNodeWidget> {
                 color: widget.isSelected
                     ? AppColors.accent
                     : widget.isTarget
-                        ? Colors.orange
-                        : _isHovered
-                            ? AppColors.border
-                            : AppColors.divider,
+                    ? Colors.orange
+                    : _isHovered
+                    ? AppColors.border
+                    : AppColors.divider,
                 width: widget.isSelected || widget.isTarget ? 2 : 1,
               ),
               boxShadow: widget.isSelected
-                  ? [BoxShadow(color: AppColors.accent.withValues(alpha: 0.2), blurRadius: 8)]
+                  ? [
+                      BoxShadow(
+                        color: AppColors.accent.withValues(alpha: 0.2),
+                        blurRadius: 8,
+                      ),
+                    ]
                   : null,
             ),
             child: Row(
@@ -87,19 +93,27 @@ class _CanvasNodeWidgetState extends State<CanvasNodeWidget> {
 
   Color _getNodeColor(FlowNodeType type) {
     switch (type) {
-      case FlowNodeType.start: return Colors.green;
-      case FlowNodeType.endpoint: return AppColors.accent;
-      case FlowNodeType.branch: return Colors.orange;
-      case FlowNodeType.subflow: return Colors.teal;
+      case FlowNodeType.start:
+        return Colors.green;
+      case FlowNodeType.endpoint:
+        return AppColors.accent;
+      case FlowNodeType.branch:
+        return Colors.orange;
+      case FlowNodeType.subflow:
+        return Colors.teal;
     }
   }
 
   IconData _getNodeIcon(FlowNodeType type) {
     switch (type) {
-      case FlowNodeType.start: return Icons.play_arrow_rounded;
-      case FlowNodeType.endpoint: return Icons.api_rounded;
-      case FlowNodeType.branch: return Icons.call_split_rounded;
-      case FlowNodeType.subflow: return Icons.account_tree_rounded;
+      case FlowNodeType.start:
+        return Icons.play_arrow_rounded;
+      case FlowNodeType.endpoint:
+        return Icons.api_rounded;
+      case FlowNodeType.branch:
+        return Icons.call_split_rounded;
+      case FlowNodeType.subflow:
+        return Icons.account_tree_rounded;
     }
   }
 }

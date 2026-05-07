@@ -85,7 +85,6 @@ class EnvironmentProvider extends ChangeNotifier {
         if (v.id <= 0) {
           added.add({'key': v.key, 'value': v.value});
         } else {
-
           final original = _originalVariables.firstWhere(
             (o) => o.id == v.id,
             orElse: () => v,

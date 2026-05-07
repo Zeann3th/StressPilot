@@ -5,7 +5,8 @@ import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/menus/pilot_context_menu.dart';
 import 'package:stress_pilot/features/workspace/presentation/provider/workspace_tab_provider.dart';
 import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart' as flow_domain;
+import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+    as flow_domain;
 import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
 
@@ -28,10 +29,8 @@ class WorkspaceTabBar extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               onReorder: tabProvider.reorderTabs,
               itemCount: tabs.length,
-              proxyDecorator: (child, index, animation) => Material(
-                color: Colors.transparent,
-                child: child,
-              ),
+              proxyDecorator: (child, index, animation) =>
+                  Material(color: Colors.transparent, child: child),
               buildDefaultDragHandles: false, // Remove default handles
               itemBuilder: (context, index) {
                 final tab = tabs[index];
@@ -52,7 +51,11 @@ class WorkspaceTabBar extends StatelessWidget {
           ),
           if (tabs.isNotEmpty)
             PopupMenuButton<WorkspaceTab>(
-              icon: Icon(LucideIcons.chevronDown, size: 16, color: AppColors.textSecondary),
+              icon: Icon(
+                LucideIcons.chevronDown,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
               tooltip: 'Show all tabs',
               onSelected: (tab) => tabProvider.selectTab(tab),
               offset: const Offset(0, 40),
@@ -62,9 +65,13 @@ class WorkspaceTabBar extends StatelessWidget {
                   child: Row(
                     children: [
                       Icon(
-                        tab.type == WorkspaceTabType.flow ? LucideIcons.gitFork : LucideIcons.link,
+                        tab.type == WorkspaceTabType.flow
+                            ? LucideIcons.gitFork
+                            : LucideIcons.link,
                         size: 14,
-                        color: activeTab == tab ? AppColors.accent : AppColors.textSecondary,
+                        color: activeTab == tab
+                            ? AppColors.accent
+                            : AppColors.textSecondary,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -74,8 +81,12 @@ class WorkspaceTabBar extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.body.copyWith(
                             fontSize: 13,
-                            color: activeTab == tab ? AppColors.textPrimary : AppColors.textSecondary,
-                            fontWeight: activeTab == tab ? FontWeight.w500 : FontWeight.normal,
+                            color: activeTab == tab
+                                ? AppColors.textPrimary
+                                : AppColors.textSecondary,
+                            fontWeight: activeTab == tab
+                                ? FontWeight.w500
+                                : FontWeight.normal,
                           ),
                         ),
                       ),
@@ -140,11 +151,13 @@ class _WorkspaceTabWidgetState extends State<_WorkspaceTabWidget> {
     if (newName.isNotEmpty && newName != widget.tab.name) {
       final tabProvider = context.read<WorkspaceTabProvider>();
       tabProvider.renameTab(widget.tab.id, widget.tab.type, newName);
-      
+
       // Update underlying data based on type
       if (widget.tab.type == WorkspaceTabType.endpoint) {
         final endpoint = widget.tab.data as Endpoint;
-        context.read<EndpointProvider>().updateEndpoint(endpoint.id, {'name': newName});
+        context.read<EndpointProvider>().updateEndpoint(endpoint.id, {
+          'name': newName,
+        });
       } else {
         final flow = widget.tab.data as flow_domain.Flow;
         context.read<FlowProvider>().updateFlow(flowId: flow.id, name: newName);
@@ -182,10 +195,14 @@ class _WorkspaceTabWidgetState extends State<_WorkspaceTabWidget> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: widget.isActive ? AppColors.activeItem : Colors.transparent,
+              color: widget.isActive
+                  ? AppColors.activeItem
+                  : Colors.transparent,
               border: Border(
                 bottom: BorderSide(
-                  color: widget.isActive ? AppColors.accent : Colors.transparent,
+                  color: widget.isActive
+                      ? AppColors.accent
+                      : Colors.transparent,
                   width: 2,
                 ),
               ),
@@ -194,9 +211,13 @@ class _WorkspaceTabWidgetState extends State<_WorkspaceTabWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  widget.tab.type == WorkspaceTabType.flow ? LucideIcons.gitFork : LucideIcons.link,
+                  widget.tab.type == WorkspaceTabType.flow
+                      ? LucideIcons.gitFork
+                      : LucideIcons.link,
                   size: 13,
-                  color: widget.isActive ? AppColors.accent : AppColors.textSecondary,
+                  color: widget.isActive
+                      ? AppColors.accent
+                      : AppColors.textSecondary,
                 ),
                 const SizedBox(width: 8),
                 if (_isEditing)
@@ -219,16 +240,24 @@ class _WorkspaceTabWidgetState extends State<_WorkspaceTabWidget> {
                   Text(
                     widget.tab.name,
                     style: AppTypography.body.copyWith(
-                      color: widget.isActive ? AppColors.textPrimary : AppColors.textSecondary,
+                      color: widget.isActive
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
                       fontSize: 13,
-                      fontWeight: widget.isActive ? FontWeight.w500 : FontWeight.normal,
+                      fontWeight: widget.isActive
+                          ? FontWeight.w500
+                          : FontWeight.normal,
                     ),
                   ),
                 const SizedBox(width: 8),
                 if ((_isHovered || widget.isActive) && !_isEditing)
                   GestureDetector(
                     onTap: widget.onClose,
-                    child: Icon(LucideIcons.x, size: 12, color: AppColors.textSecondary),
+                    child: Icon(
+                      LucideIcons.x,
+                      size: 12,
+                      color: AppColors.textSecondary,
+                    ),
                   )
                 else
                   const SizedBox(width: 12),
@@ -240,4 +269,3 @@ class _WorkspaceTabWidgetState extends State<_WorkspaceTabWidget> {
     );
   }
 }
-

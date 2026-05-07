@@ -52,7 +52,9 @@ class _EnvironmentTableState extends State<EnvironmentTable> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _SaveButton(environmentId: provider.currentEnvironmentId ?? 0),
+                  _SaveButton(
+                    environmentId: provider.currentEnvironmentId ?? 0,
+                  ),
                   const SizedBox(width: 8),
                   PilotButton.primary(
                     onPressed: () => provider.addVariable(),
@@ -80,26 +82,17 @@ class _EnvironmentTableState extends State<EnvironmentTable> {
             children: [
               SizedBox(
                 width: 60,
-                child: Text(
-                  'STATUS',
-                  style: AppTypography.label,
-                ),
+                child: Text('STATUS', style: AppTypography.label),
               ),
               const SizedBox(width: 16),
               Expanded(
                 flex: 1,
-                child: Text(
-                  'VARIABLE KEY',
-                  style: AppTypography.label,
-                ),
+                child: Text('VARIABLE KEY', style: AppTypography.label),
               ),
               const SizedBox(width: 16),
               Expanded(
                 flex: 2,
-                child: Text(
-                  'VALUE',
-                  style: AppTypography.label,
-                ),
+                child: Text('VALUE', style: AppTypography.label),
               ),
               const SizedBox(width: 48),
             ],
@@ -110,32 +103,32 @@ class _EnvironmentTableState extends State<EnvironmentTable> {
           child: provider.isLoading
               ? const Center(child: PilotSkeleton(width: 200, height: 100))
               : filtered.isEmpty
-                ? _EmptyState(isSearch: _search.isNotEmpty)
-                : ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemCount: filtered.length,
-                    itemBuilder: (context, index) {
-                      final v = filtered[index];
-                      final realIndex = variables.indexOf(v);
+              ? _EmptyState(isSearch: _search.isNotEmpty)
+              : ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final v = filtered[index];
+                    final realIndex = variables.indexOf(v);
 
-                      return _EnvironmentRow(
-                        key: ValueKey(v.id),
-                        variable: v,
-                        isLast: index == filtered.length - 1,
-                        onChanged: (key, value, isActive) {
-                          provider.updateVariable(
-                            realIndex,
-                            key: key,
-                            value: value,
-                            isActive: isActive,
-                          );
-                        },
-                        onDelete: () {
-                          provider.removeVariable(realIndex);
-                        },
-                      );
-                    },
-                  ),
+                    return _EnvironmentRow(
+                      key: ValueKey(v.id),
+                      variable: v,
+                      isLast: index == filtered.length - 1,
+                      onChanged: (key, value, isActive) {
+                        provider.updateVariable(
+                          realIndex,
+                          key: key,
+                          value: value,
+                          isActive: isActive,
+                        );
+                      },
+                      onDelete: () {
+                        provider.removeVariable(realIndex);
+                      },
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -159,7 +152,9 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            isSearch ? 'No variables match your search' : 'No environment variables found',
+            isSearch
+                ? 'No variables match your search'
+                : 'No environment variables found',
             style: AppTypography.body.copyWith(color: AppColors.textSecondary),
           ),
         ],
@@ -268,7 +263,9 @@ class _EnvironmentRowState extends State<_EnvironmentRow> {
           color: _isHovered ? AppColors.hoverItem : Colors.transparent,
           border: widget.isLast
               ? null
-              : Border(bottom: BorderSide(color: border.withValues(alpha: 0.3))),
+              : Border(
+                  bottom: BorderSide(color: border.withValues(alpha: 0.3)),
+                ),
         ),
         child: Row(
           children: [

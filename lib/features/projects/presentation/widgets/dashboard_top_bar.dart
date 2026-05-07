@@ -10,7 +10,11 @@ class DashboardTopBar extends StatefulWidget {
   final TextEditingController? searchController;
   final ValueChanged<String>? onSearchSubmitted;
 
-  const DashboardTopBar({super.key, this.searchController, this.onSearchSubmitted});
+  const DashboardTopBar({
+    super.key,
+    this.searchController,
+    this.onSearchSubmitted,
+  });
 
   @override
   State<DashboardTopBar> createState() => _DashboardTopBarState();
@@ -27,9 +31,7 @@ class _DashboardTopBarState extends State<DashboardTopBar> {
       height: AppSpacing.navBarHeight,
       decoration: BoxDecoration(
         color: bg,
-        border: Border(
-          bottom: BorderSide(color: border, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: border, width: 1)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Stack(
@@ -51,7 +53,8 @@ class _DashboardTopBarState extends State<DashboardTopBar> {
                 _TopBarIcon(
                   icon: LucideIcons.shoppingBag,
                   tooltip: 'Marketplace',
-                  onTap: () => AppNavigator.pushNamed(AppRouter.marketplaceRoute),
+                  onTap: () =>
+                      AppNavigator.pushNamed(AppRouter.marketplaceRoute),
                 ),
                 const SizedBox(width: 4),
                 _TopBarIcon(
@@ -78,7 +81,11 @@ class _TopBarIcon extends StatefulWidget {
   final String tooltip;
   final VoidCallback onTap;
 
-  const _TopBarIcon({required this.icon, required this.tooltip, required this.onTap});
+  const _TopBarIcon({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
 
   @override
   State<_TopBarIcon> createState() => _TopBarIconState();
@@ -111,7 +118,8 @@ class _TopBarIconState extends State<_TopBarIcon> {
           child: TweenAnimationBuilder<double>(
             duration: AppDurations.short,
             tween: Tween(begin: 1.0, end: _isPressed ? 0.95 : 1.0),
-            builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
+            builder: (context, scale, child) =>
+                Transform.scale(scale: scale, child: child),
             child: AnimatedContainer(
               duration: AppDurations.micro,
               width: 36, // Slightly narrower for Fleet density

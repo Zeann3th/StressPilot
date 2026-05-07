@@ -8,7 +8,7 @@ class PluginCapability {
     required this.id,
     required this.name,
     required this.category,
-    this.requiredFields = const []
+    this.requiredFields = const [],
   });
 
   factory PluginCapability.fromJson(Map<String, dynamic> json) {

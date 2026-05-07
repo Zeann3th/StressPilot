@@ -7,7 +7,8 @@ import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
 import 'package:stress_pilot/features/projects/domain/models/project.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart' as flow_domain;
+import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+    as flow_domain;
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/features/shared/presentation/widgets/navigation_item.dart';
 
@@ -49,17 +50,22 @@ class _RecentPagesWidgetState extends State<RecentPagesWidget> {
         case RecentEntityType.project:
           final project = Project.fromJson(item.arguments);
           await projectProvider.selectProject(project);
-          if (mounted) AppNavigator.pushReplacementNamed(AppRouter.workspaceRoute);
+          if (mounted)
+            AppNavigator.pushReplacementNamed(AppRouter.workspaceRoute);
           break;
         case RecentEntityType.flow:
           final flow = flow_domain.Flow.fromJson(item.arguments);
           await flowProvider.selectFlow(flow);
-          if (mounted) AppNavigator.pushReplacementNamed(AppRouter.workspaceRoute);
+          if (mounted)
+            AppNavigator.pushReplacementNamed(AppRouter.workspaceRoute);
           break;
         case RecentEntityType.endpoint:
-          final project = Project.fromJson(item.arguments['project'] as Map<String, dynamic>);
+          final project = Project.fromJson(
+            item.arguments['project'] as Map<String, dynamic>,
+          );
           await projectProvider.selectProject(project);
-          if (mounted) AppNavigator.pushReplacementNamed(AppRouter.workspaceRoute);
+          if (mounted)
+            AppNavigator.pushReplacementNamed(AppRouter.workspaceRoute);
           break;
       }
     });
@@ -76,10 +82,13 @@ class _RecentPagesWidgetState extends State<RecentPagesWidget> {
             const SizedBox(height: 16),
             const PilotSkeleton(width: 200, height: 24),
             const SizedBox(height: 32),
-            ...List.generate(3, (index) => const Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: PilotSkeleton(height: 40),
-            )),
+            ...List.generate(
+              3,
+              (index) => const Padding(
+                padding: EdgeInsets.only(bottom: 8),
+                child: PilotSkeleton(height: 40),
+              ),
+            ),
           ],
         ),
       );
@@ -94,7 +103,9 @@ class _RecentPagesWidgetState extends State<RecentPagesWidget> {
             const SizedBox(height: 16),
             Text(
               'No recent activity',
-              style: AppTypography.heading.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.heading.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         ),

@@ -89,7 +89,11 @@ class _ActionIcon extends StatefulWidget {
   final String tooltip;
   final VoidCallback onTap;
 
-  const _ActionIcon({required this.icon, required this.tooltip, required this.onTap});
+  const _ActionIcon({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
 
   @override
   State<_ActionIcon> createState() => _ActionIconState();
@@ -117,7 +121,8 @@ class _ActionIconState extends State<_ActionIcon> {
           child: TweenAnimationBuilder<double>(
             duration: AppDurations.short,
             tween: Tween(begin: 1.0, end: _pressed ? 0.92 : 1.0),
-            builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
+            builder: (context, scale, child) =>
+                Transform.scale(scale: scale, child: child),
             child: AnimatedContainer(
               duration: AppDurations.micro,
               width: 36,

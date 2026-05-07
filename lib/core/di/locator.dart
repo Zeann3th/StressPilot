@@ -74,7 +74,8 @@ void setupDependencies() {
   getIt.registerLazySingleton(() => CanvasProvider());
 
   getIt.registerLazySingleton<EnvironmentRepository>(
-      () => EnvironmentRepositoryImpl());
+    () => EnvironmentRepositoryImpl(),
+  );
   getIt.registerLazySingleton(() => EnvironmentProvider(getIt()));
 
   getIt.registerLazySingleton<ResultsRepository>(
@@ -89,12 +90,17 @@ void setupDependencies() {
 
   getIt.registerLazySingleton<PluginRepository>(() => PluginRepositoryImpl());
   getIt.registerLazySingleton(() => PluginSettingsProvider(getIt()));
-  getIt.registerLazySingleton<FunctionRepository>(() => FunctionRepositoryImpl());
+  getIt.registerLazySingleton<FunctionRepository>(
+    () => FunctionRepositoryImpl(),
+  );
   getIt.registerLazySingleton(() => FunctionSettingsProvider(getIt()));
-  getIt.registerLazySingleton<ScheduleRepository>(() => ScheduleRepositoryImpl());
+  getIt.registerLazySingleton<ScheduleRepository>(
+    () => ScheduleRepositoryImpl(),
+  );
   getIt.registerLazySingleton(() => SchedulingProvider(getIt()));
   getIt.registerLazySingleton<PluginCapabilityRepository>(
-      () => PluginCapabilityRepositoryImpl());
+    () => PluginCapabilityRepositoryImpl(),
+  );
 
   getIt<ResultsProvider>();
 }

@@ -131,6 +131,7 @@ class AppNavigator {
       arguments: arguments,
     );
   }
+
   static void pop<T extends Object?>([T? result]) {
     navigatorKey.currentState?.pop<T>(result);
   }
