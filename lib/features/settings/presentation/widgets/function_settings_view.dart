@@ -309,8 +309,9 @@ class _FunctionDetailEditorState extends State<_FunctionDetailEditor> {
                     if (confirmed == true && context.mounted) {
                       final provider = context.read<FunctionSettingsProvider>();
                       await provider.deleteFunction(widget.function.id!);
-                      if (context.mounted)
+                      if (context.mounted) {
                         PilotToast.show(context, 'Function deleted');
+                      }
                     }
                   },
                 ),
@@ -326,8 +327,9 @@ class _FunctionDetailEditorState extends State<_FunctionDetailEditor> {
                     body: _codeController.text,
                   );
                   await provider.saveFunction(updated);
-                  if (context.mounted)
+                  if (context.mounted) {
                     PilotToast.show(context, 'Function saved successfully');
+                  }
                 },
               ),
             ],

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:stress_pilot/core/network/http_client.dart';
 import 'package:stress_pilot/features/results/domain/models/run.dart';
+import 'package:stress_pilot/features/results/domain/models/run_snapshot.dart';
 import '../../domain/repositories/run_repository.dart';
 
 class RunRepositoryImpl implements RunRepository {
@@ -82,5 +83,22 @@ class RunRepositoryImpl implements RunRepository {
   @override
   Future<void> interruptRun(String runId) async {
     await _dio.delete('/api/v1/runs/$runId');
+  }
+
+  @override
+  Future<List<RunSnapshot>> compareSnapshots(
+    String runId1,
+    String runId2,
+  ) async {
+    final response = await _dio.get('/api/v1/runs/snapshot/compare/$runId1..$runId2');
+    return (response.data['data'] as List)
+        .map((e) => RunSnapshot.fromJson(e))
+        .toList();
+  }
+
+  @override
+  Future<RunSnapshot> triggerSnapshot(String runId) async {
+    final response = await _dio.post('/api/v1/runs/$runId/snapshot');
+    return RunSnapshot.fromJson(response.data['data']);
   }
 }

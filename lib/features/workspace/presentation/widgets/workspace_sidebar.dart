@@ -11,6 +11,7 @@ import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_p
 import 'package:stress_pilot/features/shared/presentation/widgets/create_endpoint_dialog.dart';
 import 'package:stress_pilot/features/projects/domain/models/flow.dart'
     as flow_domain;
+import 'package:stress_pilot/core/input/pilot_intent.dart';
 import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
@@ -216,7 +217,21 @@ class _SidebarSectionState extends State<_SidebarSection> {
       ],
     );
 
-    return _isExpanded ? Expanded(child: sectionContent) : sectionContent;
+    final result = _isExpanded
+        ? Expanded(child: sectionContent)
+        : sectionContent;
+
+    return Actions(
+      actions: {
+        PilotIntent: PilotAction({
+          if (widget.type == _SectionType.endpoints)
+            'endpoint.new': () => _handleAdd(context),
+          if (widget.type == _SectionType.flows)
+            'flow.new': () => _handleAdd(context),
+        }),
+      },
+      child: Focus(autofocus: true, child: result),
+    );
   }
 }
 

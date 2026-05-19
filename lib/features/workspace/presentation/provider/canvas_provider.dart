@@ -422,10 +422,12 @@ class CanvasProvider extends ChangeNotifier {
         nodeData[type == FlowNodeType.subflow ? 'subflowId' : 'condition'] =
             step.condition;
       }
-      if (step.preProcessor != null)
+      if (step.preProcessor != null) {
         nodeData['preProcessor'] = step.preProcessor;
-      if (step.postProcessor != null)
+      }
+      if (step.postProcessor != null) {
         nodeData['postProcessor'] = step.postProcessor;
+      }
 
       if (type == FlowNodeType.endpoint) {
         if (step.endpointName != null) {

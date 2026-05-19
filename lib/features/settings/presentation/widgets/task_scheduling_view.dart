@@ -300,8 +300,9 @@ class _ScheduleDetailEditorState extends State<_ScheduleDetailEditor> {
                   if (confirmed == true && context.mounted) {
                     final provider = context.read<SchedulingProvider>();
                     await provider.deleteSchedule(widget.schedule.id);
-                    if (context.mounted)
+                    if (context.mounted) {
                       PilotToast.show(context, 'Schedule deleted');
+                    }
                   }
                 },
               ),
@@ -320,8 +321,9 @@ class _ScheduleDetailEditorState extends State<_ScheduleDetailEditor> {
                     enabled: _enabled,
                   );
                   await provider.saveSchedule(updated);
-                  if (context.mounted)
+                  if (context.mounted) {
                     PilotToast.show(context, 'Schedule saved successfully');
+                  }
                 },
               ),
             ],
@@ -504,8 +506,9 @@ class _NewScheduleEditorState extends State<_NewScheduleEditor> {
                     ),
                     createRequest: request,
                   );
-                  if (context.mounted)
+                  if (context.mounted) {
                     PilotToast.show(context, 'Schedule created successfully');
+                  }
                 },
               ),
             ],

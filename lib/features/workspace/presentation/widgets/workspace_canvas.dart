@@ -9,11 +9,11 @@ import 'package:stress_pilot/features/workspace/presentation/provider/canvas_pro
 import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
 import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
 import 'package:stress_pilot/features/projects/presentation/widgets/node_configuration_dialog.dart';
+import 'package:stress_pilot/features/projects/presentation/widgets/run_flow_dialog.dart';
 import 'package:stress_pilot/features/projects/presentation/widgets/subflow_configuration_dialog.dart';
 import 'package:stress_pilot/features/results/presentation/provider/run_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
-import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:highlight/languages/json.dart';
@@ -21,6 +21,7 @@ import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:flutter_highlight/themes/github.dart';
 
 import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
+import 'package:stress_pilot/core/input/pilot_intent.dart';
 
 import 'package:stress_pilot/features/workspace/presentation/provider/workspace_tab_provider.dart';
 import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart'
@@ -178,24 +179,34 @@ class _CanvasContentState extends State<_CanvasContent>
       return const Center(child: CircularProgressIndicator());
     }
 
-    return CallbackShortcuts(
-      bindings: {
-        const SingleActivator(LogicalKeyboardKey.delete): () {
-          if (_highlightedConnectionId != null) {
-            canvasProvider.removeConnection(_highlightedConnectionId!);
-            setState(() => _highlightedConnectionId = null);
-          } else if (canvasProvider.selectedNodeId != null) {
-            canvasProvider.removeNode(canvasProvider.selectedNodeId!);
-          }
-        },
-        const SingleActivator(LogicalKeyboardKey.backspace): () {
-          if (_highlightedConnectionId != null) {
-            canvasProvider.removeConnection(_highlightedConnectionId!);
-            setState(() => _highlightedConnectionId = null);
-          } else if (canvasProvider.selectedNodeId != null) {
-            canvasProvider.removeNode(canvasProvider.selectedNodeId!);
-          }
-        },
+    return Actions(
+      actions: {
+        PilotIntent: PilotAction({
+          'flow.save': () {
+            final flowProvider = context.read<FlowProvider>();
+            final endpointProvider = context.read<EndpointProvider>();
+            canvasProvider.saveFlowConfiguration(
+              int.parse(widget.flowId),
+              flowProvider,
+              endpoints: endpointProvider.endpoints,
+              flows: flowProvider.flows,
+            );
+          },
+          'flow.run': () {
+            showDialog<void>(
+              context: context,
+              builder: (_) => RunFlowDialog(flowId: int.parse(widget.flowId)),
+            );
+          },
+          'node.delete': () {
+            if (_highlightedConnectionId != null) {
+              canvasProvider.removeConnection(_highlightedConnectionId!);
+              setState(() => _highlightedConnectionId = null);
+            } else if (canvasProvider.selectedNodeId != null) {
+              canvasProvider.removeNode(canvasProvider.selectedNodeId!);
+            }
+          },
+        }),
       },
       child: Focus(
         autofocus: true,
@@ -745,10 +756,12 @@ class _CanvasContentState extends State<_CanvasContent>
     for (final node in provider.nodes) {
       if (node.position.dx < minX) minX = node.position.dx;
       if (node.position.dy < minY) minY = node.position.dy;
-      if (node.position.dx + node.width > maxX)
+      if (node.position.dx + node.width > maxX) {
         maxX = node.position.dx + node.width;
-      if (node.position.dy + node.height > maxY)
+      }
+      if (node.position.dy + node.height > maxY) {
         maxY = node.position.dy + node.height;
+      }
     }
 
     final double graphWidth = maxX - minX;

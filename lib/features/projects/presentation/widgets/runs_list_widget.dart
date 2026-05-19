@@ -13,8 +13,17 @@ import 'package:stress_pilot/features/results/domain/models/run.dart';
 
 class RunsListWidget extends StatefulWidget {
   final int? flowId;
+  final bool isSelectionMode;
+  final Iterable<String> selectedIds;
+  final Function(String, bool)? onSelectionChanged;
 
-  const RunsListWidget({super.key, this.flowId});
+  const RunsListWidget({
+    super.key,
+    this.flowId,
+    this.isSelectionMode = false,
+    this.selectedIds = const [],
+    this.onSelectionChanged,
+  });
 
   @override
   State<RunsListWidget> createState() => _RunsListWidgetState();
@@ -170,6 +179,9 @@ class _RunsListWidgetState extends State<RunsListWidget> {
                       isExporting: _exportingRunIds.contains(_runs![index].id),
                       onTap: () => _handleRunTap(_runs![index]),
                       onRefresh: _loadRuns,
+                      isSelectionMode: widget.isSelectionMode,
+                      isSelected: widget.selectedIds.contains(_runs![index].id),
+                      onSelectionChanged: widget.onSelectionChanged,
                     ),
                   ),
                 ),
@@ -265,12 +277,18 @@ class _RunTile extends StatefulWidget {
   final bool isExporting;
   final VoidCallback onTap;
   final VoidCallback onRefresh;
+  final bool isSelectionMode;
+  final bool isSelected;
+  final Function(String, bool)? onSelectionChanged;
 
   const _RunTile({
     required this.run,
     required this.isExporting,
     required this.onTap,
     required this.onRefresh,
+    this.isSelectionMode = false,
+    this.isSelected = false,
+    this.onSelectionChanged,
   });
 
   @override
@@ -296,7 +314,11 @@ class _RunTileState extends State<_RunTile> {
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) {
         setState(() => _isPressed = false);
-        widget.onTap();
+        if (widget.isSelectionMode) {
+          widget.onSelectionChanged?.call(widget.run.id, !widget.isSelected);
+        } else {
+          widget.onTap();
+        }
       },
       onTapCancel: () => setState(() => _isPressed = false),
       child: MouseRegion(
@@ -311,12 +333,16 @@ class _RunTileState extends State<_RunTile> {
           child: AnimatedContainer(
             duration: AppDurations.micro,
             decoration: BoxDecoration(
-              color: _hovered
+              color: widget.isSelected
+                  ? AppColors.accent.withValues(alpha: 0.05)
+                  : _hovered
                   ? AppColors.accent.withValues(alpha: 0.02)
                   : surface,
               borderRadius: AppRadius.br10,
               border: Border.all(
-                color: _hovered
+                color: widget.isSelected
+                    ? AppColors.accent
+                    : _hovered
                     ? AppColors.accent.withValues(alpha: 0.2)
                     : border,
               ),
@@ -325,6 +351,20 @@ class _RunTileState extends State<_RunTile> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               children: [
+                if (widget.isSelectionMode)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Checkbox(
+                      value: widget.isSelected,
+                      activeColor: AppColors.accent,
+                      onChanged: (val) {
+                        widget.onSelectionChanged?.call(
+                          widget.run.id,
+                          val ?? false,
+                        );
+                      },
+                    ),
+                  ),
                 Icon(statusIcon, color: statusColor, size: 20),
                 const SizedBox(width: 12),
                 Expanded(
@@ -369,64 +409,67 @@ class _RunTileState extends State<_RunTile> {
                     ],
                   ),
                 ),
-                if (isRunning)
-                  _isInterrupting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : IconButton(
-                          icon: const Icon(
-                            Icons.stop_circle_outlined,
-                            color: Colors.red,
-                          ),
-                          tooltip: 'Abort Run',
-                          onPressed: () async {
-                            setState(() => _isInterrupting = true);
-                            try {
-                              await context.read<RunProvider>().interruptRun(
-                                widget.run.id,
-                              );
-                              widget.onRefresh();
-                            } catch (e) {
-                              if (mounted && context.mounted) {
-                                PilotToast.show(
-                                  context,
-                                  'Failed to abort: $e',
-                                  isError: true,
-                                );
-                              }
-                            } finally {
-                              if (mounted)
-                                setState(() => _isInterrupting = false);
-                            }
-                          },
-                        ),
-                if (status == 'RUNNING')
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 16,
-                    color: AppColors.textMuted,
-                  ),
-                if (status != 'RUNNING' && status != 'STARTING')
-                  Tooltip(
-                    message: 'Export',
-                    child: widget.isExporting
-                        ? SizedBox(
+                if (!widget.isSelectionMode) ...[
+                  if (isRunning)
+                    _isInterrupting
+                        ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColors.accent,
-                            ),
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Icon(
-                            Icons.download_rounded,
-                            color: AppColors.accent,
-                            size: 18,
+                        : IconButton(
+                            icon: const Icon(
+                              Icons.stop_circle_outlined,
+                              color: Colors.red,
+                            ),
+                            tooltip: 'Abort Run',
+                            onPressed: () async {
+                              setState(() => _isInterrupting = true);
+                              try {
+                                await context.read<RunProvider>().interruptRun(
+                                  widget.run.id,
+                                );
+                                widget.onRefresh();
+                              } catch (e) {
+                                if (mounted && context.mounted) {
+                                  PilotToast.show(
+                                    context,
+                                    'Failed to abort: $e',
+                                    isError: true,
+                                  );
+                                }
+                              } finally {
+                                if (mounted) {
+                                  setState(() => _isInterrupting = false);
+                                }
+                              }
+                            },
                           ),
-                  ),
+                  if (status == 'RUNNING')
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 16,
+                      color: AppColors.textMuted,
+                    ),
+                  if (status != 'RUNNING' && status != 'STARTING')
+                    Tooltip(
+                      message: 'Export',
+                      child: widget.isExporting
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.accent,
+                              ),
+                            )
+                          : Icon(
+                              Icons.download_rounded,
+                              color: AppColors.accent,
+                              size: 18,
+                            ),
+                    ),
+                ],
               ],
             ),
           ),

@@ -8,6 +8,7 @@ import 'package:stress_pilot/features/results/presentation/pages/results_page.da
 import 'package:stress_pilot/features/settings/presentation/pages/settings_page.dart';
 import 'package:stress_pilot/features/marketplace/presentation/pages/marketplace_page.dart';
 import 'package:stress_pilot/features/results/presentation/pages/recent_runs_page.dart';
+import 'package:stress_pilot/features/results/presentation/pages/run_comparison_page.dart';
 
 class AppRouter {
   static const String projectsRoute = '/';
@@ -17,6 +18,7 @@ class AppRouter {
   static const String resultsRoute = '/results';
   static const String recentRunsRoute = '/recent-runs';
   static const String marketplaceRoute = '/marketplace';
+  static const String runComparisonRoute = '/run-comparison';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     MaterialPageRoute<T> buildRoute<T>(Widget widget) {
@@ -52,6 +54,14 @@ class AppRouter {
         return buildRoute(const RecentRunsPage());
       case marketplaceRoute:
         return buildRoute(const MarketplacePage());
+      case runComparisonRoute:
+        final args = settings.arguments as Map<String, dynamic>;
+        return buildRoute(
+          RunComparisonPage(
+            runId1: args['runId1'] as String,
+            runId2: args['runId2'] as String,
+          ),
+        );
 
       default:
         return buildRoute(

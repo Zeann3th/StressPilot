@@ -50,22 +50,25 @@ class _RecentPagesWidgetState extends State<RecentPagesWidget> {
         case RecentEntityType.project:
           final project = Project.fromJson(item.arguments);
           await projectProvider.selectProject(project);
-          if (mounted)
+          if (mounted) {
             AppNavigator.pushReplacementNamed(AppRouter.workspaceRoute);
+          }
           break;
         case RecentEntityType.flow:
           final flow = flow_domain.Flow.fromJson(item.arguments);
           await flowProvider.selectFlow(flow);
-          if (mounted)
+          if (mounted) {
             AppNavigator.pushReplacementNamed(AppRouter.workspaceRoute);
+          }
           break;
         case RecentEntityType.endpoint:
           final project = Project.fromJson(
             item.arguments['project'] as Map<String, dynamic>,
           );
           await projectProvider.selectProject(project);
-          if (mounted)
+          if (mounted) {
             AppNavigator.pushReplacementNamed(AppRouter.workspaceRoute);
+          }
           break;
       }
     });

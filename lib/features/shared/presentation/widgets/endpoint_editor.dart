@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
+import 'package:stress_pilot/core/input/pilot_intent.dart';
 import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart';
 import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
 import 'package:stress_pilot/features/endpoints/data/curl_parser.dart';
@@ -193,12 +194,14 @@ class _EndpointEditorState extends State<EndpointEditor>
       if (value.trim().toLowerCase().startsWith('curl ')) {
         final data = CurlParser.parse(value);
         setState(() {
-          if (data.url != null && data.url!.isNotEmpty)
+          if (data.url != null && data.url!.isNotEmpty) {
             _urlCtrl.text = data.url!;
+          }
           if (data.method != null) _method = data.method!;
           if (data.headers != null) _headers.addAll(data.headers!);
-          if (data.body != null && data.body!.isNotEmpty)
+          if (data.body != null && data.body!.isNotEmpty) {
             _bodyCtrl.text = data.body!;
+          }
         });
         _queueSync();
       }
@@ -334,139 +337,158 @@ class _EndpointEditorState extends State<EndpointEditor>
     }
   }
 
+  void _run() {
+    final provider = context.read<EndpointProvider>();
+    final transientState = provider.getTransientState(widget.endpoint.id) ?? {};
+    provider.setResponsePanelVisible(true);
+    provider.executeEndpoint(widget.endpoint.id, transientState);
+  }
+
   @override
   Widget build(BuildContext context) {
     final endpointProvider = context.watch<EndpointProvider>();
     _loadResults();
 
-    return KeyboardListener(
-      focusNode: _keyboardFocusNode,
-      onKeyEvent: (event) {
-        if (event is KeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.keyF &&
-            (HardwareKeyboard.instance.isControlPressed ||
-                HardwareKeyboard.instance.isMetaPressed)) {
-          setState(() {
-            _showSearch = !_showSearch;
-            if (_showSearch) {
-              _searchFocusNode.requestFocus();
-            } else {
-              _searchCtrl.clear();
-            }
-          });
-        }
+    return Actions(
+      actions: {
+        PilotIntent: PilotAction({
+          'endpoint.save': _save,
+          'endpoint.run': _run,
+        }),
       },
-      child: Column(
-        children: [
-          EndpointEditorHeader(
-            method: _method,
-            urlController: _urlCtrl,
-            onMethodChanged: (v) {
-              setState(() => _method = v!);
-              _queueSync();
-            },
-            onUrlChanged: _handleUrlChanged,
-            onExportCurl: _showExportCurlDialog,
-            onSave: _save,
-          ),
+      child: Focus(
+        autofocus: true,
+        child: KeyboardListener(
+          focusNode: _keyboardFocusNode,
+          onKeyEvent: (event) {
+            if (event is KeyDownEvent &&
+                event.logicalKey == LogicalKeyboardKey.keyF &&
+                (HardwareKeyboard.instance.isControlPressed ||
+                    HardwareKeyboard.instance.isMetaPressed)) {
+              setState(() {
+                _showSearch = !_showSearch;
+                if (_showSearch) {
+                  _searchFocusNode.requestFocus();
+                } else {
+                  _searchCtrl.clear();
+                }
+              });
+            }
+          },
+          child: Column(
+            children: [
+              EndpointEditorHeader(
+                method: _method,
+                urlController: _urlCtrl,
+                onMethodChanged: (v) {
+                  setState(() => _method = v!);
+                  _queueSync();
+                },
+                onUrlChanged: _handleUrlChanged,
+                onExportCurl: _showExportCurlDialog,
+                onSave: _save,
+              ),
 
-          Expanded(
-            child: LayoutBuilder(
-              builder: (ctx, constraints) {
-                return Column(
-                  children: [
-                    Expanded(
-                      child: EndpointEditorTabs(
-                        tabController: _reqTabCtrl,
-                        params: _params,
-                        headers: _headers,
-                        body: _bodyCtrl.text,
-                        successConditionController: _successConditionCtrl,
-                        variables: _variables,
-                        onParamsChanged: (d) {
-                          _params.addAll(d);
-                          _queueSync();
-                        },
-                        onHeadersChanged: (d) {
-                          _headers.addAll(d);
-                          _queueSync();
-                        },
-                        onBodyChanged: (v) {
-                          _bodyCtrl.text = v;
-                          _queueSync();
-                        },
-                        onVariablesChanged: (d) {
-                          _variables = d;
-                          _queueSync();
-                        },
-                        paramsScrollCtrl: _paramsScrollCtrl,
-                        headersScrollCtrl: _headersScrollCtrl,
-                        bodyScrollCtrl: _bodyScrollCtrl,
-                        settingsScrollCtrl: _settingsScrollCtrl,
-                      ),
-                    ),
-
-                    if (endpointProvider.isResponsePanelVisible)
-                      EndpointEditorResponsePanel(
-                        response: _response,
-                        showRaw: _showRaw,
-                        isExecuting: endpointProvider.isEndpointExecuting(
-                          widget.endpoint.id,
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (ctx, constraints) {
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: EndpointEditorTabs(
+                            tabController: _reqTabCtrl,
+                            params: _params,
+                            headers: _headers,
+                            body: _bodyCtrl.text,
+                            successConditionController: _successConditionCtrl,
+                            variables: _variables,
+                            onParamsChanged: (d) {
+                              _params.addAll(d);
+                              _queueSync();
+                            },
+                            onHeadersChanged: (d) {
+                              _headers.addAll(d);
+                              _queueSync();
+                            },
+                            onBodyChanged: (v) {
+                              _bodyCtrl.text = v;
+                              _queueSync();
+                            },
+                            onVariablesChanged: (d) {
+                              _variables = d;
+                              _queueSync();
+                            },
+                            paramsScrollCtrl: _paramsScrollCtrl,
+                            headersScrollCtrl: _headersScrollCtrl,
+                            bodyScrollCtrl: _bodyScrollCtrl,
+                            settingsScrollCtrl: _settingsScrollCtrl,
+                          ),
                         ),
-                        elapsedMsNotifier: _elapsedMsNotifier,
-                        statusCode: _statusCode,
-                        responseTime: _responseTime,
-                        isSuccess: _isSuccess,
-                        onToggleRaw: () => setState(() => _showRaw = !_showRaw),
-                        onClose: () =>
-                            endpointProvider.setResponsePanelVisible(false),
-                        heightNotifier: _responsePanelHeight,
-                        maxHeight: constraints.maxHeight - 100.0,
-                        showSearch: _showSearch,
-                        searchController: _searchCtrl,
-                        searchFocusNode: _searchFocusNode,
-                        currentSearchMatchIndex: _currentSearchMatchIndex,
-                        totalMatchesCount: _totalMatchesCount,
-                        onSearchChanged: (v) =>
-                            setState(() => _currentSearchMatchIndex = 0),
-                        onSearchNext: () {
-                          if (_totalMatchesCount > 0) {
-                            setState(
-                              () => _currentSearchMatchIndex =
-                                  (_currentSearchMatchIndex + 1) %
-                                  _totalMatchesCount,
-                            );
-                          }
-                        },
-                        onSearchPrev: () {
-                          if (_totalMatchesCount > 0) {
-                            setState(
-                              () => _currentSearchMatchIndex =
-                                  (_currentSearchMatchIndex -
-                                      1 +
-                                      _totalMatchesCount) %
-                                  _totalMatchesCount,
-                            );
-                          }
-                        },
-                        onCloseSearch: () => setState(() {
-                          _showSearch = false;
-                          _searchCtrl.clear();
-                          _totalMatchesCount = 0;
-                          _currentSearchMatchIndex = 0;
-                        }),
-                        onMatchesCountChanged: (count) {
-                          if (_totalMatchesCount != count) {
-                            setState(() => _totalMatchesCount = count);
-                          }
-                        },
-                      ),
-                  ],
-                );
-              },
-            ),
+
+                        if (endpointProvider.isResponsePanelVisible)
+                          EndpointEditorResponsePanel(
+                            response: _response,
+                            showRaw: _showRaw,
+                            isExecuting: endpointProvider.isEndpointExecuting(
+                              widget.endpoint.id,
+                            ),
+                            elapsedMsNotifier: _elapsedMsNotifier,
+                            statusCode: _statusCode,
+                            responseTime: _responseTime,
+                            isSuccess: _isSuccess,
+                            onToggleRaw: () =>
+                                setState(() => _showRaw = !_showRaw),
+                            onClose: () =>
+                                endpointProvider.setResponsePanelVisible(false),
+                            heightNotifier: _responsePanelHeight,
+                            maxHeight: constraints.maxHeight - 100.0,
+                            showSearch: _showSearch,
+                            searchController: _searchCtrl,
+                            searchFocusNode: _searchFocusNode,
+                            currentSearchMatchIndex: _currentSearchMatchIndex,
+                            totalMatchesCount: _totalMatchesCount,
+                            onSearchChanged: (v) =>
+                                setState(() => _currentSearchMatchIndex = 0),
+                            onSearchNext: () {
+                              if (_totalMatchesCount > 0) {
+                                setState(
+                                  () => _currentSearchMatchIndex =
+                                      (_currentSearchMatchIndex + 1) %
+                                      _totalMatchesCount,
+                                );
+                              }
+                            },
+                            onSearchPrev: () {
+                              if (_totalMatchesCount > 0) {
+                                setState(
+                                  () => _currentSearchMatchIndex =
+                                      (_currentSearchMatchIndex -
+                                          1 +
+                                          _totalMatchesCount) %
+                                      _totalMatchesCount,
+                                );
+                              }
+                            },
+                            onCloseSearch: () => setState(() {
+                              _showSearch = false;
+                              _searchCtrl.clear();
+                              _totalMatchesCount = 0;
+                              _currentSearchMatchIndex = 0;
+                            }),
+                            onMatchesCountChanged: (count) {
+                              if (_totalMatchesCount != count) {
+                                setState(() => _totalMatchesCount = count);
+                              }
+                            },
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

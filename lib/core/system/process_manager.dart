@@ -28,8 +28,11 @@ final _closeHandle = _kernel32
     ?.lookupFunction<Bool Function(IntPtr), bool Function(int)>('CloseHandle');
 
 void _winTerminatePid(int pid) {
-  if (_openProcess == null || _terminateProcess == null || _closeHandle == null)
+  if (_openProcess == null ||
+      _terminateProcess == null ||
+      _closeHandle == null) {
     return;
+  }
   final handle = _openProcess!(0x0001, false, pid);
   if (handle == 0) return;
   try {

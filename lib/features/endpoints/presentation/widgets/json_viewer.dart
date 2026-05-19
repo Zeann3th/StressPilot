@@ -45,8 +45,9 @@ class _JsonViewerState extends State<JsonViewer> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (widget.activeMatchIndex < 0 ||
-          widget.activeMatchIndex >= _matchKeys.length)
+          widget.activeMatchIndex >= _matchKeys.length) {
         return;
+      }
 
       final key = _matchKeys[widget.activeMatchIndex];
       final context = key.currentContext;

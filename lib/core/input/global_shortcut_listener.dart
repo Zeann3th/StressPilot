@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:stress_pilot/core/di/locator.dart';
 import 'package:stress_pilot/core/input/keymap_provider.dart';
+import 'package:stress_pilot/core/input/pilot_intent.dart';
 import 'package:stress_pilot/core/navigation/app_router.dart';
 import 'package:stress_pilot/core/themes/theme_manager.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
@@ -54,7 +55,24 @@ class _GlobalShortcutListenerState extends State<GlobalShortcutListener> {
 
     for (final entry in provider.cachedActivators) {
       if (entry.key.accepts(event, HardwareKeyboard.instance)) {
-        return _performAction(entry.value);
+        final actionId = entry.value;
+
+        // 1. Try to dispatch to the currently focused widget
+        final focusContext = primaryFocus?.context;
+        if (focusContext != null) {
+          final intent = PilotIntent(actionId);
+          final action = Actions.maybeFind<PilotIntent>(
+            focusContext,
+            intent: intent,
+          );
+          if (action != null) {
+            Actions.invoke(focusContext, intent);
+            return true;
+          }
+        }
+
+        // 2. Fallback to global actions if not handled by focus
+        return _performAction(actionId);
       }
     }
 
@@ -101,9 +119,6 @@ class _GlobalShortcutListenerState extends State<GlobalShortcutListener> {
         return true;
       case 'search.anywhere':
         _showGlobalSearch();
-        return true;
-
-      case 'flow.save':
         return true;
 
       default:
