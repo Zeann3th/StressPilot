@@ -32,6 +32,8 @@ class WorkspaceSidebar extends StatefulWidget {
 class _WorkspaceSidebarState extends State<WorkspaceSidebar> {
   final _searchCtrl = TextEditingController();
   String _searchQuery = '';
+  bool _endpointsExpanded = true;
+  bool _flowsExpanded = true;
 
   @override
   void dispose() {
@@ -69,16 +71,18 @@ class _WorkspaceSidebarState extends State<WorkspaceSidebar> {
           Expanded(
             child: Column(
               children: [
-                _SidebarSection(
+                _buildSection(
                   title: 'ENDPOINTS',
                   type: _SectionType.endpoints,
-                  searchQuery: _searchQuery,
+                  isExpanded: _endpointsExpanded,
+                  onToggle: () => setState(() => _endpointsExpanded = !_endpointsExpanded),
                 ),
                 const SizedBox(height: 8),
-                _SidebarSection(
+                _buildSection(
                   title: 'FLOWS',
                   type: _SectionType.flows,
-                  searchQuery: _searchQuery,
+                  isExpanded: _flowsExpanded,
+                  onToggle: () => setState(() => _flowsExpanded = !_flowsExpanded),
                 ),
               ],
             ),
@@ -86,6 +90,26 @@ class _WorkspaceSidebarState extends State<WorkspaceSidebar> {
         ],
       ),
     );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required _SectionType type,
+    required bool isExpanded,
+    required VoidCallback onToggle,
+  }) {
+    final section = _SidebarSection(
+      title: title,
+      type: type,
+      searchQuery: _searchQuery,
+      isExpanded: isExpanded,
+      onToggle: onToggle,
+    );
+
+    if (isExpanded) {
+      return Expanded(child: section);
+    }
+    return section;
   }
 }
 
@@ -95,11 +119,15 @@ class _SidebarSection extends StatefulWidget {
   final String title;
   final _SectionType type;
   final String searchQuery;
+  final bool isExpanded;
+  final VoidCallback onToggle;
 
   const _SidebarSection({
     required this.title,
     required this.type,
     required this.searchQuery,
+    required this.isExpanded,
+    required this.onToggle,
   });
 
   @override
@@ -107,8 +135,6 @@ class _SidebarSection extends StatefulWidget {
 }
 
 class _SidebarSectionState extends State<_SidebarSection> {
-  bool _isExpanded = true;
-
   void _handleAdd(BuildContext context) {
     switch (widget.type) {
       case _SectionType.endpoints:
@@ -183,44 +209,6 @@ class _SidebarSectionState extends State<_SidebarSection> {
 
   @override
   Widget build(BuildContext context) {
-    final sectionContent = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: SidebarSectionHeader(
-            label: widget.title,
-            isExpanded: _isExpanded,
-            onToggle: () => setState(() => _isExpanded = !_isExpanded),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.type == _SectionType.endpoints)
-                  _IconButton(
-                    icon: LucideIcons.upload,
-                    onTap: () => _handleUpload(context),
-                  ),
-                _IconButton(
-                  icon: LucideIcons.plus,
-                  onTap: () => _handleAdd(context),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (_isExpanded)
-          Expanded(
-            child: widget.type == _SectionType.endpoints
-                ? _EndpointList(searchQuery: widget.searchQuery)
-                : _FlowList(searchQuery: widget.searchQuery),
-          ),
-      ],
-    );
-
-    final result = _isExpanded
-        ? Expanded(child: sectionContent)
-        : sectionContent;
-
     return Actions(
       actions: {
         PilotIntent: PilotAction({
@@ -230,7 +218,41 @@ class _SidebarSectionState extends State<_SidebarSection> {
             'flow.new': () => _handleAdd(context),
         }),
       },
-      child: Focus(autofocus: true, child: result),
+      child: Focus(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: SidebarSectionHeader(
+                label: widget.title,
+                isExpanded: widget.isExpanded,
+                onToggle: widget.onToggle,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.type == _SectionType.endpoints)
+                      _IconButton(
+                        icon: LucideIcons.upload,
+                        onTap: () => _handleUpload(context),
+                      ),
+                    _IconButton(
+                      icon: LucideIcons.plus,
+                      onTap: () => _handleAdd(context),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (widget.isExpanded)
+              Expanded(
+                child: widget.type == _SectionType.endpoints
+                    ? _EndpointList(searchQuery: widget.searchQuery)
+                    : _FlowList(searchQuery: widget.searchQuery),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

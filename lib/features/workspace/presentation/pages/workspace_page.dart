@@ -95,6 +95,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
                             valueListenable: _sidebarWidth,
                             builder: (context, width, child) {
                               return Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   PilotPanel(
                                     padding: EdgeInsets.zero,
