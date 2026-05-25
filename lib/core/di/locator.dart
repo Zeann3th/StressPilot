@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:stress_pilot/core/network/http_client.dart';
+import 'package:stress_pilot/core/system/backend_launch_args.dart';
 import 'package:stress_pilot/core/system/process_manager.dart';
 import 'package:stress_pilot/core/system/session_manager.dart';
 import 'package:stress_pilot/core/themes/theme_manager.dart';
@@ -47,6 +48,7 @@ final getIt = GetIt.instance;
 
 void setupDependencies() {
   getIt.registerLazySingleton(() => ProcessManager());
+  getIt.registerLazySingleton(() => BackendLaunchArgs());
   getIt.registerLazySingleton(() => ThemeManager());
   getIt.registerLazySingleton(() => AppStateManager());
 
