@@ -5,8 +5,10 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as path;
 import 'package:stress_pilot/core/config/app_config.dart';
+import 'package:stress_pilot/core/system/backend_launch_args.dart';
 import 'package:stress_pilot/core/system/logger.dart';
 
 final _kernel32 = Platform.isWindows
@@ -40,6 +42,21 @@ void _winTerminatePid(int pid) {
   } finally {
     _closeHandle!(handle);
   }
+}
+
+List<String> buildBackendArgs({
+  required String jarPath,
+  required String profile,
+  required String? jsaPath,
+  required List<String> customArgs,
+}) {
+  return [
+    if (jsaPath != null) '-XX:SharedArchiveFile=$jsaPath',
+    '-jar',
+    jarPath,
+    '--spring.profiles.active=$profile',
+    ...customArgs,
+  ];
 }
 
 class PilotProcess {
@@ -357,12 +374,18 @@ class ProcessManager {
 
     try {
       final profile = kDebugMode ? 'dev' : 'prod';
-      final args = <String>[
-        if (jsaExists) '-XX:SharedArchiveFile=$jsaPath',
-        '-jar',
-        jarPath,
-        '--spring.profiles.active=$profile',
-      ];
+      final customArgs = await GetIt.instance<BackendLaunchArgs>().loadArgs();
+      final args = buildBackendArgs(
+        jarPath: jarPath,
+        profile: profile,
+        jsaPath: jsaExists ? jsaPath : null,
+        customArgs: customArgs,
+      );
+      AppLogger.info(
+        'Starting backend with ${args.length} Java args '
+        '(${customArgs.length} custom)',
+        name: _logName,
+      );
       final process = await Process.start(
         javaPath,
         args,
