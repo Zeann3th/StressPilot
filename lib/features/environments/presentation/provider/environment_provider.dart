@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/repositories/environment_repository.dart';
+import '../../domain/environment.dart';
 import '../../domain/environment_variable.dart';
 
 class EnvironmentProvider extends ChangeNotifier {
@@ -9,16 +10,56 @@ class EnvironmentProvider extends ChangeNotifier {
 
   List<EnvironmentVariable> _variables = [];
   List<EnvironmentVariable> _originalVariables = [];
+  List<Environment> _environments = [];
   bool _isLoading = false;
   String? _error;
   int _tempIdCounter = 0;
   int? _currentEnvironmentId;
 
   List<EnvironmentVariable> get variables => _variables;
+  List<Environment> get environments => _environments;
   bool get isLoading => _isLoading;
   String? get error => _error;
   int? get currentEnvironmentId => _currentEnvironmentId;
   bool get hasChanges => _calculateHasChanges();
+
+  Future<void> loadProjectEnvironments({
+    required int projectId,
+    required int activeEnvironmentId,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _environments = await _repository.getProjectEnvironments(projectId);
+      final selectedId = _environments.any((e) => e.id == activeEnvironmentId)
+          ? activeEnvironmentId
+          : (_environments.isNotEmpty
+                ? _environments.first.id
+                : activeEnvironmentId);
+      await loadVariables(selectedId);
+    } catch (e) {
+      _error = e.toString();
+      _environments = [];
+      _variables = [];
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Environment> createEnvironment({
+    required int projectId,
+    required String name,
+  }) async {
+    final environment = await _repository.createProjectEnvironment(
+      projectId: projectId,
+      name: name,
+    );
+    _environments.add(environment);
+    notifyListeners();
+    return environment;
+  }
 
   Future<void> loadVariables(int environmentId) async {
     _currentEnvironmentId = environmentId;

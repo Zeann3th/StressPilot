@@ -83,6 +83,7 @@ class AppNavBar extends StatelessWidget {
                   if (project != null && project.environmentId != 0) ...[
                     const SizedBox(width: 4),
                     _EnvIconButton(
+                      projectId: project.id,
                       environmentId: project.environmentId,
                       projectName: project.name,
                     ),
@@ -317,9 +318,11 @@ class _ProjectNameButtonState extends State<_ProjectNameButton> {
 
 // Env var icon button — navigates to environment management
 class _EnvIconButton extends StatefulWidget {
+  final int projectId;
   final int environmentId;
   final String projectName;
   const _EnvIconButton({
+    required this.projectId,
     required this.environmentId,
     required this.projectName,
   });
@@ -343,6 +346,7 @@ class _EnvIconButtonState extends State<_EnvIconButton> {
           onTap: () => AppNavigator.pushNamed(
             AppRouter.projectEnvironmentRoute,
             arguments: {
+              'projectId': widget.projectId,
               'environmentId': widget.environmentId,
               'projectName': widget.projectName,
             },

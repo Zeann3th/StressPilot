@@ -19,6 +19,10 @@ abstract class ProjectRepository {
     String? description,
     int? environmentId,
   });
+  Future<Project> switchActiveEnvironment({
+    required int projectId,
+    required int environmentId,
+  });
   Future<void> deleteProject(int projectId);
   Future<void> exportProject(int projectId, String savePath);
   Future<Project> importProject(String filePath);

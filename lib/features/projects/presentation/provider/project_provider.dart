@@ -198,6 +198,40 @@ class ProjectProvider extends ChangeNotifier {
     }
   }
 
+  Future<Project> switchActiveEnvironment({
+    required int projectId,
+    required int environmentId,
+  }) async {
+    try {
+      final updated = await _projectRepository.switchActiveEnvironment(
+        projectId: projectId,
+        environmentId: environmentId,
+      );
+
+      final index = _projects.indexWhere((p) => p.id == projectId);
+      if (index != -1) {
+        _projects[index] = updated;
+      }
+
+      if (_selectedProject?.id == projectId) {
+        _selectedProject = updated;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          _selectedProjectKey,
+          jsonEncode(updated.toJson()),
+        );
+      }
+
+      _error = null;
+      notifyListeners();
+      return updated;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   Future<void> deleteProject(int projectId) async {
     try {
       await _projectRepository.deleteProject(projectId);

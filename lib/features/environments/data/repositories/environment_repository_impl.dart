@@ -1,10 +1,30 @@
 import 'package:dio/dio.dart';
 import 'package:stress_pilot/core/network/http_client.dart';
+import '../../domain/environment.dart';
 import '../../domain/environment_variable.dart';
 import '../../domain/repositories/environment_repository.dart';
 
 class EnvironmentRepositoryImpl implements EnvironmentRepository {
   final Dio _dio = HttpClient.getInstance();
+
+  @override
+  Future<List<Environment>> getProjectEnvironments(int projectId) async {
+    final response = await _dio.get('/api/v1/projects/$projectId/environments');
+    final List data = response.data['data'];
+    return data.map((e) => Environment.fromJson(e)).toList();
+  }
+
+  @override
+  Future<Environment> createProjectEnvironment({
+    required int projectId,
+    required String name,
+  }) async {
+    final response = await _dio.post(
+      '/api/v1/projects/$projectId/environments',
+      data: {'name': name},
+    );
+    return Environment.fromJson(response.data['data']);
+  }
 
   @override
   Future<List<EnvironmentVariable>> getVariables(int environmentId) async {

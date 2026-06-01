@@ -71,6 +71,18 @@ class ProjectRepositoryImpl implements ProjectRepository {
   }
 
   @override
+  Future<Project> switchActiveEnvironment({
+    required int projectId,
+    required int environmentId,
+  }) async {
+    final response = await _dio.patch(
+      '/api/v1/projects/$projectId/active-environment',
+      data: {'environmentId': environmentId},
+    );
+    return Project.fromJson(response.data['data']);
+  }
+
+  @override
   Future<void> deleteProject(int projectId) async {
     await _dio.delete('/api/v1/projects/$projectId');
   }

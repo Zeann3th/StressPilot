@@ -6,7 +6,6 @@ import 'package:stress_pilot/core/navigation/app_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:stress_pilot/features/projects/presentation/pages/projects_page.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
-import 'package:stress_pilot/features/shared/presentation/widgets/environment_dialog.dart';
 
 class WorkspaceCommandBar extends StatelessWidget {
   const WorkspaceCommandBar({super.key});
@@ -69,10 +68,13 @@ class WorkspaceCommandBar extends StatelessWidget {
               compact: true,
               onPressed: () {
                 if (project != null) {
-                  EnvironmentManagerDialog.show(
-                    context,
-                    project.environmentId,
-                    project.name,
+                  AppNavigator.pushNamed(
+                    AppRouter.projectEnvironmentRoute,
+                    arguments: {
+                      'projectId': project.id,
+                      'environmentId': project.environmentId,
+                      'projectName': project.name,
+                    },
                   );
                 }
               },

@@ -43,6 +43,7 @@ class AppRouter {
         final args = settings.arguments as Map<String, dynamic>;
         return buildRoute(
           EnvironmentPage(
+            projectId: args['projectId'],
             environmentId: args['environmentId'],
             projectName: args['projectName'],
           ),

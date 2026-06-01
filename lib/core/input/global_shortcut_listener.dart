@@ -105,6 +105,7 @@ class _GlobalShortcutListenerState extends State<GlobalShortcutListener> {
           AppNavigator.pushNamed(
             AppRouter.projectEnvironmentRoute,
             arguments: {
+              'projectId': project.id,
               'environmentId': project.environmentId,
               'projectName': project.name,
             },
