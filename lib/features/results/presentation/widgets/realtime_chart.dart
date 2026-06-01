@@ -63,6 +63,7 @@ class RealtimeChart extends StatelessWidget {
                     LineChartData(
                       minX: minX,
                       maxX: maxX,
+                      clipData: const FlClipData.all(),
                       gridData: FlGridData(
                         show: true,
                         drawVerticalLine: false,
@@ -121,6 +122,7 @@ class RealtimeChart extends StatelessWidget {
                         ),
                       ),
                       borderData: FlBorderData(show: false),
+                      lineTouchData: const LineTouchData(enabled: false),
                       lineBarsData: [
                         LineChartBarData(
                           spots: data.map((e) => FlSpot(e.x, e.y)).toList(),
@@ -144,7 +146,7 @@ class RealtimeChart extends StatelessWidget {
                         ),
                       ],
                     ),
-                    duration: const Duration(milliseconds: 250),
+                    duration: Duration.zero,
                   ),
           ),
         ],

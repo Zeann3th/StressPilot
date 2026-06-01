@@ -164,8 +164,8 @@ class _AppRootState extends State<AppRoot> {
         ChangeNotifierProvider<EnvironmentProvider>.value(
           value: getIt<EnvironmentProvider>(),
         ),
-        ChangeNotifierProvider<ResultsProvider>(
-          create: (_) => getIt<ResultsProvider>(),
+        ChangeNotifierProvider<ResultsProvider>.value(
+          value: getIt<ResultsProvider>(),
         ),
         ChangeNotifierProvider<RunProvider>.value(value: getIt<RunProvider>()),
         ChangeNotifierProvider<ThemeManager>.value(

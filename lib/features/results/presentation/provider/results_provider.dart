@@ -33,6 +33,7 @@ class ResultsProvider extends ChangeNotifier {
   StreamSubscription? _subscription;
   Timer? _refreshTimer;
   DateTime _lastNotifyTime = DateTime.fromMillisecondsSinceEpoch(0);
+  bool _disposed = false;
 
   int _lastPlottedSecond = -1;
 
@@ -55,6 +56,8 @@ class ResultsProvider extends ChangeNotifier {
   List<FlSpotData> get rpsPoints => _rpsPoints;
 
   void setRun(String runId, int flowId, {bool isCompleted = false}) async {
+    if (_disposed) return;
+
     if (!_repository.isConnected) {
       _repository.connect();
     }
@@ -68,6 +71,7 @@ class ResultsProvider extends ChangeNotifier {
     _lastPlottedSecond = -1;
 
     await _loadFlowDetails(flowId);
+    if (_disposed) return;
     notifyListeners();
 
     if (isCompleted) {
@@ -82,6 +86,8 @@ class ResultsProvider extends ChangeNotifier {
   }
 
   void stopChart() {
+    if (_disposed) return;
+
     _refreshTimer?.cancel();
     _refreshTimer = null;
     notifyListeners();
@@ -96,6 +102,7 @@ class ResultsProvider extends ChangeNotifier {
           _endpointNames[step.endpointId!] = "Endpoint ${step.endpointId}";
         }
       }
+      if (_disposed) return;
       notifyListeners();
     } catch (e) {
       debugPrint("Error loading flow details: $e");
@@ -106,6 +113,8 @@ class ResultsProvider extends ChangeNotifier {
   DateTime? _runStartTime;
 
   void _onNewLogs(List<RequestLog> newLogs) {
+    if (_disposed) return;
+
     _allLogs.addAll(newLogs);
 
     if (_allLogs.length > 50000) {
@@ -173,6 +182,8 @@ class ResultsProvider extends ChangeNotifier {
   }
 
   void setEndpointFilter(int? endpointId) {
+    if (_disposed) return;
+
     if (_selectedEndpointId != endpointId) {
       _selectedEndpointId = endpointId;
       _applyFilter();
@@ -239,6 +250,8 @@ class ResultsProvider extends ChangeNotifier {
   }
 
   void _updateChartAndNotify() {
+    if (_disposed) return;
+
     final nowMs = DateTime.now().millisecondsSinceEpoch;
     final nowSecond = nowMs ~/ 1000;
 
@@ -310,6 +323,7 @@ class ResultsProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     _subscription?.cancel();
     _refreshTimer?.cancel();
     _repository.disconnect();
