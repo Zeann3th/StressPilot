@@ -58,3 +58,4 @@ clean.py
 analysis_options.yaml
 .agent
 stresspilot_super_app_clone/.worktrees/
+/.worktrees/
