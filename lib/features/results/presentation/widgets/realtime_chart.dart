@@ -63,6 +63,7 @@ class RealtimeChart extends StatelessWidget {
                     LineChartData(
                       minX: minX,
                       maxX: maxX,
+                      minY: 0,
                       clipData: const FlClipData.all(),
                       gridData: FlGridData(
                         show: true,

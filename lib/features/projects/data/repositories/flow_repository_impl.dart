@@ -104,4 +104,22 @@ class FlowRepositoryImpl implements FlowRepository {
     );
     return response.data['data'].toString();
   }
+
+  @override
+  Future<DryRunStepResult> dryRunStep({
+    required int flowId,
+    required DryRunStepRequest request,
+  }) async {
+    final response = await _dio.post(
+      '/api/v1/flows/$flowId/dry-run-step',
+      data: request.toJson(),
+      options: Options(
+        connectTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+      ),
+    );
+    return DryRunStepResult.fromJson(
+      Map<String, dynamic>.from(response.data['data']),
+    );
+  }
 }

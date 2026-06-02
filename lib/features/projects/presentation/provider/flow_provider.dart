@@ -23,6 +23,9 @@ class FlowProvider extends ChangeNotifier {
   final int _pageSize = 20;
   bool _hasMore = true;
   bool _isLoadingMore = false;
+  bool _isDryRunning = false;
+  flow_domain.DryRunStepResult? _lastDryRunResult;
+  final Map<int, Map<String, dynamic>> _dryRunVariablesByFlowId = {};
 
   List<flow_domain.Flow> get flows => _flows;
 
@@ -37,6 +40,15 @@ class FlowProvider extends ChangeNotifier {
   bool get isLoadingMore => _isLoadingMore;
 
   bool get hasMore => _hasMore;
+
+  bool get isDryRunning => _isDryRunning;
+
+  flow_domain.DryRunStepResult? get lastDryRunResult => _lastDryRunResult;
+
+  Map<String, dynamic> dryRunVariablesFor(int flowId) =>
+      Map<String, dynamic>.unmodifiable(
+        _dryRunVariablesByFlowId[flowId] ?? const {},
+      );
 
   static const String _selectedFlowKey = 'selected_flow_json';
 
@@ -288,5 +300,47 @@ class FlowProvider extends ChangeNotifier {
 
       rethrow;
     }
+  }
+
+  Future<flow_domain.DryRunStepResult> dryRunStep({
+    required int flowId,
+    required String stepId,
+    int? environmentId,
+    Map<String, dynamic>? variables,
+  }) async {
+    _isDryRunning = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final result = await _flowRepository.dryRunStep(
+        flowId: flowId,
+        request: flow_domain.DryRunStepRequest(
+          stepId: stepId,
+          environmentId: environmentId,
+          variables: variables,
+          temporaryVariables: _dryRunVariablesByFlowId[flowId],
+        ),
+      );
+      _dryRunVariablesByFlowId[flowId] = Map<String, dynamic>.from(
+        result.variables,
+      );
+      _lastDryRunResult = result;
+      return result;
+    } catch (e) {
+      _error = e.toString();
+      rethrow;
+    } finally {
+      _isDryRunning = false;
+      notifyListeners();
+    }
+  }
+
+  void clearDryRunState(int flowId) {
+    _dryRunVariablesByFlowId.remove(flowId);
+    if (_selectedFlow?.id == flowId) {
+      _lastDryRunResult = null;
+    }
+    notifyListeners();
   }
 }

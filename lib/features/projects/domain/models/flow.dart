@@ -238,3 +238,110 @@ class RunFlowRequest {
     'variables': variables,
   };
 }
+
+class DryRunStepRequest {
+  final String stepId;
+  final int? environmentId;
+  final Map<String, dynamic>? variables;
+  final Map<String, dynamic>? temporaryVariables;
+
+  DryRunStepRequest({
+    required this.stepId,
+    this.environmentId,
+    this.variables,
+    this.temporaryVariables,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'stepId': stepId,
+    'environmentId': environmentId,
+    'variables': variables,
+    'temporaryVariables': temporaryVariables,
+  };
+}
+
+class DryRunStepResult {
+  final String stepId;
+  final String stepType;
+  final String? nextStepId;
+  final String? correlationId;
+  final bool persisted;
+  final dynamic outputData;
+  final Map<String, dynamic> variables;
+  final List<DryRunRequestLog> requestLogs;
+
+  DryRunStepResult({
+    required this.stepId,
+    required this.stepType,
+    this.nextStepId,
+    this.correlationId,
+    this.persisted = false,
+    this.outputData,
+    this.variables = const {},
+    this.requestLogs = const [],
+  });
+
+  factory DryRunStepResult.fromJson(Map<String, dynamic> json) {
+    return DryRunStepResult(
+      stepId: json['stepId']?.toString() ?? '',
+      stepType: json['stepType']?.toString() ?? '',
+      nextStepId: json['nextStepId']?.toString(),
+      correlationId: json['correlationId']?.toString(),
+      persisted: json['persisted'] == true,
+      outputData: json['outputData'],
+      variables: json['variables'] is Map
+          ? Map<String, dynamic>.from(json['variables'] as Map)
+          : const {},
+      requestLogs: json['requestLogs'] is List
+          ? (json['requestLogs'] as List)
+                .whereType<Map>()
+                .map((item) => DryRunRequestLog.fromJson(item))
+                .toList()
+          : const [],
+    );
+  }
+}
+
+class DryRunRequestLog {
+  final int? endpointId;
+  final String? endpointName;
+  final int? statusCode;
+  final bool? success;
+  final int? responseTime;
+  final String? correlationId;
+  final String request;
+  final String response;
+  final String? createdAt;
+
+  DryRunRequestLog({
+    this.endpointId,
+    this.endpointName,
+    this.statusCode,
+    this.success,
+    this.responseTime,
+    this.correlationId,
+    this.request = '',
+    this.response = '',
+    this.createdAt,
+  });
+
+  factory DryRunRequestLog.fromJson(Map<dynamic, dynamic> json) {
+    return DryRunRequestLog(
+      endpointId: Flow._toInt(json['endpointId'], -1) == -1
+          ? null
+          : Flow._toInt(json['endpointId']),
+      endpointName: json['endpointName']?.toString(),
+      statusCode: Flow._toInt(json['statusCode'], -1) == -1
+          ? null
+          : Flow._toInt(json['statusCode']),
+      success: json['success'] is bool ? json['success'] as bool : null,
+      responseTime: Flow._toInt(json['responseTime'], -1) == -1
+          ? null
+          : Flow._toInt(json['responseTime']),
+      correlationId: json['correlationId']?.toString(),
+      request: json['request']?.toString() ?? '',
+      response: json['response']?.toString() ?? '',
+      createdAt: json['createdAt']?.toString(),
+    );
+  }
+}

@@ -23,4 +23,8 @@ abstract class FlowRepository {
     required RunFlowRequest runFlowRequest,
     MultipartFile? file,
   });
+  Future<DryRunStepResult> dryRunStep({
+    required int flowId,
+    required DryRunStepRequest request,
+  });
 }

@@ -590,6 +590,7 @@ class _CanvasContentState extends State<_CanvasContent>
     ColorScheme colors,
     CanvasProvider provider,
   ) {
+    final flowProvider = context.watch<FlowProvider>();
     return Container(
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -654,6 +655,19 @@ class _CanvasContentState extends State<_CanvasContent>
             onTap: () => _showJsonPayload(context),
             icon: LucideIcons.code,
             color: AppColors.textMuted,
+          ),
+          _ToolbarIcon(
+            tooltip: provider.selectedNodeId == null
+                ? 'Select a step to dry run'
+                : 'Dry Run Step',
+            onTap: provider.selectedNodeId == null || flowProvider.isDryRunning
+                ? null
+                : () => _dryRunSelectedStep(context, provider),
+            icon: LucideIcons.bug,
+            color: provider.selectedNodeId == null
+                ? AppColors.textMuted
+                : AppColors.accent,
+            loading: flowProvider.isDryRunning,
           ),
           _ToolbarIcon(
             tooltip: 'Clear Canvas',
@@ -794,6 +808,51 @@ class _CanvasContentState extends State<_CanvasContent>
     setState(() {
       _transformationController.value = matrix;
     });
+  }
+
+  Future<void> _dryRunSelectedStep(
+    BuildContext context,
+    CanvasProvider canvasProvider,
+  ) async {
+    final selectedNodeId = canvasProvider.selectedNodeId;
+    if (selectedNodeId == null) return;
+
+    final flowProvider = context.read<FlowProvider>();
+    final endpointProvider = context.read<EndpointProvider>();
+    final scaffoldMessenger = AppNavigator.scaffoldMessengerKey.currentState;
+    final theme = Theme.of(context);
+
+    try {
+      await canvasProvider.saveFlowConfiguration(
+        int.parse(widget.flowId),
+        flowProvider,
+        endpoints: endpointProvider.endpoints,
+        flows: flowProvider.flows,
+      );
+      final result = await flowProvider.dryRunStep(
+        flowId: int.parse(widget.flowId),
+        stepId: selectedNodeId,
+      );
+      if (!context.mounted) return;
+      _showDryRunResultDialog(context, result);
+    } catch (e) {
+      scaffoldMessenger?.showSnackBar(
+        SnackBar(
+          content: Text('Dry run failed: $e'),
+          backgroundColor: theme.colorScheme.error,
+        ),
+      );
+    }
+  }
+
+  void _showDryRunResultDialog(
+    BuildContext context,
+    flow.DryRunStepResult result,
+  ) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => _DryRunResultDialog(result: result),
+    );
   }
 
   CanvasConnection? _findConnectionAt(
@@ -1786,6 +1845,216 @@ class _ToolbarDivider extends StatelessWidget {
       height: 20,
       margin: const EdgeInsets.symmetric(horizontal: 10),
       color: borderColor,
+    );
+  }
+}
+
+class _DryRunResultDialog extends StatelessWidget {
+  final flow.DryRunStepResult result;
+
+  const _DryRunResultDialog({required this.result});
+
+  @override
+  Widget build(BuildContext context) {
+    final next = result.nextStepId == null || result.nextStepId!.isEmpty
+        ? 'end'
+        : result.nextStepId!;
+    final log = result.requestLogs.isEmpty ? null : result.requestLogs.first;
+
+    return PilotDialog(
+      title: 'Dry Run Result',
+      maxWidth: 920,
+      content: SizedBox(
+        width: 860,
+        height: MediaQuery.of(context).size.height * 0.72,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _DryRunChip(label: 'Step', value: result.stepId),
+                  _DryRunChip(label: 'Type', value: result.stepType),
+                  _DryRunChip(label: 'Next', value: next),
+                  _DryRunChip(
+                    label: 'Persisted',
+                    value: result.persisted ? 'yes' : 'no',
+                    color: result.persisted ? AppColors.error : Colors.green,
+                  ),
+                  if (result.correlationId != null)
+                    _DryRunChip(
+                      label: 'Correlation',
+                      value: result.correlationId!,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (log != null) ...[
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (log.endpointName != null)
+                      _DryRunChip(label: 'Endpoint', value: log.endpointName!),
+                    if (log.statusCode != null)
+                      _DryRunChip(label: 'Status', value: '${log.statusCode}'),
+                    if (log.success != null)
+                      _DryRunChip(
+                        label: 'Success',
+                        value: log.success! ? 'true' : 'false',
+                      ),
+                    if (log.responseTime != null)
+                      _DryRunChip(
+                        label: 'Response',
+                        value: '${log.responseTime} ms',
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _DryRunCodeSection(title: 'Request', value: log.request),
+                const SizedBox(height: 12),
+                _DryRunCodeSection(title: 'Response', value: log.response),
+                const SizedBox(height: 12),
+              ] else ...[
+                _DryRunInfo(
+                  'No request log was produced by this step. Processor-only, branch, start, and JS-only steps may only update variables/output.',
+                ),
+                const SizedBox(height: 12),
+              ],
+              _DryRunCodeSection(
+                title: 'Output Data',
+                value: _prettyJson(result.outputData),
+              ),
+              const SizedBox(height: 12),
+              _DryRunCodeSection(
+                title: 'Temporary Variables Saved For Next Dry Run',
+                value: _prettyJson(result.variables),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+
+  static String _prettyJson(dynamic value) {
+    if (value == null) return 'null';
+    try {
+      return const JsonEncoder.withIndent('  ').convert(value);
+    } catch (_) {
+      return value.toString();
+    }
+  }
+}
+
+class _DryRunChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color? color;
+
+  const _DryRunChip({required this.label, required this.value, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = color ?? AppColors.accent;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.10),
+        border: Border.all(color: accent.withValues(alpha: 0.25)),
+        borderRadius: AppRadius.br8,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '$label: ',
+            style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+          ),
+          Text(
+            value,
+            style: AppTypography.caption.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DryRunCodeSection extends StatelessWidget {
+  final String title;
+  final String value;
+
+  const _DryRunCodeSection({required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: AppTypography.body.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(minHeight: 96, maxHeight: 220),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.elevated,
+            border: Border.all(color: AppColors.border),
+            borderRadius: AppRadius.br8,
+          ),
+          child: SingleChildScrollView(
+            child: SelectableText(
+              value.isEmpty ? '(empty)' : value,
+              style: const TextStyle(
+                fontFamily: 'JetBrains Mono',
+                fontSize: 12,
+                height: 1.45,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DryRunInfo extends StatelessWidget {
+  final String text;
+
+  const _DryRunInfo(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.elevated,
+        border: Border.all(color: AppColors.border),
+        borderRadius: AppRadius.br8,
+      ),
+      child: Text(
+        text,
+        style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+      ),
     );
   }
 }
