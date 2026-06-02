@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:stress_pilot/core/network/http_client.dart';
 import 'package:stress_pilot/features/results/domain/models/run.dart';
-import 'package:stress_pilot/features/results/domain/models/run_snapshot.dart';
 import '../../domain/repositories/run_repository.dart';
 
 class RunRepositoryImpl implements RunRepository {
@@ -90,21 +89,44 @@ class RunRepositoryImpl implements RunRepository {
   }
 
   @override
-  Future<List<RunSnapshot>> compareSnapshots(
-    String runId1,
-    String runId2,
-  ) async {
-    final response = await _dio.get(
-      '/api/v1/runs/snapshot/compare/$runId1..$runId2',
+  Future<File?> exportRunComparison(String runId1, String runId2) async {
+    final response = await _dio.get<List<int>>(
+      '/api/v1/runs/compare/$runId1..$runId2/export',
+      options: Options(
+        responseType: ResponseType.bytes,
+        connectTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+      ),
     );
-    return (response.data['data'] as List)
-        .map((e) => RunSnapshot.fromJson(e))
-        .toList();
-  }
 
-  @override
-  Future<RunSnapshot> triggerSnapshot(String runId) async {
-    final response = await _dio.post('/api/v1/runs/$runId/snapshot');
-    return RunSnapshot.fromJson(response.data['data']);
+    final bytes = response.data;
+    if (bytes == null || bytes.isEmpty) return null;
+
+    final now = DateTime.now();
+    final dateStr =
+        '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_'
+        '${now.hour.toString().padLeft(2, '0')}.${now.minute.toString().padLeft(2, '0')}.${now.second.toString().padLeft(2, '0')}';
+
+    final fileName =
+        '[Stress Pilot] Comparison report $runId1 vs $runId2 $dateStr.xlsx';
+
+    String? outputFile = await FilePicker.saveFile(
+      dialogTitle: 'Save Comparison Report',
+      fileName: fileName,
+      type: FileType.custom,
+      allowedExtensions: const ['xlsx'],
+    );
+
+    if (outputFile == null) {
+      return null;
+    }
+
+    if (!outputFile.toLowerCase().endsWith('.xlsx')) {
+      outputFile = '$outputFile.xlsx';
+    }
+
+    final finalFile = File(outputFile);
+    await finalFile.writeAsBytes(bytes);
+    return finalFile;
   }
 }

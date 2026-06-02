@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:stress_pilot/features/results/domain/models/run.dart';
-import 'package:stress_pilot/features/results/domain/models/run_snapshot.dart';
 
 enum RunExportFormat {
   xlsx('XLSX', 'XLSX', 'xlsx'),
@@ -21,7 +20,6 @@ abstract class RunRepository {
     Run run, {
     RunExportFormat format = RunExportFormat.xlsx,
   });
+  Future<File?> exportRunComparison(String runId1, String runId2);
   Future<void> interruptRun(String runId);
-  Future<List<RunSnapshot>> compareSnapshots(String runId1, String runId2);
-  Future<RunSnapshot> triggerSnapshot(String runId);
 }
