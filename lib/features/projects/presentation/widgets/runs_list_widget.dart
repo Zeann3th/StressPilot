@@ -56,11 +56,14 @@ class _RunsListWidgetState extends State<RunsListWidget> {
     }
   }
 
-  Future<void> _exportRun(Run run) async {
+  Future<void> _exportRun(
+    Run run, {
+    RunExportFormat format = RunExportFormat.xlsx,
+  }) async {
     if (_exportingRunIds.contains(run.id)) return;
     setState(() => _exportingRunIds.add(run.id));
     try {
-      final File? file = await _runRepository.exportRun(run);
+      final File? file = await _runRepository.exportRun(run, format: format);
       if (mounted) {
         if (file == null) {
           PilotToast.show(context, 'Export returned empty', isError: true);
@@ -75,7 +78,7 @@ class _RunsListWidgetState extends State<RunsListWidget> {
     }
   }
 
-  void _handleRunTap(Run run) {
+  Future<void> _handleRunTap(Run run) async {
     final status = run.status.toUpperCase();
     if (status == 'RUNNING' || status == 'STARTING') {
       Navigator.pushNamed(
@@ -84,8 +87,23 @@ class _RunsListWidgetState extends State<RunsListWidget> {
         arguments: {'runId': run.id},
       ).then((_) => _loadRuns());
     } else {
-      _exportRun(run);
+      final format = await _chooseExportFormat();
+      if (format != null) {
+        _exportRun(run, format: format);
+      }
     }
+  }
+
+  Future<RunExportFormat?> _chooseExportFormat() {
+    return showMenu<RunExportFormat>(
+      context: context,
+      position: const RelativeRect.fromLTRB(80, 80, 0, 0),
+      items: RunExportFormat.values
+          .map(
+            (format) => PopupMenuItem(value: format, child: Text(format.label)),
+          )
+          .toList(),
+    );
   }
 
   @override
@@ -178,6 +196,8 @@ class _RunsListWidgetState extends State<RunsListWidget> {
                       run: _runs![index],
                       isExporting: _exportingRunIds.contains(_runs![index].id),
                       onTap: () => _handleRunTap(_runs![index]),
+                      onExportSelected: (format) =>
+                          _exportRun(_runs![index], format: format),
                       onRefresh: _loadRuns,
                       isSelectionMode: widget.isSelectionMode,
                       isSelected: widget.selectedIds.contains(_runs![index].id),
@@ -276,6 +296,7 @@ class _RunTile extends StatefulWidget {
   final Run run;
   final bool isExporting;
   final VoidCallback onTap;
+  final ValueChanged<RunExportFormat> onExportSelected;
   final VoidCallback onRefresh;
   final bool isSelectionMode;
   final bool isSelected;
@@ -285,6 +306,7 @@ class _RunTile extends StatefulWidget {
     required this.run,
     required this.isExporting,
     required this.onTap,
+    required this.onExportSelected,
     required this.onRefresh,
     this.isSelectionMode = false,
     this.isSelected = false,
@@ -452,23 +474,32 @@ class _RunTileState extends State<_RunTile> {
                       color: AppColors.textMuted,
                     ),
                   if (status != 'RUNNING' && status != 'STARTING')
-                    Tooltip(
-                      message: 'Export',
-                      child: widget.isExporting
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.accent,
-                              ),
-                            )
-                          : Icon(
+                    widget.isExporting
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.accent,
+                            ),
+                          )
+                        : PopupMenuButton<RunExportFormat>(
+                            tooltip: 'Export',
+                            onSelected: widget.onExportSelected,
+                            itemBuilder: (context) => RunExportFormat.values
+                                .map(
+                                  (format) => PopupMenuItem(
+                                    value: format,
+                                    child: Text(format.label),
+                                  ),
+                                )
+                                .toList(),
+                            child: Icon(
                               Icons.download_rounded,
                               color: AppColors.accent,
                               size: 18,
                             ),
-                    ),
+                          ),
                 ],
               ],
             ),

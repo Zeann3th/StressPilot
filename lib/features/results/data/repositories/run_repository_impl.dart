@@ -34,10 +34,14 @@ class RunRepositoryImpl implements RunRepository {
   }
 
   @override
-  Future<File?> exportRun(Run run) async {
+  Future<File?> exportRun(
+    Run run, {
+    RunExportFormat format = RunExportFormat.xlsx,
+  }) async {
     try {
       final response = await _dio.get<List<int>>(
         '/api/v1/runs/${run.id}/export',
+        queryParameters: {'type': format.apiValue},
         options: Options(
           responseType: ResponseType.bytes,
           connectTimeout: const Duration(seconds: 60),
@@ -55,21 +59,21 @@ class RunRepositoryImpl implements RunRepository {
           '${date.hour.toString().padLeft(2, '0')}.${date.minute.toString().padLeft(2, '0')}.${date.second.toString().padLeft(2, '0')}';
 
       final fileName =
-          '[Stress Pilot] Detailed report of run ${run.id} $dateStr.xlsx';
+          '[Stress Pilot] Detailed report of run ${run.id} $dateStr.${format.extension}';
 
       String? outputFile = await FilePicker.saveFile(
         dialogTitle: 'Save Run Report',
         fileName: fileName,
         type: FileType.custom,
-        allowedExtensions: ['xlsx'],
+        allowedExtensions: [format.extension],
       );
 
       if (outputFile == null) {
         return null;
       }
 
-      if (!outputFile.toLowerCase().endsWith('.xlsx')) {
-        outputFile = '$outputFile.xlsx';
+      if (!outputFile.toLowerCase().endsWith('.${format.extension}')) {
+        outputFile = '$outputFile.${format.extension}';
       }
 
       final finalFile = File(outputFile);
@@ -90,7 +94,9 @@ class RunRepositoryImpl implements RunRepository {
     String runId1,
     String runId2,
   ) async {
-    final response = await _dio.get('/api/v1/runs/snapshot/compare/$runId1..$runId2');
+    final response = await _dio.get(
+      '/api/v1/runs/snapshot/compare/$runId1..$runId2',
+    );
     return (response.data['data'] as List)
         .map((e) => RunSnapshot.fromJson(e))
         .toList();

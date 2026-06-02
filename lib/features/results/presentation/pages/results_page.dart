@@ -187,12 +187,12 @@ class _ResultsPageState extends State<ResultsPage> {
         s == 'CANCELED';
   }
 
-  Future<void> _exportRun() async {
+  Future<void> _exportRun(RunExportFormat format) async {
     if (_currentRun == null) return;
     setState(() => _exporting = true);
     try {
       final svc = getIt<RunRepository>();
-      final File? file = await svc.exportRun(_currentRun!);
+      final File? file = await svc.exportRun(_currentRun!, format: format);
       if (file == null) {
         AppNavigator.scaffoldMessengerKey.currentState?.showSnackBar(
           const SnackBar(content: Text('Export returned empty')),
@@ -419,20 +419,30 @@ class _ResultsPageState extends State<ResultsPage> {
         _currentRun != null && _isTerminalStatus(_currentRun!.status);
     if (!isTerminal) return const SizedBox.shrink();
 
-    return Tooltip(
-      message: 'Export',
-      child: IconButton(
-        icon: _exporting
-            ? SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.accent,
-                ),
-              )
-            : Icon(LucideIcons.fileDown, color: AppColors.accent, size: 20),
-        onPressed: !_exporting ? () => _exportRun() : null,
+    return PopupMenuButton<RunExportFormat>(
+      enabled: !_exporting,
+      tooltip: 'Export',
+      onSelected: _exportRun,
+      itemBuilder: (context) => RunExportFormat.values
+          .map(
+            (format) => PopupMenuItem(value: format, child: Text(format.label)),
+          )
+          .toList(),
+      child: SizedBox(
+        width: 40,
+        height: 40,
+        child: Center(
+          child: _exporting
+              ? SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.accent,
+                  ),
+                )
+              : Icon(LucideIcons.fileDown, color: AppColors.accent, size: 20),
+        ),
       ),
     );
   }
