@@ -92,14 +92,10 @@ class _RecentRunsPageState extends State<RecentRunsPage> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.baseBackground,
-                  borderRadius: AppRadius.br12,
-                  border: Border.all(color: AppColors.border),
-                  boxShadow: AppShadows.panel,
-                ),
-                clipBehavior: Clip.antiAlias,
+              child: PilotPanel(
+                padding: EdgeInsets.zero,
+                borderRadius: AppRadius.br8,
+                boxShadow: AppShadows.subtle,
                 child: RunsListWidget(
                   isSelectionMode: _isCompareMode,
                   selectedIds: _selectedIds,

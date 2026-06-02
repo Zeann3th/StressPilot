@@ -42,7 +42,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.sidebarBackground,
+      backgroundColor: AppColors.baseBackground,
       body: Column(
         children: [
           AppNavBar(
@@ -65,6 +65,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
                             PilotPanel(
                               padding: EdgeInsets.zero,
                               width: width,
+                              borderRadius: AppRadius.br8,
+                              boxShadow: AppShadows.subtle,
                               child: const ProjectsSidebar(),
                             ),
                             // Drag handle
@@ -102,6 +104,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   Expanded(
                     child: PilotPanel(
                       padding: EdgeInsets.zero,
+                      borderRadius: AppRadius.br8,
+                      boxShadow: AppShadows.subtle,
                       child: Center(
                         child: SizedBox(
                           width: 600,

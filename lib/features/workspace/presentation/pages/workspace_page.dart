@@ -75,7 +75,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
     final project = context.watch<ProjectProvider>().selectedProject;
 
     return Scaffold(
-      backgroundColor: AppColors.sidebarBackground,
+      backgroundColor: AppColors.baseBackground,
       body: Column(
         children: [
           AppNavBar(
@@ -100,6 +100,8 @@ class _WorkspacePageState extends State<WorkspacePage> {
                                   PilotPanel(
                                     padding: EdgeInsets.zero,
                                     width: width,
+                                    borderRadius: AppRadius.br8,
+                                    boxShadow: AppShadows.subtle,
                                     child: WorkspaceSidebar(
                                       onCollapse: _toggleSidebar,
                                     ),
@@ -138,6 +140,8 @@ class _WorkspacePageState extends State<WorkspacePage> {
                         Expanded(
                           child: PilotPanel(
                             padding: EdgeInsets.zero,
+                            borderRadius: AppRadius.br8,
+                            boxShadow: AppShadows.subtle,
                             child: Column(
                               children: [
                                 const WorkspaceTabBar(),

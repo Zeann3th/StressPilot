@@ -1923,11 +1923,13 @@ class _DryRunResultDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
               ],
-              _DryRunCodeSection(
-                title: 'Output Data',
-                value: _prettyJson(result.outputData),
-              ),
-              const SizedBox(height: 12),
+              if (log == null) ...[
+                _DryRunCodeSection(
+                  title: 'Output Data',
+                  value: _prettyJson(result.outputData),
+                ),
+                const SizedBox(height: 12),
+              ],
               _DryRunCodeSection(
                 title: 'Temporary Variables Saved For Next Dry Run',
                 value: _prettyJson(result.variables),

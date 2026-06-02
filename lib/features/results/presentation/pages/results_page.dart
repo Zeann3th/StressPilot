@@ -221,11 +221,8 @@ class _ResultsPageState extends State<ResultsPage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ResultsProvider>();
-    final bg = AppColors.baseBackground;
-    final border = AppColors.border;
-
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: AppColors.baseBackground,
       body: Column(
         children: [
           FleetPageBar(
@@ -240,91 +237,84 @@ class _ResultsPageState extends State<ResultsPage> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.baseBackground,
-                  borderRadius: AppRadius.br12,
-                  border: Border.all(color: border),
-                  boxShadow: AppShadows.panel,
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.xl),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(flex: 3, child: _buildRunInfoCard()),
-                          const SizedBox(width: AppSpacing.lg),
-                          Expanded(
-                            flex: 2,
-                            child: MetricsCard(
-                              title: 'Total Requests',
-                              value: provider.totalRequests.toString(),
-                              icon: LucideIcons.hash,
-                              color: Colors.blue,
-                            ),
+              child: PilotPanel(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                borderRadius: AppRadius.br8,
+                boxShadow: AppShadows.subtle,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(flex: 3, child: _buildRunInfoCard()),
+                        const SizedBox(width: AppSpacing.lg),
+                        Expanded(
+                          flex: 2,
+                          child: MetricsCard(
+                            title: 'Total Requests',
+                            value: provider.totalRequests.toString(),
+                            icon: LucideIcons.hash,
+                            color: Colors.blue,
                           ),
-                          const SizedBox(width: AppSpacing.lg),
+                        ),
+                        const SizedBox(width: AppSpacing.lg),
+                        Expanded(
+                          flex: 2,
+                          child: MetricsCard(
+                            title: 'Avg Response',
+                            value:
+                                '${provider.avgResponseTime.toStringAsFixed(0)} ms',
+                            icon: LucideIcons.timer,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.lg),
+                        Expanded(
+                          flex: 2,
+                          child: MetricsCard(
+                            title: 'Req / Sec',
+                            value: provider.requestsPerSecond.toStringAsFixed(
+                              1,
+                            ),
+                            icon: LucideIcons.gauge,
+                            color: Colors.green,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.lg),
+                        Expanded(
+                          flex: 2,
+                          child: MetricsCard(
+                            title: 'Errors',
+                            value: provider.errorCount.toString(),
+                            icon: LucideIcons.triangleAlert,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    Expanded(
+                      child: Row(
+                        children: [
                           Expanded(
-                            flex: 2,
-                            child: MetricsCard(
-                              title: 'Avg Response',
-                              value:
-                                  '${provider.avgResponseTime.toStringAsFixed(0)} ms',
-                              icon: LucideIcons.timer,
+                            child: RealtimeChart(
+                              title: 'Response Time (ms)',
+                              data: provider.responseTimePoints,
                               color: Colors.orange,
                             ),
                           ),
                           const SizedBox(width: AppSpacing.lg),
                           Expanded(
-                            flex: 2,
-                            child: MetricsCard(
-                              title: 'Req / Sec',
-                              value: provider.requestsPerSecond.toStringAsFixed(
-                                1,
-                              ),
-                              icon: LucideIcons.gauge,
+                            child: RealtimeChart(
+                              title: 'Requests Per Second',
+                              data: provider.rpsPoints,
                               color: Colors.green,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.lg),
-                          Expanded(
-                            flex: 2,
-                            child: MetricsCard(
-                              title: 'Errors',
-                              value: provider.errorCount.toString(),
-                              icon: LucideIcons.triangleAlert,
-                              color: Colors.red,
+                              isYAxisInteger: true,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: AppSpacing.xl),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: RealtimeChart(
-                                title: 'Response Time (ms)',
-                                data: provider.responseTimePoints,
-                                color: Colors.orange,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.lg),
-                            Expanded(
-                              child: RealtimeChart(
-                                title: 'Requests Per Second',
-                                data: provider.rpsPoints,
-                                color: Colors.green,
-                                isYAxisInteger: true,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
