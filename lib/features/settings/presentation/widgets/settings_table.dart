@@ -10,6 +10,7 @@ import 'package:stress_pilot/features/settings/presentation/widgets/app_about_se
 import 'package:stress_pilot/features/settings/presentation/widgets/plugin_settings_view.dart';
 import 'package:stress_pilot/features/settings/presentation/widgets/function_settings_view.dart';
 import 'package:stress_pilot/features/settings/presentation/widgets/task_scheduling_view.dart';
+import 'package:stress_pilot/features/settings/presentation/widgets/backend_args_settings_view.dart';
 import 'settings_row.dart';
 
 class SettingsTable extends StatefulWidget {
@@ -58,6 +59,7 @@ class _SettingsTableState extends State<SettingsTable> {
       'THEME',
       'SHORTCUTS',
       'CONFIGURATIONS',
+      'BACKEND',
       'FUNCTIONS',
       'TASK SCHEDULING',
       'PLUGINS',
@@ -92,6 +94,7 @@ class _SettingsTableState extends State<SettingsTable> {
               if (cat == 'PLUGINS') icon = Icons.extension_rounded;
               if (cat == 'FUNCTIONS') icon = Icons.functions_rounded;
               if (cat == 'TASK SCHEDULING') icon = Icons.schedule_rounded;
+              if (cat == 'BACKEND') icon = Icons.terminal_rounded;
               if (cat == 'CONFIGURATIONS') icon = Icons.tune_rounded;
               if (cat == 'AI MODEL') icon = Icons.auto_awesome_rounded;
               if (cat == 'DATABASE') icon = Icons.storage_rounded;
@@ -152,6 +155,10 @@ class _SettingsTableState extends State<SettingsTable> {
 
     if (_selectedCategory == 'TASK SCHEDULING') {
       return TaskSchedulingView();
+    }
+
+    if (_selectedCategory == 'BACKEND') {
+      return BackendArgsSettingsView();
     }
 
     if (_selectedCategory == 'CONFIGURATIONS') {
