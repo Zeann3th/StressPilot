@@ -682,6 +682,17 @@ class _CanvasContentState extends State<_CanvasContent>
             loading: flowProvider.isDryRunning,
           ),
           _ToolbarIcon(
+            tooltip: 'Reset Dry Run State',
+            onTap: () {
+              flowProvider.clearDryRunState(int.parse(widget.flowId));
+              AppNavigator.scaffoldMessengerKey.currentState?.showSnackBar(
+                const SnackBar(content: Text('Dry run state cleared.')),
+              );
+            },
+            icon: LucideIcons.refreshCcw,
+            color: AppColors.textMuted,
+          ),
+          _ToolbarIcon(
             tooltip: 'Clear Canvas',
             onTap: () async {
               final confirmed = await showDialog<bool>(

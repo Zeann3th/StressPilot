@@ -31,11 +31,18 @@ class _FakeEndpointProvider extends EndpointProvider {
 
 class _FakeFlowProvider extends FlowProvider {
   final flow_domain.Flow flow;
+  int? clearedDryRunFlowId;
 
   _FakeFlowProvider(this.flow);
 
   @override
   Future<flow_domain.Flow> getFlow(int flowId) async => flow;
+
+  @override
+  void clearDryRunState(int flowId) {
+    clearedDryRunFlowId = flowId;
+    notifyListeners();
+  }
 }
 
 class _NoopRunRepository implements RunRepository {
@@ -141,5 +148,58 @@ void main() {
 
     expect(find.text('Create Order'), findsOneWidget);
     expect(find.text('Endpoint'), findsNothing);
+  });
+
+  testWidgets('toolbar can reset dry run state for the active flow', (
+    tester,
+  ) async {
+    final endpointProvider = _FakeEndpointProvider();
+    final flowProvider = _FakeFlowProvider(
+      flow_domain.Flow(
+        id: 7,
+        name: 'Checkout',
+        type: 'DEFAULT',
+        projectId: 1,
+        steps: const [],
+      ),
+    );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<CanvasProvider>(
+            create: (_) => CanvasProvider(),
+          ),
+          ChangeNotifierProvider<FlowProvider>.value(value: flowProvider),
+          ChangeNotifierProvider<EndpointProvider>.value(
+            value: endpointProvider,
+          ),
+          ChangeNotifierProvider<RunProvider>(
+            create: (_) => RunProvider(_NoopRunRepository()),
+          ),
+          ChangeNotifierProvider<WorkspaceTabProvider>(
+            create: (_) => WorkspaceTabProvider(),
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: WorkspaceCanvas(
+              selectedFlow: flow_domain.Flow(
+                id: 7,
+                name: 'Checkout',
+                type: 'DEFAULT',
+                projectId: 1,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.tap(find.byTooltip('Reset Dry Run State'));
+    await tester.pump();
+
+    expect(flowProvider.clearedDryRunFlowId, 7);
   });
 }
