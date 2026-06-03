@@ -174,6 +174,18 @@ class _CanvasContentState extends State<_CanvasContent>
   @override
   Widget build(BuildContext context) {
     final canvasProvider = context.watch<CanvasProvider>();
+    final endpoints = context.watch<EndpointProvider>().endpoints;
+    final flows = context.watch<FlowProvider>().flows;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (endpoints.isNotEmpty) {
+        canvasProvider.syncEndpointsMetadata(endpoints);
+      }
+      if (flows.isNotEmpty) {
+        canvasProvider.syncFlowsMetadata(flows);
+      }
+    });
 
     if (canvasProvider.isLoading) {
       return const Center(child: CircularProgressIndicator());
