@@ -77,9 +77,14 @@ class _ResultsPageState extends State<ResultsPage> {
 
       final created = _currentRun!.startedAt;
       final elapsed = DateTime.now().toUtc().difference(created.toUtc());
-      final remaining = Duration(seconds: _currentRun!.duration) - elapsed;
+      final duration = _currentRun!.duration;
+      final remaining = duration != null
+          ? Duration(seconds: duration) - elapsed
+          : Duration.zero;
 
-      if (remaining.inSeconds <= 5 || elapsed.inSeconds <= 10) {
+      if (duration == null) {
+        nextDelay = const Duration(seconds: 2);
+      } else if (remaining.inSeconds <= 5 || elapsed.inSeconds <= 10) {
         nextDelay = const Duration(seconds: 2);
       } else if (remaining.inSeconds > 0) {
         nextDelay = const Duration(seconds: 5);
@@ -510,7 +515,17 @@ class _ResultsPageState extends State<ResultsPage> {
                 value: _currentRun!.threads.toString(),
               ),
               const SizedBox(width: AppSpacing.xl),
-              _InfoBadge(label: 'Duration', value: '${_currentRun!.duration}s'),
+              _InfoBadge(
+                label: 'Duration',
+                value: _currentRun!.duration != null
+                    ? '${_currentRun!.duration}s'
+                    : '-',
+              ),
+              const SizedBox(width: AppSpacing.xl),
+              _InfoBadge(
+                label: 'Loops',
+                value: _currentRun!.loopCount?.toString() ?? '-',
+              ),
               const SizedBox(width: AppSpacing.xl),
               _InfoBadge(label: 'Elapsed', value: _formatDuration(_elapsed)),
             ],

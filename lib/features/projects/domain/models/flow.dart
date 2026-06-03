@@ -220,13 +220,15 @@ class CreateFlowRequest {
 
 class RunFlowRequest {
   final int threads;
-  final int totalDuration;
+  final int? totalDuration;
+  final int? loopCount;
   final int rampUpDuration;
   final Map<String, dynamic>? variables;
 
   RunFlowRequest({
     this.threads = 1,
     this.totalDuration = 60,
+    this.loopCount,
     this.rampUpDuration = 0,
     this.variables,
   });
@@ -234,6 +236,7 @@ class RunFlowRequest {
   Map<String, dynamic> toJson() => {
     'threads': threads,
     'totalDuration': totalDuration,
+    'loopCount': loopCount,
     'rampUpDuration': rampUpDuration,
     'variables': variables,
   };

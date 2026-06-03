@@ -412,7 +412,7 @@ class _RunTileState extends State<_RunTile> {
                       ),
                       const SizedBox(height: 1),
                       Text(
-                        'Flow ID: ${widget.run.flowId}',
+                        'Flow ID: ${widget.run.flowId} • ${_formatLimits(widget.run)}',
                         style: AppTypography.caption.copyWith(
                           color: AppColors.textSecondary,
                           fontSize: 11,
@@ -523,5 +523,11 @@ class _RunTileState extends State<_RunTile> {
       default:
         return (AppColors.textMuted, Icons.help_outline_rounded);
     }
+  }
+
+  String _formatLimits(Run run) {
+    final duration = run.duration != null ? '${run.duration}s' : null;
+    final loops = run.loopCount != null ? '${run.loopCount} loops' : null;
+    return [duration, loops].whereType<String>().join(' / ');
   }
 }

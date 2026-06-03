@@ -24,7 +24,9 @@ class RunFlowDialog extends StatefulWidget {
 class _RunFlowDialogState extends State<RunFlowDialog> {
   final _threadsCtrl = TextEditingController(text: '1');
   final _durationCtrl = TextEditingController(text: '60');
+  final _loopCountCtrl = TextEditingController();
   final _rampUpCtrl = TextEditingController(text: '0');
+  String? _limitError;
 
   final List<MapEntry<TextEditingController, TextEditingController>>
   _variables = [];
@@ -35,6 +37,7 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
   void dispose() {
     _threadsCtrl.dispose();
     _durationCtrl.dispose();
+    _loopCountCtrl.dispose();
     _rampUpCtrl.dispose();
     for (var entry in _variables) {
       entry.key.dispose();
@@ -73,9 +76,26 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
   }
 
   void _run() async {
+    setState(() {
+      _limitError = null;
+    });
+
     final threads = int.tryParse(_threadsCtrl.text) ?? 1;
-    final duration = int.tryParse(_durationCtrl.text) ?? 60;
+    final duration = _parseOptionalPositiveInt(_durationCtrl.text, 'Duration');
+    if (_limitError != null) return;
+    final loopCount = _parseOptionalPositiveInt(_loopCountCtrl.text, 'Loops');
+    if (_limitError != null) return;
     final rampUp = int.tryParse(_rampUpCtrl.text) ?? 0;
+
+    if (duration == null && loopCount == null) {
+      setState(() {
+        _limitError = 'Set duration or loops.';
+      });
+      return;
+    }
+    setState(() {
+      _limitError = null;
+    });
 
     final variablesMap = <String, dynamic>{};
     for (var entry in _variables) {
@@ -95,6 +115,7 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
     final request = flow_domain.RunFlowRequest(
       threads: threads,
       totalDuration: duration,
+      loopCount: loopCount,
       rampUpDuration: rampUp,
       variables: variablesMap,
     );
@@ -122,6 +143,19 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
         PilotToast.show(context, 'Error: $e', isError: true);
       }
     }
+  }
+
+  int? _parseOptionalPositiveInt(String value, String label) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return null;
+    final parsed = int.tryParse(trimmed);
+    if (parsed == null || parsed < 1) {
+      setState(() {
+        _limitError = '$label must be blank or at least 1.';
+      });
+      return null;
+    }
+    return parsed;
   }
 
   @override
@@ -160,13 +194,32 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
                       const SizedBox(height: 6),
                       PilotInput(
                         controller: _durationCtrl,
-                        placeholder: '60',
+                        placeholder: 'Optional',
                         prefixIcon: LucideIcons.timer,
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _FieldSubLabel('Loops'),
+                      const SizedBox(height: 6),
+                      PilotInput(
+                        controller: _loopCountCtrl,
+                        placeholder: 'Optional',
+                        prefixIcon: LucideIcons.repeat,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,6 +236,13 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
                 ),
               ],
             ),
+            if (_limitError != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _limitError!,
+                style: AppTypography.caption.copyWith(color: AppColors.error),
+              ),
+            ],
             const SizedBox(height: 24),
             FieldLabel('DATA & ENVIRONMENT'),
             const SizedBox(height: 12),

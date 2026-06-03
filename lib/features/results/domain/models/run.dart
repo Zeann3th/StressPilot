@@ -3,7 +3,8 @@ class Run {
   final int flowId;
   final String status;
   final int threads;
-  final int duration;
+  final int? duration;
+  final int? loopCount;
   final int rampUpDuration;
   final DateTime startedAt;
   final DateTime? completedAt;
@@ -13,7 +14,8 @@ class Run {
     required this.flowId,
     required this.status,
     required this.threads,
-    required this.duration,
+    this.duration,
+    this.loopCount,
     required this.rampUpDuration,
     required this.startedAt,
     this.completedAt,
@@ -25,7 +27,8 @@ class Run {
       flowId: json['flowId'],
       status: json['status'] ?? '',
       threads: json['threads'] ?? 0,
-      duration: json['duration'] ?? 0,
+      duration: json['duration'],
+      loopCount: json['loopCount'],
       rampUpDuration: json['rampUpDuration'] ?? 0,
       startedAt: DateTime.parse(json['startedAt']),
       completedAt: json['completedAt'] != null
