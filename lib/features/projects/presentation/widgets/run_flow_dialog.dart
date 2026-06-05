@@ -248,7 +248,7 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
             const SizedBox(height: 12),
             InkWell(
               onTap: _pickFile,
-              borderRadius: AppRadius.br12,
+              borderRadius: AppRadius.br8,
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -256,7 +256,7 @@ class _RunFlowDialogState extends State<RunFlowDialog> {
                 ),
                 decoration: BoxDecoration(
                   color: AppColors.elevated,
-                  borderRadius: AppRadius.br12,
+                  borderRadius: AppRadius.br8,
                   border: Border.all(
                     color: _selectedFile != null
                         ? AppColors.accent

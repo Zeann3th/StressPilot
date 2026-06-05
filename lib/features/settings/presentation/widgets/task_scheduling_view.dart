@@ -273,7 +273,7 @@ class _ScheduleDetailEditorState extends State<_ScheduleDetailEditor> {
               PilotButton.ghost(
                 label: 'Delete',
                 icon: Icons.delete_outline_rounded,
-                foregroundOverride: Colors.redAccent,
+                foregroundOverride: AppColors.error,
                 onPressed: () async {
                   final confirmed = await showDialog<bool>(
                     context: context,
@@ -289,9 +289,9 @@ class _ScheduleDetailEditorState extends State<_ScheduleDetailEditor> {
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text(
+                          child: Text(
                             'Delete',
-                            style: TextStyle(color: Colors.redAccent),
+                            style: TextStyle(color: AppColors.error),
                           ),
                         ),
                       ],

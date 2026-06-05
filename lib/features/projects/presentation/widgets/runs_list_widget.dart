@@ -167,7 +167,7 @@ class _RunsListWidgetState extends State<RunsListWidget> {
                         width: 72,
                         height: 72,
                         decoration: BoxDecoration(
-                          borderRadius: AppRadius.br12,
+                          borderRadius: AppRadius.br8,
                           border: Border.all(color: border),
                         ),
                         child: Icon(
@@ -440,9 +440,9 @@ class _RunTileState extends State<_RunTile> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.stop_circle_outlined,
-                              color: Colors.red,
+                              color: AppColors.error,
                             ),
                             tooltip: 'Abort Run',
                             onPressed: () async {
@@ -513,9 +513,9 @@ class _RunTileState extends State<_RunTile> {
     switch (status) {
       case 'RUNNING':
       case 'STARTING':
-        return (const Color(0xFF3B82F6), Icons.play_circle_outline_rounded);
+        return (AppColors.info, Icons.play_circle_outline_rounded);
       case 'COMPLETED':
-        return (AppColors.accent, Icons.check_circle_outline_rounded);
+        return (AppColors.success, Icons.check_circle_outline_rounded);
       case 'FAILED':
       case 'ABORTED':
       case 'CANCELED':

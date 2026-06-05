@@ -99,28 +99,23 @@ class _NavigationItemState extends State<NavigationItem> {
   Color _getBadgeColor(String type) {
     switch (type.toUpperCase()) {
       case 'HTTP':
-        return const Color(0xFF3B82F6);
+        return AppColors.methodPost;
       case 'GRPC':
-        return const Color(0xFF06B6D4);
+        return AppColors.info;
       case 'WS':
       case 'WSS':
       case 'WEBSOCKET':
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case 'GRAPHQL':
-        return const Color(0xFFEC4899);
+        return AppColors.methodPatch;
       case 'JDBC':
       case 'SQL':
-        return const Color(0xFF6366F1);
+        return AppColors.textSecondary;
       case 'JS':
       case 'JAVASCRIPT':
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       default:
-        return HSLColor.fromAHSL(
-          1.0,
-          (type.hashCode.abs() % 360).toDouble(),
-          0.65,
-          0.55,
-        ).toColor();
+        return AppColors.textSecondary;
     }
   }
 }

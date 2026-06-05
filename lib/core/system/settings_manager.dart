@@ -92,7 +92,7 @@ class SettingsManager extends ChangeNotifier {
   }
 
   Map<String, dynamic> get _defaultSettings => {
-    'workbench.colorTheme': 'dark',
+    'workbench.colorTheme': 'fleet',
     'keymap.sidebar.toggle': 'Control+B',
     'keymap.app.settings': 'Control+,',
     'keymap.flow.save': 'Control+S',

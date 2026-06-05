@@ -522,10 +522,10 @@ class _ProcessorEditorState extends State<_ProcessorEditor> {
             ),
             if (hasError) ...[
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 'Invalid JSON',
                 style: TextStyle(
-                  color: Colors.red,
+                  color: AppColors.error,
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                 ),

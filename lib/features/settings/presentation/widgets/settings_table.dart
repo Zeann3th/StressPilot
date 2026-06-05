@@ -454,7 +454,7 @@ class _ThemePreview extends StatelessWidget {
     final colors = [
       theme.getColor('background', Colors.grey),
       theme.getColor('surface', Colors.grey),
-      theme.getColor('accent', Colors.green),
+      theme.getColor('accent', AppColors.accent),
     ];
 
     return Row(

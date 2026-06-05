@@ -258,7 +258,7 @@ class _ResultsPageState extends State<ResultsPage> {
                             title: 'Total Requests',
                             value: provider.totalRequests.toString(),
                             icon: LucideIcons.hash,
-                            color: Colors.blue,
+                            color: AppColors.info,
                           ),
                         ),
                         const SizedBox(width: AppSpacing.lg),
@@ -269,7 +269,7 @@ class _ResultsPageState extends State<ResultsPage> {
                             value:
                                 '${provider.avgResponseTime.toStringAsFixed(0)} ms',
                             icon: LucideIcons.timer,
-                            color: Colors.orange,
+                            color: AppColors.warning,
                           ),
                         ),
                         const SizedBox(width: AppSpacing.lg),
@@ -281,7 +281,7 @@ class _ResultsPageState extends State<ResultsPage> {
                               1,
                             ),
                             icon: LucideIcons.gauge,
-                            color: Colors.green,
+                            color: AppColors.success,
                           ),
                         ),
                         const SizedBox(width: AppSpacing.lg),
@@ -291,7 +291,7 @@ class _ResultsPageState extends State<ResultsPage> {
                             title: 'Errors',
                             value: provider.errorCount.toString(),
                             icon: LucideIcons.triangleAlert,
-                            color: Colors.red,
+                            color: AppColors.error,
                           ),
                         ),
                       ],
@@ -304,7 +304,7 @@ class _ResultsPageState extends State<ResultsPage> {
                             child: RealtimeChart(
                               title: 'Response Time (ms)',
                               data: provider.responseTimePoints,
-                              color: Colors.orange,
+                              color: AppColors.warning,
                             ),
                           ),
                           const SizedBox(width: AppSpacing.lg),
@@ -312,7 +312,7 @@ class _ResultsPageState extends State<ResultsPage> {
                             child: RealtimeChart(
                               title: 'Requests Per Second',
                               data: provider.rpsPoints,
-                              color: Colors.green,
+                              color: AppColors.success,
                               isYAxisInteger: true,
                             ),
                           ),
@@ -386,9 +386,9 @@ class _ResultsPageState extends State<ResultsPage> {
         return Tooltip(
           message: 'Abort Run',
           child: IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.stop_circle_outlined,
-              color: Colors.red,
+              color: AppColors.error,
               size: 20,
             ),
             onPressed: () async {
@@ -448,7 +448,7 @@ class _ResultsPageState extends State<ResultsPage> {
         height: 80,
         decoration: BoxDecoration(
           color: AppColors.elevatedSurface,
-          borderRadius: AppRadius.br12,
+          borderRadius: AppRadius.br8,
           border: Border.all(color: AppColors.border),
         ),
         child: const Center(child: PilotSkeleton(width: 40, height: 20)),
@@ -460,7 +460,7 @@ class _ResultsPageState extends State<ResultsPage> {
         height: 80,
         decoration: BoxDecoration(
           color: AppColors.elevatedSurface,
-          borderRadius: AppRadius.br12,
+          borderRadius: AppRadius.br8,
           border: Border.all(color: AppColors.border),
         ),
         child: Center(
@@ -486,7 +486,7 @@ class _ResultsPageState extends State<ResultsPage> {
       ),
       decoration: BoxDecoration(
         color: AppColors.elevatedSurface,
-        borderRadius: AppRadius.br12,
+        borderRadius: AppRadius.br8,
         border: Border.all(color: AppColors.border),
         boxShadow: AppShadows.subtle,
       ),

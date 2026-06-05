@@ -41,7 +41,7 @@ class RealtimeChart extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: AppRadius.br12,
+        borderRadius: AppRadius.br8,
         border: Border.all(color: border),
       ),
       child: Column(
@@ -130,14 +130,14 @@ class RealtimeChart extends StatelessWidget {
                           isCurved: true,
                           curveSmoothness: 0.2,
                           color: color,
-                          barWidth: 2,
+                          barWidth: 1.6,
                           isStrokeCapRound: true,
                           dotData: const FlDotData(show: false),
                           belowBarData: BarAreaData(
                             show: true,
                             gradient: LinearGradient(
                               colors: [
-                                color.withValues(alpha: 0.2),
+                                color.withValues(alpha: 0.12),
                                 color.withValues(alpha: 0.0),
                               ],
                               begin: Alignment.topCenter,

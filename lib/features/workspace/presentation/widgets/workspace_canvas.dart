@@ -46,7 +46,7 @@ class WorkspaceCanvas extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                borderRadius: AppRadius.br12,
+                borderRadius: AppRadius.br8,
                 border: Border.all(color: AppColors.border, width: 1),
                 color: AppColors.elevated,
               ),
@@ -608,7 +608,7 @@ class _CanvasContentState extends State<_CanvasContent>
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         color: AppColors.elevatedSurface,
-        borderRadius: AppRadius.br12,
+        borderRadius: AppRadius.br8,
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -1009,7 +1009,7 @@ class CanvasEdgePainter extends CustomPainter {
 
       final isHighlighted = conn.id == highlightedConnectionId;
       final lineColor = isHighlighted
-          ? Colors.red.withValues(alpha: 0.9)
+          ? AppColors.error.withValues(alpha: 0.9)
           : colors.primary.withValues(alpha: 0.8);
 
       final paint = Paint()
@@ -1224,7 +1224,7 @@ class CanvasEdgePainter extends CustomPainter {
       text: TextSpan(
         text: text,
         style: TextStyle(
-          color: text == 'T' ? Colors.green : Colors.red,
+          color: text == 'T' ? AppColors.success : AppColors.error,
           fontSize: 12,
           fontWeight: FontWeight.bold,
           backgroundColor: colors.surface.withValues(alpha: 0.8),
@@ -1281,7 +1281,7 @@ class CanvasNodeBody extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.br8,
         border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.6)),
         boxShadow: [
           BoxShadow(
@@ -1351,13 +1351,13 @@ class CanvasNodeBody extends StatelessWidget {
                 _InfoBadge(
                   icon: LucideIcons.logIn,
                   label: 'PRE',
-                  color: Colors.orange,
+                  color: AppColors.warning,
                 ),
               if (hasPost)
                 _InfoBadge(
                   icon: LucideIcons.logOut,
                   label: 'POST',
-                  color: Colors.purple,
+                  color: AppColors.methodPatch,
                 ),
             ],
           ),
@@ -1372,7 +1372,7 @@ class CanvasNodeBody extends StatelessWidget {
       height: node.height,
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: AppRadius.br12,
+        borderRadius: AppRadius.br8,
         border: Border.all(color: colors.secondary.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
@@ -1460,32 +1460,23 @@ class CanvasNodeBody extends StatelessWidget {
       width: 56,
       height: 56,
       decoration: BoxDecoration(
-        gradient: AppGradients.green(
-          Theme.of(context).brightness == Brightness.dark,
-        ),
-        borderRadius: AppRadius.br16,
+        color: AppColors.hoverItem,
+        borderRadius: AppRadius.br8,
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.2),
+          color: AppColors.accent.withValues(alpha: 0.5),
           width: 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.accent.withValues(alpha: 0.3),
-            blurRadius: 12,
-            spreadRadius: 2,
-          ),
-        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(LucideIcons.play, color: Colors.white, size: 24),
+          Icon(LucideIcons.play, color: AppColors.textPrimary, size: 22),
           Text(
             'START',
             style: TextStyle(
               fontSize: 8,
               fontWeight: FontWeight.w900,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: AppColors.textPrimary.withValues(alpha: 0.9),
               letterSpacing: 0.5,
             ),
           ),
@@ -1572,11 +1563,11 @@ class CanvasNodeBody extends StatelessWidget {
   Color _getTypeColor(String type) {
     switch (type.toUpperCase()) {
       case 'HTTP':
-        return Colors.blue;
+        return AppColors.methodPost;
       case 'GRPC':
-        return Colors.teal;
+        return AppColors.info;
       default:
-        return Colors.blueGrey;
+        return AppColors.textSecondary;
     }
   }
 }
@@ -1641,7 +1632,7 @@ class _BranchHandle extends StatelessWidget {
       message: label,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadius.br8,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           width: 24,
@@ -1754,7 +1745,7 @@ class _JsonPayloadDialogState extends State<_JsonPayloadDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Invalid JSON: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -1904,7 +1895,9 @@ class _DryRunResultDialog extends StatelessWidget {
                   _DryRunChip(
                     label: 'Persisted',
                     value: result.persisted ? 'yes' : 'no',
-                    color: result.persisted ? AppColors.error : Colors.green,
+                    color: result.persisted
+                        ? AppColors.error
+                        : AppColors.success,
                   ),
                   if (result.correlationId != null)
                     _DryRunChip(

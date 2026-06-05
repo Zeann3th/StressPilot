@@ -56,7 +56,7 @@ class _CanvasNodeWidgetState extends State<CanvasNodeWidget> {
                 color: widget.isSelected
                     ? AppColors.accent
                     : widget.isTarget
-                    ? Colors.orange
+                    ? AppColors.warning
                     : _isHovered
                     ? AppColors.border
                     : AppColors.divider,
@@ -94,13 +94,13 @@ class _CanvasNodeWidgetState extends State<CanvasNodeWidget> {
   Color _getNodeColor(FlowNodeType type) {
     switch (type) {
       case FlowNodeType.start:
-        return Colors.green;
+        return AppColors.success;
       case FlowNodeType.endpoint:
         return AppColors.accent;
       case FlowNodeType.branch:
-        return Colors.orange;
+        return AppColors.warning;
       case FlowNodeType.subflow:
-        return Colors.teal;
+        return AppColors.info;
     }
   }
 

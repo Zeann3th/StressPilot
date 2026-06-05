@@ -261,7 +261,7 @@ class _FunctionDetailEditorState extends State<_FunctionDetailEditor> {
                 PilotButton.ghost(
                   label: 'Delete',
                   icon: Icons.delete_outline_rounded,
-                  foregroundOverride: Colors.redAccent,
+                  foregroundOverride: AppColors.error,
                   onPressed: () async {
                     final confirmed = await showDialog<bool>(
                       context: context,

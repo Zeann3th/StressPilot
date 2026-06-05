@@ -13,15 +13,8 @@ class CanvasNodeToolbar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.elevatedSurface,
-        borderRadius: AppRadius.br12,
+        borderRadius: AppRadius.br8,
         border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -30,7 +23,7 @@ class CanvasNodeToolbar extends StatelessWidget {
             type: FlowNodeType.start,
             icon: LucideIcons.play,
             label: 'Start',
-            color: Colors.green,
+            color: AppColors.success,
           ),
           const _Divider(),
           _ToolbarNodeItem(
@@ -44,7 +37,7 @@ class CanvasNodeToolbar extends StatelessWidget {
             type: FlowNodeType.subflow,
             icon: LucideIcons.network,
             label: 'Subflow',
-            color: Colors.teal,
+            color: AppColors.info,
           ),
         ],
       ),

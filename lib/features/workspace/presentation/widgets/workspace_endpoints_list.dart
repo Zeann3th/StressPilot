@@ -101,7 +101,7 @@ class _WorkspaceEndpointsListState extends State<WorkspaceEndpointsList> {
       AppNavigator.scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
           content: Text('Upload failed: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     }
@@ -215,7 +215,7 @@ class _WorkspaceEndpointsListState extends State<WorkspaceEndpointsList> {
             padding: const EdgeInsets.all(8.0),
             child: Text(
               'Error: ${endpointProvider.error}',
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(color: AppColors.error),
             ),
           ),
 
@@ -267,8 +267,8 @@ class _WorkspaceEndpointsListState extends State<WorkspaceEndpointsList> {
                           },
                         ),
                         feedback: Material(
-                          elevation: 12,
-                          borderRadius: BorderRadius.circular(12),
+                          elevation: 4,
+                          borderRadius: AppRadius.br8,
                           color: Colors.transparent,
                           child: Container(
                             width: 240,
@@ -278,18 +278,11 @@ class _WorkspaceEndpointsListState extends State<WorkspaceEndpointsList> {
                             ),
                             decoration: BoxDecoration(
                               color: colors.surface,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppRadius.br8,
                               border: Border.all(
                                 color: colors.primary.withValues(alpha: 0.5),
-                                width: 2,
+                                width: 1,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: colors.primary.withValues(alpha: 0.2),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
                             ),
                             child: _buildEndpointItem(context, endpoint, true),
                           ),

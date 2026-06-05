@@ -24,19 +24,19 @@ class MetricsCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: surface,
-        borderRadius: AppRadius.br12,
+        borderRadius: AppRadius.br8,
         border: Border.all(color: AppColors.border),
-        boxShadow: AppShadows.card,
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: AppRadius.br8,
+              color: AppColors.hoverItem,
+              borderRadius: AppRadius.br6,
+              border: Border.all(color: color.withValues(alpha: 0.35)),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: Icon(icon, color: color.withValues(alpha: 0.9), size: 18),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(

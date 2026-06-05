@@ -244,13 +244,11 @@ class _ProjectAvatar extends StatelessWidget {
     if (text.isEmpty) return AppColors.textSecondary;
     final colors = [
       AppColors.accent,
-      Color(0xFFEF4444),
-      Color(0xFF3B82F6),
-      Color(0xFFF59E0B),
-      Color(0xFF8B5CF6),
-      Color(0xFF06B6D4),
-      Color(0xFFEC4899),
-      Color(0xFF6366F1),
+      AppColors.info,
+      AppColors.success,
+      AppColors.warning,
+      AppColors.methodPatch,
+      AppColors.textSecondary,
     ];
     return colors[text.hashCode.abs() % colors.length];
   }

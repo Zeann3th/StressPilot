@@ -46,7 +46,7 @@ class _ProjectEmptyStateState extends State<ProjectEmptyState>
             width: 96,
             height: 96,
             decoration: BoxDecoration(
-              borderRadius: AppRadius.br12,
+              borderRadius: AppRadius.br8,
               border: Border.all(color: borderColor, width: 1.5),
             ),
             child: AnimatedBuilder(
@@ -100,7 +100,7 @@ class ProjectErrorState extends StatelessWidget {
             height: 72,
             decoration: BoxDecoration(
               color: AppColors.error.withValues(alpha: 0.10),
-              borderRadius: AppRadius.br12,
+              borderRadius: AppRadius.br8,
               border: Border.all(
                 color: AppColors.error.withValues(alpha: 0.3),
                 width: 1,

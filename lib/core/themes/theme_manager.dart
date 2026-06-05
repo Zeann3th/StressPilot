@@ -57,18 +57,28 @@ class ThemeManager with ChangeNotifier {
 
   static final _fleetTheme = PilotTheme(
     id: 'fleet',
-    name: 'JetBrains Fleet',
+    name: 'Fleet Dark',
     brightness: Brightness.dark,
     colors: {
-      'background': const Color(0xFF1E1F28),
-      'surface': const Color(0xFF22232D),
-      'elevated': const Color(0xFF2A2B36),
-      'activeItem': const Color(0xFF2E3044),
-      'hoverItem': const Color(0xFF272838),
-      'accent': const Color(0xFF5B9BD5),
-      'textPrimary': const Color(0xFFD4D4D6),
-      'textSecondary': const Color(0xFF757580),
-      'textDisabled': const Color(0xFF45454E),
+      'background': const Color(0xFF191B20),
+      'surface': const Color(0xFF20232A),
+      'elevated': const Color(0xFF252932),
+      'activeItem': const Color(0xFF2D3440),
+      'hoverItem': const Color(0xFF272C34),
+      'accent': const Color(0xFF6B9AC4),
+      'accentHover': const Color(0xFF7AA8D0),
+      'accentActive': const Color(0xFF5D8CB6),
+      'border': const Color(0x26FFFFFF),
+      'divider': const Color(0x14FFFFFF),
+      'textPrimary': const Color(0xFFD6D8DD),
+      'textSecondary': const Color(0xFF8A9099),
+      'textDisabled': const Color(0xFF555B64),
+      'success': const Color(0xFF6A9F6E),
+      'info': const Color(0xFF6B9AC4),
+      'warning': const Color(0xFFB69A5B),
+      'error': const Color(0xFFBD6B6B),
+      'methodDelete': const Color(0xFFBD6B6B),
+      'methodPatch': const Color(0xFF8A78B8),
     },
   );
 
@@ -188,8 +198,13 @@ class ThemeManager with ChangeNotifier {
   }
 
   Future<void> setTheme(String themeId) async {
+    final requestedThemeId = themeId == 'dark'
+        ? 'fleet'
+        : themeId == 'light'
+        ? 'fleet-light'
+        : themeId;
     final theme = _availableThemes.firstWhere(
-      (t) => t.id == themeId,
+      (t) => t.id == requestedThemeId,
       orElse: () => _fleetTheme,
     );
 
@@ -197,8 +212,8 @@ class ThemeManager with ChangeNotifier {
     _currentShadTheme = _generateShadTheme(theme);
 
     final settingsManager = getIt<SettingsManager>();
-    if (settingsManager.getString('workbench.colorTheme') != themeId) {
-      await settingsManager.setString('workbench.colorTheme', themeId);
+    if (settingsManager.getString('workbench.colorTheme') != theme.id) {
+      await settingsManager.setString('workbench.colorTheme', theme.id);
     }
 
     notifyListeners();

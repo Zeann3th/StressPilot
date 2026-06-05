@@ -6,15 +6,15 @@ import 'package:stress_pilot/core/themes/pilot_theme.dart';
 
 abstract class AppColors {
   // Base Colors (Fallbacks for DARK)
-  static const _fallbackBackground = Color(0xFF1E1F28);
-  static const _fallbackSidebar = Color(0xFF22232D);
-  static const _fallbackElevated = Color(0xFF2A2B36);
-  static const _fallbackActive = Color(0xFF2E3044);
-  static const _fallbackHover = Color(0xFF272838);
-  static const _fallbackAccent = Color(0xFF5B9BD5);
-  static const _fallbackText = Color(0xFFD4D4D6);
-  static const _fallbackSecondary = Color(0xFF757580);
-  static const _fallbackDisabled = Color(0xFF45454E);
+  static const _fallbackBackground = Color(0xFF191B20);
+  static const _fallbackSidebar = Color(0xFF20232A);
+  static const _fallbackElevated = Color(0xFF252932);
+  static const _fallbackActive = Color(0xFF2D3440);
+  static const _fallbackHover = Color(0xFF272C34);
+  static const _fallbackAccent = Color(0xFF6B9AC4);
+  static const _fallbackText = Color(0xFFD6D8DD);
+  static const _fallbackSecondary = Color(0xFF8A9099);
+  static const _fallbackDisabled = Color(0xFF555B64);
 
   // Private helper to get current theme
   static PilotTheme get _theme => getIt<ThemeManager>().currentTheme;
@@ -73,19 +73,19 @@ abstract class AppColors {
   static Color get textMuted => textDisabled;
 
   static Color get methodGet =>
-      _theme.getColor('success', const Color(0xFF57A64A));
+      _theme.getColor('success', const Color(0xFF6A9F6E));
   static Color get methodPost => _theme.getColor(
     'info',
-    _theme.isDark ? const Color(0xFF4B8FD4) : AppColorsLight.methodPost,
+    _theme.isDark ? const Color(0xFF6B9AC4) : AppColorsLight.methodPost,
   );
   static Color get methodPut =>
-      _theme.getColor('warning', const Color(0xFFC8A84B));
+      _theme.getColor('warning', const Color(0xFFB69A5B));
   static Color get methodDelete =>
-      _theme.getColor('methodDelete', const Color(0xFFC25151));
+      _theme.getColor('methodDelete', const Color(0xFFBD6B6B));
   static Color get methodPatch =>
-      _theme.getColor('methodPatch', const Color(0xFF8B68D4));
+      _theme.getColor('methodPatch', const Color(0xFF8A78B8));
 
-  static Color get error => _theme.getColor('error', const Color(0xFFD2504B));
+  static Color get error => _theme.getColor('error', const Color(0xFFBD6B6B));
   static Color get success => methodGet;
   static Color get warning => methodPut;
   static Color get info => methodPost;
@@ -105,7 +105,7 @@ abstract class AppGradients {
   static LinearGradient green([bool? isDark]) {
     final color = AppColors.accent;
     return LinearGradient(
-      colors: [color, color.withValues(alpha: 0.8)],
+      colors: [color.withValues(alpha: 0.95), color.withValues(alpha: 0.75)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
@@ -114,7 +114,7 @@ abstract class AppGradients {
 
 abstract class AppColorsLight {
   static const baseBackground = Color(0xFFFFFFFF);
-  static const sidebarBackground = Color(0xFFF7F8FA);
+  static const sidebarBackground = Color(0xFFF6F7F9);
   static const elevatedSurface = Color(0xFFFFFFFF);
   static const activeItem = Color(0xFFE4E6ED);
   static const hoverItem = Color(0xFFF0F1F5);
@@ -127,12 +127,12 @@ abstract class AppColorsLight {
   static const textDisabled = Color(0xFFAAAAAA);
   static const accentActive = Color(0xFF2E68E0);
 
-  static const methodGet = Color(0xFF57A64A);
+  static const methodGet = Color(0xFF4F8A58);
   static const methodPost = Color(0xFF3574F0);
-  static const methodPut = Color(0xFFC8A84B);
-  static const methodDelete = Color(0xFFC25151);
-  static const methodPatch = Color(0xFF8B68D4);
-  static const error = Color(0xFFD2504B);
+  static const methodPut = Color(0xFFA9843F);
+  static const methodDelete = Color(0xFFB65757);
+  static const methodPatch = Color(0xFF7562A8);
+  static const error = Color(0xFFB65757);
   static const success = methodGet;
   static const warning = methodPut;
   static const info = methodPost;
@@ -147,14 +147,9 @@ abstract class AppDurations {
 abstract class AppShadows {
   static List<BoxShadow> get panel => [
     BoxShadow(
-      color: Colors.black.withValues(alpha: 0.08),
-      blurRadius: 12,
-      offset: const Offset(0, 4),
-    ),
-    BoxShadow(
-      color: Colors.black.withValues(alpha: 0.04),
-      blurRadius: 4,
-      offset: const Offset(0, 2),
+      color: Colors.black.withValues(alpha: 0.035),
+      blurRadius: 6,
+      offset: const Offset(0, 1),
     ),
   ];
 
@@ -167,15 +162,15 @@ abstract class AppShadows {
   ];
   static List<BoxShadow> get card => [
     BoxShadow(
-      color: Colors.black.withValues(alpha: 0.05),
-      blurRadius: 8,
-      offset: const Offset(0, 2),
+      color: Colors.black.withValues(alpha: 0.025),
+      blurRadius: 4,
+      offset: const Offset(0, 1),
     ),
   ];
   static List<BoxShadow> get subtle => [
     BoxShadow(
-      color: Colors.black.withValues(alpha: 0.03),
-      blurRadius: 4,
+      color: Colors.black.withValues(alpha: 0.02),
+      blurRadius: 3,
       offset: const Offset(0, 1),
     ),
   ];

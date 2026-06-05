@@ -27,7 +27,7 @@ class PilotPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = borderRadius ?? AppRadius.br12;
+    final radius = borderRadius ?? AppRadius.br8;
     return Container(
       width: width,
       height: height,
@@ -36,7 +36,7 @@ class PilotPanel extends StatelessWidget {
         color: backgroundColor ?? AppColors.baseBackground,
         borderRadius: radius,
         border: showBorder ? Border.all(color: AppColors.border) : null,
-        boxShadow: boxShadow ?? AppShadows.panel,
+        boxShadow: boxShadow,
       ),
       child: ClipRRect(
         borderRadius: radius,

@@ -31,9 +31,8 @@ class _WorkspaceNodeLibraryState extends State<WorkspaceNodeLibrary> {
       width: 232,
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: AppRadius.br16,
+        borderRadius: AppRadius.br8,
         border: Border.all(color: border.withValues(alpha: 0.3)),
-        boxShadow: AppShadows.panel,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +59,7 @@ class _WorkspaceNodeLibraryState extends State<WorkspaceNodeLibrary> {
                     type: FlowNodeType.branch,
                     label: 'Branch',
                     icon: Icons.call_split_rounded,
-                    color: const Color(0xFF8B5CF6),
+                    color: AppColors.warning,
                   ),
                 ),
                 SizedBox(
@@ -69,7 +68,7 @@ class _WorkspaceNodeLibraryState extends State<WorkspaceNodeLibrary> {
                     type: FlowNodeType.subflow,
                     label: 'Subflow',
                     icon: Icons.account_tree_rounded,
-                    color: const Color(0xFF10B981),
+                    color: AppColors.info,
                   ),
                 ),
               ],
@@ -198,9 +197,9 @@ class _ChipBody extends StatelessWidget {
         boxShadow: isDragging
             ? [
                 BoxShadow(
-                  color: color.withValues(alpha: 0.25),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  color: AppColors.textPrimary.withValues(alpha: 0.12),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
                 ),
               ]
             : null,

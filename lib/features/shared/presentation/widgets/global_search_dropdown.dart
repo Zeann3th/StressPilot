@@ -273,16 +273,7 @@ class _GlobalSearchDropdownState extends State<GlobalSearchDropdown> {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: AppRadius.br8,
-          border: Border.all(color: borderColor, width: _isFocused ? 2 : 1),
-          boxShadow: _isFocused
-              ? [
-                  BoxShadow(
-                    color: AppColors.accent.withValues(alpha: 0.2),
-                    blurRadius: 4,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : [],
+          border: Border.all(color: borderColor, width: 1),
         ),
         child: Row(
           children: [
@@ -417,18 +408,18 @@ class _SearchDropdownPanel extends StatelessWidget {
       margin: const EdgeInsets.only(top: 4),
       decoration: BoxDecoration(
         color: surface,
-        borderRadius: AppRadius.br12,
+        borderRadius: AppRadius.br8,
         border: Border.all(color: border.withValues(alpha: 0.4)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: AppRadius.br12,
+        borderRadius: AppRadius.br8,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

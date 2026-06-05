@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
+import 'package:stress_pilot/core/themes/theme_tokens.dart';
 
 class EndpointTypeBadge extends StatelessWidget {
   final String type;
@@ -16,45 +17,26 @@ class EndpointTypeBadge extends StatelessWidget {
   Color _colorForType(BuildContext context, String type) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    Color baseColor;
     switch (type.toUpperCase()) {
       case 'HTTP':
-        baseColor = const Color(0xFF3B82F6);
-        break;
+        return AppColors.methodPost;
       case 'GRPC':
-        baseColor = const Color(0xFF06B6D4);
-        break;
+        return AppColors.info;
       case 'WSS':
       case 'WS':
       case 'WEBSOCKET':
-        baseColor = const Color(0xFFF59E0B);
-        break;
+        return AppColors.warning;
       case 'GRAPHQL':
-        baseColor = const Color(0xFFEC4899);
-        break;
+        return AppColors.methodPatch;
       case 'JDBC':
       case 'SQL':
-        baseColor = const Color(0xFF6366F1);
-        break;
+        return AppColors.textSecondary;
       case 'JS':
       case 'JAVASCRIPT':
-        baseColor = const Color(0xFFF59E0B);
-        break;
+        return AppColors.warning;
       default:
-        baseColor = HSLColor.fromAHSL(
-          1.0,
-          (type.hashCode.abs() % 360).toDouble(),
-          0.65,
-          0.55,
-        ).toColor();
+        return isDark ? AppColors.textSecondary : AppColors.textPrimary;
     }
-
-    if (!isDark) {
-      // Darken slightly for light mode to maintain contrast
-      final hsl = HSLColor.fromColor(baseColor);
-      return hsl.withLightness((hsl.lightness - 0.1).clamp(0.0, 1.0)).toColor();
-    }
-    return baseColor;
   }
 
   @override

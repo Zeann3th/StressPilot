@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
 
 class GridPainter extends CustomPainter {
@@ -256,7 +257,7 @@ class ConnectionPainter extends CustomPainter {
         text: TextSpan(
           text: labelText,
           style: TextStyle(
-            color: label == 'true' ? Colors.green : Colors.red,
+            color: label == 'true' ? AppColors.success : AppColors.error,
             fontSize: 10,
             fontWeight: FontWeight.bold,
           ),

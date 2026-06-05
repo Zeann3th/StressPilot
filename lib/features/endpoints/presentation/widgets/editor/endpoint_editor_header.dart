@@ -88,11 +88,11 @@ class _MethodDropdown extends StatelessWidget {
         items: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].map((m) {
           final methodColor =
               {
-                'GET': const Color(0xFF10B981),
-                'POST': const Color(0xFF3B82F6),
-                'PUT': const Color(0xFFF59E0B),
-                'DELETE': const Color(0xFFEF4444),
-                'PATCH': const Color(0xFF8B5CF6),
+                'GET': AppColors.methodGet,
+                'POST': AppColors.methodPost,
+                'PUT': AppColors.methodPut,
+                'DELETE': AppColors.methodDelete,
+                'PATCH': AppColors.methodPatch,
               }[m] ??
               accentColor;
           return DropdownMenuItem(
