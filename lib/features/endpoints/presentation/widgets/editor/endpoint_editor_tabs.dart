@@ -132,12 +132,12 @@ class EndpointEditorTabs extends StatelessWidget {
         const SizedBox(height: 12),
         PilotInput(
           controller: successConditionController,
-          placeholder: 'e.g., #statusCode == 200 && #body.status == "OK"',
+          placeholder: 'e.g., statusCode == 200 && data[\'status\'] == \'OK\'',
           maxLines: 3,
         ),
         const SizedBox(height: 8),
         Text(
-          'Available variables: #statusCode, #body, #headers, #responseTime',
+          'Evaluated against the response object: statusCode, success, message, responseTimeMs, data, rawResponse.',
           style: AppTypography.caption.copyWith(color: secondaryText),
         ),
 
@@ -161,7 +161,7 @@ class EndpointEditorTabs extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'Extract values from response into flow-level variables.',
+          'Sent in the run payload and merged over active environment variables for request interpolation.',
           style: AppTypography.caption.copyWith(color: secondaryText),
         ),
       ],

@@ -48,17 +48,22 @@ void main() {
     getIt.registerLazySingleton(() => ThemeManager());
   });
 
-  testWidgets('displays multiline field and example backend args', (
-    tester,
-  ) async {
+  testWidgets('displays split fields and example backend args', (tester) async {
     SharedPreferences.setMockInitialValues({});
 
     await _pumpView(tester);
 
-    final textField = tester.widget<TextField>(find.byType(TextField));
+    final textFields = tester.widgetList<TextField>(find.byType(TextField));
 
-    expect(textField.maxLines, greaterThan(1));
-    expect(find.text('Backend Launch Arguments'), findsOneWidget);
+    expect(textFields, hasLength(2));
+    expect(textFields.every((field) => (field.maxLines ?? 1) > 1), isTrue);
+    expect(find.text('Backend Runtime Overrides'), findsOneWidget);
+    expect(find.text('JVM Options'), findsOneWidget);
+    expect(find.text('Spring / Application Arguments'), findsOneWidget);
+    expect(
+      find.textContaining('-javaagent:/absolute/path/agent.jar'),
+      findsAtLeastNWidgets(1),
+    );
     expect(
       find.textContaining('--application.distributed.enabled=true'),
       findsAtLeastNWidgets(1),
@@ -71,22 +76,32 @@ void main() {
       find.textContaining('--spring.data.redis.port=6379'),
       findsAtLeastNWidgets(1),
     );
+    expect(
+      find.textContaining(
+        '--spring.config.additional-location=file:/absolute/path/stresspilot.yaml',
+      ),
+      findsAtLeastNWidgets(1),
+    );
   });
 
-  testWidgets('saving persists raw backend args', (tester) async {
+  testWidgets('saving persists split backend args', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final backendLaunchArgs = await _pumpView(tester);
 
-    const rawArgs =
+    const jvmArgs = '-javaagent:/tmp/agent.jar\n-Xmx2g';
+    const appArgs =
         '--application.distributed.enabled=true\n'
         '--spring.data.redis.host=127.0.0.1';
 
-    await tester.enterText(find.byType(TextField), rawArgs);
+    await tester.enterText(find.byType(TextField).first, jvmArgs);
+    await tester.enterText(find.byType(TextField).last, appArgs);
+    await tester.ensureVisible(find.text('Save'));
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 4));
 
-    expect(await backendLaunchArgs.loadRaw(), rawArgs);
+    expect(await backendLaunchArgs.loadJvmRaw(), jvmArgs);
+    expect(await backendLaunchArgs.loadAppRaw(), appArgs);
   });
 
   testWidgets('reset clears persisted raw backend args', (tester) async {
@@ -95,11 +110,14 @@ void main() {
     });
     final backendLaunchArgs = await _pumpView(tester);
 
+    await tester.ensureVisible(find.text('Reset'));
     await tester.tap(find.text('Reset'));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 4));
 
     expect(await backendLaunchArgs.loadRaw(), isEmpty);
-    expect(find.byType(TextField), findsOneWidget);
+    expect(await backendLaunchArgs.loadJvmRaw(), isEmpty);
+    expect(await backendLaunchArgs.loadAppRaw(), isEmpty);
+    expect(find.byType(TextField), findsNWidgets(2));
   });
 }

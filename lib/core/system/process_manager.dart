@@ -48,14 +48,16 @@ List<String> buildBackendArgs({
   required String jarPath,
   required String profile,
   required String? jsaPath,
-  required List<String> customArgs,
+  required List<String> customJvmArgs,
+  required List<String> customAppArgs,
 }) {
   return [
+    ...customJvmArgs,
     if (jsaPath != null) '-XX:SharedArchiveFile=$jsaPath',
     '-jar',
     jarPath,
     '--spring.profiles.active=$profile',
-    ...customArgs,
+    ...customAppArgs,
   ];
 }
 
@@ -374,16 +376,19 @@ class ProcessManager {
 
     try {
       final profile = kDebugMode ? 'dev' : 'prod';
-      final customArgs = await GetIt.instance<BackendLaunchArgs>().loadArgs();
+      final customOptions = await GetIt.instance<BackendLaunchArgs>()
+          .loadOptions();
       final args = buildBackendArgs(
         jarPath: jarPath,
         profile: profile,
         jsaPath: jsaExists ? jsaPath : null,
-        customArgs: customArgs,
+        customJvmArgs: customOptions.jvmArgs,
+        customAppArgs: customOptions.appArgs,
       );
       AppLogger.info(
         'Starting backend with ${args.length} Java args '
-        '(${customArgs.length} custom)',
+        '(${customOptions.jvmArgs.length} custom JVM, '
+        '${customOptions.appArgs.length} custom app)',
         name: _logName,
       );
       final process = await Process.start(

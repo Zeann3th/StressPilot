@@ -59,7 +59,6 @@ class _SettingsTableState extends State<SettingsTable> {
       'THEME',
       'SHORTCUTS',
       'CONFIGURATIONS',
-      'BACKEND',
       'FUNCTIONS',
       'TASK SCHEDULING',
       'PLUGINS',
@@ -94,7 +93,6 @@ class _SettingsTableState extends State<SettingsTable> {
               if (cat == 'PLUGINS') icon = Icons.extension_rounded;
               if (cat == 'FUNCTIONS') icon = Icons.functions_rounded;
               if (cat == 'TASK SCHEDULING') icon = Icons.schedule_rounded;
-              if (cat == 'BACKEND') icon = Icons.terminal_rounded;
               if (cat == 'CONFIGURATIONS') icon = Icons.tune_rounded;
               if (cat == 'AI MODEL') icon = Icons.auto_awesome_rounded;
               if (cat == 'DATABASE') icon = Icons.storage_rounded;
@@ -157,10 +155,6 @@ class _SettingsTableState extends State<SettingsTable> {
       return TaskSchedulingView();
     }
 
-    if (_selectedCategory == 'BACKEND') {
-      return BackendArgsSettingsView();
-    }
-
     if (_selectedCategory == 'CONFIGURATIONS') {
       final entries = grouped['CONFIGURATIONS'] ?? [];
       final flowEntries = entries
@@ -201,7 +195,10 @@ class _SettingsTableState extends State<SettingsTable> {
                   Text('HTTP', style: AppTypography.label),
                   const SizedBox(height: 12),
                   _buildSettingsContainer(httpEntries, border),
+                  const SizedBox(height: 32),
                 ],
+
+                const BackendArgsSettingsView(embedded: true),
               ],
             ),
           ),

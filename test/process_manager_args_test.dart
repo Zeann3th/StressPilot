@@ -7,13 +7,15 @@ void main() {
       jarPath: 'core/app.jar',
       profile: 'dev',
       jsaPath: 'cache/app.jsa',
-      customArgs: [
+      customJvmArgs: ['-javaagent:/tmp/agent.jar'],
+      customAppArgs: [
         '--application.distributed.enabled=true',
         '--spring.data.redis.host=127.0.0.1',
       ],
     );
 
     expect(args, [
+      '-javaagent:/tmp/agent.jar',
       '-XX:SharedArchiveFile=cache/app.jsa',
       '-jar',
       'core/app.jar',
@@ -28,7 +30,8 @@ void main() {
       jarPath: 'core/app.jar',
       profile: 'prod',
       jsaPath: null,
-      customArgs: ['--server.port=52000'],
+      customJvmArgs: [],
+      customAppArgs: ['--server.port=52000'],
     );
 
     expect(args, [
@@ -44,9 +47,11 @@ void main() {
       jarPath: 'core/app.jar',
       profile: 'dev',
       jsaPath: null,
-      customArgs: ['--first=1', '--second=2', '--third=3'],
+      customJvmArgs: ['-Xmx2g', '-javaagent:/tmp/agent.jar'],
+      customAppArgs: ['--first=1', '--second=2', '--third=3'],
     );
 
-    expect(args.skip(3), ['--first=1', '--second=2', '--third=3']);
+    expect(args.take(2), ['-Xmx2g', '-javaagent:/tmp/agent.jar']);
+    expect(args.skip(5), ['--first=1', '--second=2', '--third=3']);
   });
 }

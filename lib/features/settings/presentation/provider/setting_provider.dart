@@ -16,12 +16,18 @@ class SettingProvider extends ChangeNotifier {
 
   Map<String, String> _configs = {};
   String _backendArgsRaw = '';
+  String _backendJvmArgsRaw = '';
+  String _backendAppArgsRaw = '';
   bool _isLoading = false;
   String? _error;
 
   Map<String, String> get configs => _configs;
 
   String get backendArgsRaw => _backendArgsRaw;
+
+  String get backendJvmArgsRaw => _backendJvmArgsRaw;
+
+  String get backendAppArgsRaw => _backendAppArgsRaw;
 
   bool get isLoading => _isLoading;
 
@@ -81,6 +87,8 @@ class SettingProvider extends ChangeNotifier {
   Future<void> loadBackendArgs() async {
     try {
       _backendArgsRaw = await _backendLaunchArgs.loadRaw();
+      _backendJvmArgsRaw = await _backendLaunchArgs.loadJvmRaw();
+      _backendAppArgsRaw = await _backendLaunchArgs.loadAppRaw();
       notifyListeners();
     } catch (e) {
       _error = e.toString();
@@ -93,6 +101,28 @@ class SettingProvider extends ChangeNotifier {
     try {
       await _backendLaunchArgs.saveRaw(value);
       _backendArgsRaw = value;
+      _backendJvmArgsRaw = '';
+      _backendAppArgsRaw = value;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> saveBackendLaunchOptions({
+    required String jvmArgsRaw,
+    required String appArgsRaw,
+  }) async {
+    try {
+      await _backendLaunchArgs.saveStructured(
+        jvmArgsRaw: jvmArgsRaw,
+        appArgsRaw: appArgsRaw,
+      );
+      _backendArgsRaw = '';
+      _backendJvmArgsRaw = jvmArgsRaw;
+      _backendAppArgsRaw = appArgsRaw;
       notifyListeners();
     } catch (e) {
       _error = e.toString();
@@ -105,6 +135,8 @@ class SettingProvider extends ChangeNotifier {
     try {
       await _backendLaunchArgs.reset();
       _backendArgsRaw = '';
+      _backendJvmArgsRaw = '';
+      _backendAppArgsRaw = '';
       notifyListeners();
     } catch (e) {
       _error = e.toString();
