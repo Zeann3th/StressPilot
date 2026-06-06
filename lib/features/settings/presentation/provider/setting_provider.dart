@@ -135,7 +135,7 @@ class SettingProvider extends ChangeNotifier {
     try {
       await _backendLaunchArgs.reset();
       _backendArgsRaw = '';
-      _backendJvmArgsRaw = '';
+      _backendJvmArgsRaw = await _backendLaunchArgs.loadJvmRaw();
       _backendAppArgsRaw = '';
       notifyListeners();
     } catch (e) {

@@ -5,6 +5,7 @@ import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/features/settings/presentation/provider/setting_provider.dart';
 
 const String backendJvmArgsExample =
+    '-XX:MaxRAMPercentage=40\n'
     '-javaagent:/absolute/path/agent.jar\n'
     '-Xmx2g\n'
     '--add-opens=java.base/java.lang=ALL-UNNAMED';
@@ -66,7 +67,7 @@ class _BackendArgsSettingsViewState extends State<BackendArgsSettingsView> {
     try {
       await context.read<SettingProvider>().resetBackendArgs();
       if (mounted) {
-        _jvmController.clear();
+        _jvmController.text = context.read<SettingProvider>().backendJvmArgsRaw;
         _appController.clear();
         PilotToast.show(context, 'Backend runtime options reset');
       }

@@ -11,6 +11,7 @@ class BackendLaunchArgs {
   static const String _rawKey = 'backend_launch_args_raw';
   static const String _jvmRawKey = 'backend_launch_jvm_args_raw';
   static const String _appRawKey = 'backend_launch_app_args_raw';
+  static const String defaultJvmArgsRaw = '-XX:MaxRAMPercentage=40';
 
   Future<String> loadRaw() async {
     final prefs = await SharedPreferences.getInstance();
@@ -31,7 +32,7 @@ class BackendLaunchArgs {
 
   Future<String> loadJvmRaw() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_jvmRawKey) ?? '';
+    return prefs.getString(_jvmRawKey) ?? defaultJvmArgsRaw;
   }
 
   Future<String> loadAppRaw() async {
