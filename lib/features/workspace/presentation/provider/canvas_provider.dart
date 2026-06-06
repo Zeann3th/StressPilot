@@ -226,7 +226,38 @@ class CanvasProvider extends ChangeNotifier {
   }
 
   List<FlowStep> generateFlowConfiguration() {
-    return _nodes.map((node) {
+    final visualNextByNode = <String, String?>{};
+    final visualFalseByNode = <String, String?>{};
+
+    for (final node in _nodes) {
+      for (final conn in _connections.where((c) => c.sourceNodeId == node.id)) {
+        if (node.type == FlowNodeType.branch) {
+          if (conn.sourceHandle == 'true') {
+            visualNextByNode[node.id] = conn.targetNodeId;
+          }
+          if (conn.sourceHandle == 'false') {
+            visualFalseByNode[node.id] = conn.targetNodeId;
+          }
+        } else {
+          visualNextByNode[node.id] = conn.targetNodeId;
+        }
+      }
+    }
+
+    String backendTarget(String? visualTarget) {
+      if (visualTarget == null) return '';
+      final targetNode = _nodes
+          .where((node) => node.id == visualTarget)
+          .firstOrNull;
+      if (targetNode != null && _isEndpointLoopEnabled(targetNode)) {
+        return _loopStepId(targetNode.id);
+      }
+      return visualTarget;
+    }
+
+    final steps = <FlowStep>[];
+
+    for (final node in _nodes) {
       String type;
       int? endpointId;
       String? condition;
@@ -252,32 +283,13 @@ class CanvasProvider extends ChangeNotifier {
           break;
       }
 
-      String? nextIfTrue;
-      String? nextIfFalse;
+      String? nextIfTrue = visualNextByNode[node.id];
+      String? nextIfFalse = visualFalseByNode[node.id];
 
       Map<String, dynamic>? preProcessor;
       preProcessor = node.data['preProcessor'] != null
           ? Map<String, dynamic>.from(node.data['preProcessor'])
           : {};
-
-      for (final conn in _connections.where((c) => c.sourceNodeId == node.id)) {
-        if (node.type == FlowNodeType.branch) {
-          if (conn.sourceHandle == 'true') nextIfTrue = conn.targetNodeId;
-          if (conn.sourceHandle == 'false') nextIfFalse = conn.targetNodeId;
-        } else if (node.type == FlowNodeType.loop) {
-          if (conn.sourceHandle == 'body') {
-            final loop = Map<String, dynamic>.from(
-              preProcessor['loop'] is Map ? preProcessor['loop'] as Map : {},
-            );
-            loop['body'] = conn.targetNodeId;
-            preProcessor['loop'] = loop;
-          } else {
-            nextIfTrue = conn.targetNodeId;
-          }
-        } else {
-          nextIfTrue = conn.targetNodeId;
-        }
-      }
 
       if (node.type == FlowNodeType.endpoint) {
         preProcessor['endpoint_id'] = endpointId;
@@ -290,21 +302,69 @@ class CanvasProvider extends ChangeNotifier {
       preProcessor['location'] = {'x': node.position.dx, 'y': node.position.dy};
       preProcessor['temp_sync_id'] = node.id;
 
-      return FlowStep(
-        id: node.id,
-        type: type,
-        endpointId: endpointId,
-        endpointName: node.data['name'],
-        endpointUrl: node.data['url'],
-        endpointType: node.data['type'],
-        endpointMethod: node.data['method'],
-        nextIfTrue: nextIfTrue,
-        nextIfFalse: nextIfFalse,
-        condition: condition,
-        preProcessor: preProcessor,
-        postProcessor: node.data['postProcessor'],
+      if (_isEndpointLoopEnabled(node)) {
+        final loopPreProcessor = _loopPreProcessorFor(node);
+        loopPreProcessor['location'] = {
+          'x': node.position.dx,
+          'y': node.position.dy,
+        };
+        loopPreProcessor['temp_sync_id'] = _loopStepId(node.id);
+
+        steps.add(
+          FlowStep(
+            id: _loopStepId(node.id),
+            type: 'LOOP',
+            nextIfTrue: nextIfTrue == null ? null : backendTarget(nextIfTrue),
+            preProcessor: loopPreProcessor,
+          ),
+        );
+
+        preProcessor.remove('loop_enabled');
+        preProcessor.remove('loop');
+        nextIfTrue = _loopStepId(node.id);
+      } else {
+        nextIfTrue = nextIfTrue == null ? null : backendTarget(nextIfTrue);
+      }
+
+      nextIfFalse = nextIfFalse == null ? null : backendTarget(nextIfFalse);
+
+      steps.add(
+        FlowStep(
+          id: node.id,
+          type: type,
+          endpointId: endpointId,
+          endpointName: node.data['name'],
+          endpointUrl: node.data['url'],
+          endpointType: node.data['type'],
+          endpointMethod: node.data['method'],
+          nextIfTrue: nextIfTrue,
+          nextIfFalse: nextIfFalse,
+          condition: condition,
+          preProcessor: preProcessor,
+          postProcessor: node.data['postProcessor'],
+        ),
       );
-    }).toList();
+    }
+
+    return steps;
+  }
+
+  bool _isEndpointLoopEnabled(CanvasNode node) {
+    if (node.type != FlowNodeType.endpoint) return false;
+    final preProcessor = node.data['preProcessor'];
+    if (preProcessor is! Map) return false;
+    return preProcessor['loop_enabled'] == true;
+  }
+
+  String _loopStepId(String endpointNodeId) => '${endpointNodeId}__loop';
+
+  Map<String, dynamic> _loopPreProcessorFor(CanvasNode endpointNode) {
+    final source = endpointNode.data['preProcessor'];
+    final loop = source is Map && source['loop'] is Map
+        ? Map<String, dynamic>.from(source['loop'] as Map)
+        : <String, dynamic>{};
+    loop['body'] = endpointNode.id;
+    return {'loop': loop};
   }
 
   void syncEndpointsMetadata(List<domain_endpoint.Endpoint> endpoints) {
@@ -367,6 +427,7 @@ class CanvasProvider extends ChangeNotifier {
     List<domain_endpoint.Endpoint>? endpoints,
     List<Flow>? flows,
   ]) {
+    final displaySteps = _collapseEndpointLoops(steps);
     final Map<String, Offset> oldPositions = {
       for (final node in _nodes) node.id: node.position,
     };
@@ -374,7 +435,7 @@ class CanvasProvider extends ChangeNotifier {
     _nodes.clear();
     _connections.clear();
 
-    if (steps.isEmpty) {
+    if (displaySteps.isEmpty) {
       notifyListeners();
       return;
     }
@@ -384,8 +445,8 @@ class CanvasProvider extends ChangeNotifier {
     const double spacingX = 250.0;
     const double spacingY = 150.0;
 
-    for (int i = 0; i < steps.length; i++) {
-      final step = steps[i];
+    for (int i = 0; i < displaySteps.length; i++) {
+      final step = displaySteps[i];
 
       FlowNodeType type;
       switch (step.type.toUpperCase()) {
@@ -498,7 +559,7 @@ class CanvasProvider extends ChangeNotifier {
       );
     }
 
-    for (final step in steps) {
+    for (final step in displaySteps) {
       if (step.nextIfTrue != null &&
           _nodes.any((n) => n.id == step.nextIfTrue)) {
         final isLoop = step.type.toUpperCase() == 'LOOP';
@@ -549,6 +610,83 @@ class CanvasProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  List<FlowStep> _collapseEndpointLoops(List<FlowStep> steps) {
+    final stepById = {for (final step in steps) step.id: step};
+    final collapsedLoopIds = <String>{};
+    final collapsedEndpointIds = <String, FlowStep>{};
+    final loopAliasById = <String, String>{};
+
+    for (final loopStep in steps.where(
+      (step) => step.type.toUpperCase() == 'LOOP',
+    )) {
+      final loopConfig = loopStep.preProcessor?['loop'];
+      if (loopConfig is! Map) continue;
+      final bodyId = loopConfig['body']?.toString();
+      if (bodyId == null || bodyId.isEmpty) continue;
+      final bodyStep = stepById[bodyId];
+      if (bodyStep == null || bodyStep.type.toUpperCase() != 'ENDPOINT') {
+        continue;
+      }
+      if (bodyStep.nextIfTrue != loopStep.id) continue;
+
+      final endpointPre = Map<String, dynamic>.from(
+        bodyStep.preProcessor ?? {},
+      );
+      final normalizedLoop = Map<String, dynamic>.from(loopConfig);
+      normalizedLoop.remove('body');
+      endpointPre['loop_enabled'] = true;
+      endpointPre['loop'] = normalizedLoop;
+
+      collapsedLoopIds.add(loopStep.id);
+      loopAliasById[loopStep.id] = bodyStep.id;
+      collapsedEndpointIds[bodyStep.id] = FlowStep(
+        id: bodyStep.id,
+        type: bodyStep.type,
+        endpointId: bodyStep.endpointId,
+        endpointName: bodyStep.endpointName,
+        endpointUrl: bodyStep.endpointUrl,
+        endpointType: bodyStep.endpointType,
+        endpointMethod: bodyStep.endpointMethod,
+        nextIfTrue: loopStep.nextIfTrue,
+        nextIfFalse: bodyStep.nextIfFalse,
+        condition: bodyStep.condition,
+        preProcessor: endpointPre,
+        postProcessor: bodyStep.postProcessor,
+      );
+    }
+
+    return steps
+        .where((step) => !collapsedLoopIds.contains(step.id))
+        .map((step) => collapsedEndpointIds[step.id] ?? step)
+        .map((step) => _rewriteCollapsedLoopTargets(step, loopAliasById))
+        .toList();
+  }
+
+  FlowStep _rewriteCollapsedLoopTargets(
+    FlowStep step,
+    Map<String, String> loopAliasById,
+  ) {
+    String? rewrite(String? target) {
+      if (target == null) return null;
+      return loopAliasById[target] ?? target;
+    }
+
+    return FlowStep(
+      id: step.id,
+      type: step.type,
+      endpointId: step.endpointId,
+      endpointName: step.endpointName,
+      endpointUrl: step.endpointUrl,
+      endpointType: step.endpointType,
+      endpointMethod: step.endpointMethod,
+      nextIfTrue: rewrite(step.nextIfTrue),
+      nextIfFalse: rewrite(step.nextIfFalse),
+      condition: step.condition,
+      preProcessor: step.preProcessor,
+      postProcessor: step.postProcessor,
+    );
   }
 
   Future<void> saveFlowLayout(String flowId, {bool silent = false}) async {}

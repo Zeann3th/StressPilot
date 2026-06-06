@@ -45,8 +45,11 @@ class WorkspaceTabProvider with ChangeNotifier {
     final index = _tabs.indexWhere((t) => t.id == tab.id && t.type == tab.type);
     if (index == -1) {
       _tabs.add(tab);
+      _activeTab = tab;
+    } else {
+      _tabs[index] = tab;
+      _activeTab = _tabs[index];
     }
-    _activeTab = tab;
     notifyListeners();
   }
 
@@ -62,7 +65,8 @@ class WorkspaceTabProvider with ChangeNotifier {
   }
 
   void selectTab(WorkspaceTab tab) {
-    _activeTab = tab;
+    final index = _tabs.indexWhere((t) => t.id == tab.id && t.type == tab.type);
+    _activeTab = index == -1 ? tab : _tabs[index];
     notifyListeners();
   }
 

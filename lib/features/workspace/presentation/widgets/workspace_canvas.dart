@@ -147,6 +147,16 @@ class _CanvasContentState extends State<_CanvasContent>
   }
 
   @override
+  void didUpdateWidget(covariant _CanvasContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.flowId == widget.flowId) return;
+
+    _initialLoadScheduled = false;
+    _highlightedConnectionId = null;
+    _scheduleInitialLoad();
+  }
+
+  @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
@@ -176,6 +186,14 @@ class _CanvasContentState extends State<_CanvasContent>
     final canvasProvider = context.watch<CanvasProvider>();
     final endpoints = context.watch<EndpointProvider>().endpoints;
     final flows = context.watch<FlowProvider>().flows;
+    final visibleNodes = _visibleNodes(
+      canvasProvider.nodes,
+      canvasProvider.connections,
+    );
+    final visibleConnections = _visualConnections(
+      canvasProvider.nodes,
+      canvasProvider.connections,
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -253,8 +271,8 @@ class _CanvasContentState extends State<_CanvasContent>
                       onTapDown: (details) {
                         final conn = _findConnectionAt(
                           details.localPosition,
-                          canvasProvider.connections,
-                          canvasProvider.nodes,
+                          visibleConnections,
+                          visibleNodes,
                         );
                         if (conn != null) {
                           _didTapConnection = true;
@@ -287,8 +305,8 @@ class _CanvasContentState extends State<_CanvasContent>
                                   builder: (context, child) {
                                     return CustomPaint(
                                       painter: CanvasEdgePainter(
-                                        nodes: canvasProvider.nodes,
-                                        connections: canvasProvider.connections,
+                                        nodes: visibleNodes,
+                                        connections: visibleConnections,
                                         animationOffset:
                                             _animationController.value * 14.0,
                                         colors: Theme.of(context).colorScheme,
@@ -301,7 +319,7 @@ class _CanvasContentState extends State<_CanvasContent>
                                 ),
                               ),
                             ),
-                            ...canvasProvider.nodes.map(
+                            ...visibleNodes.map(
                               (node) => _buildNodeWidget(
                                 node,
                                 canvasProvider,
@@ -341,6 +359,135 @@ class _CanvasContentState extends State<_CanvasContent>
         ),
       ),
     );
+  }
+
+  List<CanvasNode> _visibleNodes(
+    List<CanvasNode> nodes,
+    List<CanvasConnection> connections,
+  ) {
+    final collapsedBodyIds = _collapsedLoopBodyIds(nodes, connections);
+    return nodes
+        .where((node) => !collapsedBodyIds.contains(node.id))
+        .toList(growable: false);
+  }
+
+  List<CanvasConnection> _visualConnections(
+    List<CanvasNode> nodes,
+    List<CanvasConnection> connections,
+  ) {
+    final nodeMap = {for (final node in nodes) node.id: node};
+    final collapsedBodyIds = _collapsedLoopBodyIds(nodes, connections);
+    final visibleNodeIds = nodes
+        .where((node) => !collapsedBodyIds.contains(node.id))
+        .map((node) => node.id)
+        .toSet();
+    final result = <CanvasConnection>[];
+
+    for (final conn in connections) {
+      final source = nodeMap[conn.sourceNodeId];
+      final target = nodeMap[conn.targetNodeId];
+      if (source == null || target == null) continue;
+
+      if (conn.type == ConnectionType.bodyType &&
+          source.type == FlowNodeType.loop &&
+          collapsedBodyIds.contains(conn.targetNodeId)) {
+        continue;
+      }
+
+      if (collapsedBodyIds.contains(conn.sourceNodeId)) {
+        final ownerLoop = _loopForBody(nodes, connections, conn.sourceNodeId);
+        if (ownerLoop != null && conn.targetNodeId == ownerLoop.id) {
+          continue;
+        }
+        if (ownerLoop != null &&
+            visibleNodeIds.contains(ownerLoop.id) &&
+            visibleNodeIds.contains(conn.targetNodeId)) {
+          result.add(
+            CanvasConnection(
+              id: '${conn.id}-visual-loop-body-out',
+              sourceNodeId: ownerLoop.id,
+              targetNodeId: conn.targetNodeId,
+              sourceHandle: 'default',
+              type: ConnectionType.defaultType,
+            ),
+          );
+        }
+        continue;
+      }
+
+      result.add(conn);
+    }
+
+    return result;
+  }
+
+  Set<String> _collapsedLoopBodyIds(
+    List<CanvasNode> nodes,
+    List<CanvasConnection> connections,
+  ) {
+    return nodes
+        .where((node) => node.type == FlowNodeType.loop)
+        .where((node) => _shouldCollapseLoopBody(node, connections))
+        .map((node) => _loopBodyId(node, connections))
+        .whereType<String>()
+        .toSet();
+  }
+
+  CanvasNode? _loopForBody(
+    List<CanvasNode> nodes,
+    List<CanvasConnection> connections,
+    String bodyId,
+  ) {
+    for (final node in nodes) {
+      if (node.type == FlowNodeType.loop &&
+          _shouldCollapseLoopBody(node, connections) &&
+          _loopBodyId(node, connections) == bodyId) {
+        return node;
+      }
+    }
+    return null;
+  }
+
+  bool _shouldCollapseLoopBody(
+    CanvasNode loopNode,
+    List<CanvasConnection> connections,
+  ) {
+    final bodyId = _loopBodyId(loopNode, connections);
+    if (bodyId == null || bodyId.isEmpty) return false;
+    return connections.any(
+      (conn) =>
+          conn.sourceNodeId == bodyId &&
+          conn.targetNodeId == loopNode.id &&
+          conn.type != ConnectionType.bodyType,
+    );
+  }
+
+  String? _loopBodyId(CanvasNode loopNode, List<CanvasConnection> connections) {
+    final preProcessor = loopNode.data['preProcessor'];
+    if (preProcessor is Map) {
+      final loop = preProcessor['loop'];
+      if (loop is Map && loop['body'] != null) {
+        return loop['body'].toString();
+      }
+    }
+
+    final bodyConnection = connections.where(
+      (conn) =>
+          conn.sourceNodeId == loopNode.id &&
+          conn.type == ConnectionType.bodyType,
+    );
+    return bodyConnection.isEmpty ? null : bodyConnection.first.targetNodeId;
+  }
+
+  CanvasNode? _loopBodyNode(
+    CanvasNode node,
+    List<CanvasNode> nodes,
+    List<CanvasConnection> connections,
+  ) {
+    if (!_shouldCollapseLoopBody(node, connections)) return null;
+    final bodyId = _loopBodyId(node, connections);
+    if (bodyId == null) return null;
+    return nodes.where((candidate) => candidate.id == bodyId).firstOrNull;
   }
 
   Widget _buildNodeWidget(
@@ -396,6 +543,11 @@ class _CanvasContentState extends State<_CanvasContent>
                     node: node,
                     provider: provider,
                     colors: colors,
+                    loopBodyNode: _loopBodyNode(
+                      node,
+                      provider.nodes,
+                      provider.connections,
+                    ),
                     isLoopBody: provider.connections.any(
                       (connection) =>
                           connection.targetNodeId == node.id &&
@@ -1269,6 +1421,7 @@ class CanvasNodeBody extends StatelessWidget {
   final CanvasProvider provider;
   final ColorScheme colors;
   final bool isLoopBody;
+  final CanvasNode? loopBodyNode;
 
   const CanvasNodeBody({
     super.key,
@@ -1276,6 +1429,7 @@ class CanvasNodeBody extends StatelessWidget {
     required this.provider,
     required this.colors,
     this.isLoopBody = false,
+    this.loopBodyNode,
   });
 
   @override
@@ -1296,19 +1450,34 @@ class CanvasNodeBody extends StatelessWidget {
 
   Widget _buildStandard() {
     final isLoop = node.type == FlowNodeType.loop;
+    final displayNode = isLoop && loopBodyNode != null ? loopBodyNode! : node;
+    final displayData = displayNode.data;
+    final preProcessor = node.data['preProcessor'];
+    final isEndpointLoop =
+        node.type == FlowNodeType.endpoint &&
+        preProcessor is Map &&
+        preProcessor['loop_enabled'] == true;
     final loopConfig = node.data['preProcessor'] is Map
         ? (node.data['preProcessor'] as Map)['loop']
         : null;
     final loopSource = loopConfig is Map ? loopConfig['source'] : null;
     final loopBody = loopConfig is Map ? loopConfig['body'] : null;
-    final type = isLoop ? 'LOOP' : (node.data['type'] ?? 'HTTP');
+    final type = isLoop && loopBodyNode == null
+        ? 'LOOP'
+        : (displayData['type'] ?? 'HTTP');
     final methodColor = _getTypeColor(type);
     final hasPre =
         node.data['preProcessor'] != null &&
         (node.data['preProcessor'] as Map).isNotEmpty;
     final hasPost =
-        node.data['postProcessor'] != null &&
-        (node.data['postProcessor'] as Map).isNotEmpty;
+        displayData['postProcessor'] != null &&
+        (displayData['postProcessor'] as Map).isNotEmpty;
+    final method = displayData['method'];
+    final title = displayData['name'] ?? (isLoop ? 'Loop' : 'Endpoint');
+    final subtitle = isLoop && loopBodyNode == null
+        ? 'source: ${loopSource ?? 'not set'} -> ${loopBody ?? 'body not set'}'
+        : (displayData['url'] ?? 'Action node');
+    final showLoopBadge = isEndpointLoop || isLoop || (isLoopBody && !isLoop);
 
     return Stack(
       clipBehavior: Clip.none,
@@ -1356,10 +1525,10 @@ class CanvasNodeBody extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (node.data['method'] != null) ...[
+                  if (method != null) ...[
                     const SizedBox(width: 4),
                     Text(
-                      node.data['method'].toString().toUpperCase(),
+                      method.toString().toUpperCase(),
                       style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
@@ -1371,7 +1540,7 @@ class CanvasNodeBody extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                node.data['name'] ?? (isLoop ? 'Loop' : 'Endpoint'),
+                title,
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -1381,9 +1550,7 @@ class CanvasNodeBody extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                isLoop
-                    ? 'source: ${loopSource ?? 'not set'} -> ${loopBody ?? 'body not set'}'
-                    : (node.data['url'] ?? 'Action node'),
+                subtitle,
                 style: TextStyle(
                   fontSize: 10,
                   color: colors.onSurfaceVariant,
@@ -1409,10 +1576,10 @@ class CanvasNodeBody extends StatelessWidget {
                       label: 'POST',
                       color: AppColors.methodPatch,
                     ),
-                  if (isLoopBody && !isLoop)
+                  if (showLoopBadge)
                     _InfoBadge(
                       icon: LucideIcons.repeat,
-                      label: 'LOOP BODY',
+                      label: isEndpointLoop || isLoop ? 'LOOP' : 'LOOP BODY',
                       color: AppColors.methodPatch,
                     ),
                 ],
@@ -1420,12 +1587,14 @@ class CanvasNodeBody extends StatelessWidget {
             ],
           ),
         ),
-        if (isLoopBody && !isLoop)
+        if (showLoopBadge)
           Positioned(
             top: -10,
             right: -10,
             child: Tooltip(
-              message: 'Runs inside a loop',
+              message: isEndpointLoop || isLoop
+                  ? 'Double-click to configure loop'
+                  : 'Runs inside a loop',
               child: Container(
                 width: 24,
                 height: 24,

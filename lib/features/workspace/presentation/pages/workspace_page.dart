@@ -151,30 +151,33 @@ class _WorkspacePageState extends State<WorkspacePage> {
                                       final tabs = tabProvider.tabs;
                                       final activeTabIndex =
                                           tabProvider.activeTabIndex;
+                                      final activeTab = tabProvider.activeTab;
 
-                                      if (tabs.isEmpty) {
+                                      if (tabs.isEmpty ||
+                                          activeTab == null ||
+                                          activeTabIndex == -1) {
                                         return const _EmptyTabState();
                                       }
 
-                                      return IndexedStack(
-                                        index: activeTabIndex == -1
-                                            ? 0
-                                            : activeTabIndex,
-                                        children: tabs.map((tab) {
-                                          switch (tab.type) {
-                                            case WorkspaceTabType.flow:
-                                              return WorkspaceCanvas(
-                                                selectedFlow:
-                                                    tab.data
-                                                        as flow_domain.Flow,
-                                              );
-                                            case WorkspaceTabType.endpoint:
-                                              return EndpointEditor(
-                                                endpoint: tab.data as Endpoint,
-                                              );
-                                          }
-                                        }).toList(),
-                                      );
+                                      switch (activeTab.type) {
+                                        case WorkspaceTabType.flow:
+                                          return WorkspaceCanvas(
+                                            key: ValueKey(
+                                              'flow-content-${activeTab.id}',
+                                            ),
+                                            selectedFlow:
+                                                activeTab.data
+                                                    as flow_domain.Flow,
+                                          );
+                                        case WorkspaceTabType.endpoint:
+                                          return EndpointEditor(
+                                            key: ValueKey(
+                                              'endpoint-content-${activeTab.id}',
+                                            ),
+                                            endpoint:
+                                                activeTab.data as Endpoint,
+                                          );
+                                      }
                                     },
                                   ),
                                 ),

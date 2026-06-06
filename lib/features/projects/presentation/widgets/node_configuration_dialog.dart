@@ -115,7 +115,7 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
                   _buildDetailsTab(),
                   _ControlEditor(
                     data: _preProcessor,
-                    isLoopNode: widget.node.type == FlowNodeType.loop,
+                    supportsLoop: widget.node.type == FlowNodeType.endpoint,
                     availableNodes: widget.availableNodes,
                     currentNodeId: widget.node.id,
                     onChanged: (data) => _preProcessor = data,
@@ -424,14 +424,14 @@ class _SectionLabel extends StatelessWidget {
 
 class _ControlEditor extends StatefulWidget {
   final Map<String, dynamic> data;
-  final bool isLoopNode;
+  final bool supportsLoop;
   final List<CanvasNode> availableNodes;
   final String currentNodeId;
   final ValueChanged<Map<String, dynamic>> onChanged;
 
   const _ControlEditor({
     required this.data,
-    required this.isLoopNode,
+    required this.supportsLoop,
     required this.availableNodes,
     required this.currentNodeId,
     required this.onChanged,
@@ -447,8 +447,8 @@ class _ControlEditorState extends State<_ControlEditor> {
   late TextEditingController _sourceController;
   late TextEditingController _itemController;
   late TextEditingController _indexController;
-  late TextEditingController _bodyController;
   late TextEditingController _countController;
+  late bool _loopEnabled;
 
   @override
   void initState() {
@@ -456,6 +456,7 @@ class _ControlEditorState extends State<_ControlEditor> {
     final loop = widget.data['loop'] is Map
         ? Map<String, dynamic>.from(widget.data['loop'])
         : const <String, dynamic>{};
+    _loopEnabled = widget.data['loop_enabled'] == true || loop.isNotEmpty;
     _runIfController = TextEditingController(
       text: widget.data['run_if']?.toString() ?? '',
     );
@@ -471,9 +472,6 @@ class _ControlEditorState extends State<_ControlEditor> {
     _indexController = TextEditingController(
       text: loop['index']?.toString() ?? 'index',
     );
-    _bodyController = TextEditingController(
-      text: loop['body']?.toString() ?? '',
-    );
     _countController = TextEditingController(
       text: loop['count']?.toString() ?? '',
     );
@@ -486,7 +484,6 @@ class _ControlEditorState extends State<_ControlEditor> {
     _sourceController.dispose();
     _itemController.dispose();
     _indexController.dispose();
-    _bodyController.dispose();
     _countController.dispose();
     super.dispose();
   }
@@ -497,21 +494,20 @@ class _ControlEditorState extends State<_ControlEditor> {
     _putText(newData, 'run_if', _runIfController.text);
     _putText(newData, 'skip_if', _skipIfController.text);
 
-    if (widget.isLoopNode) {
+    if (widget.supportsLoop && _loopEnabled) {
       final loop = <String, dynamic>{};
       _putText(loop, 'source', _sourceController.text);
       _putText(loop, 'item', _itemController.text);
       _putText(loop, 'index', _indexController.text);
-      _putText(loop, 'body', _bodyController.text);
       final countText = _countController.text.trim();
       if (countText.isNotEmpty) {
         loop['count'] = int.tryParse(countText) ?? countText;
       }
-      if (loop.isNotEmpty) {
-        newData['loop'] = loop;
-      } else {
-        newData.remove('loop');
-      }
+      newData['loop_enabled'] = true;
+      newData['loop'] = loop;
+    } else {
+      newData.remove('loop_enabled');
+      newData.remove('loop');
     }
 
     widget.onChanged(newData);
@@ -543,13 +539,31 @@ class _ControlEditorState extends State<_ControlEditor> {
           "access_token != null && access_token != ''",
           _skipIfController,
         ),
-        if (widget.isLoopNode) ...[
+        if (widget.supportsLoop) ...[
           const SizedBox(height: 24),
           _SectionLabel(
             title: 'Loop',
-            subtitle:
-                'Iterate over a list variable or fixed count, then jump to the body step.',
+            subtitle: 'Run this endpoint once per item from a list or count.',
           ),
+          const SizedBox(height: 12),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text('Run in loop', style: AppTypography.bodyMd),
+            subtitle: Text(
+              'The app will generate the backend LOOP step when saving.',
+              style: AppTypography.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            value: _loopEnabled,
+            activeThumbColor: AppColors.methodPatch,
+            onChanged: (value) {
+              setState(() => _loopEnabled = value);
+              _updateData();
+            },
+          ),
+        ],
+        if (widget.supportsLoop && _loopEnabled) ...[
           const SizedBox(height: 12),
           Row(
             children: [
@@ -580,138 +594,9 @@ class _ControlEditorState extends State<_ControlEditor> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          _buildBodySelector(),
         ],
       ],
     );
-  }
-
-  Widget _buildBodySelector() {
-    final candidates = widget.availableNodes
-        .where((node) => node.id != widget.currentNodeId)
-        .where((node) => node.type != FlowNodeType.start)
-        .toList();
-    final currentValue = _bodyController.text.trim();
-    final hasCurrent = candidates.any((node) => node.id == currentValue);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Body node', style: AppTypography.label),
-        const SizedBox(height: 6),
-        Container(
-          height: AppSpacing.fieldHeight + 4,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: AppColors.elevated,
-            borderRadius: AppRadius.br8,
-            border: Border.all(color: AppColors.border),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              isExpanded: true,
-              value: currentValue.isEmpty ? '' : currentValue,
-              dropdownColor: AppColors.elevated,
-              style: AppTypography.body,
-              iconEnabledColor: AppColors.textSecondary,
-              items: [
-                DropdownMenuItem(
-                  value: '',
-                  child: Text(
-                    'No body selected',
-                    style: AppTypography.body.copyWith(
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                ),
-                if (currentValue.isNotEmpty && !hasCurrent)
-                  DropdownMenuItem(
-                    value: currentValue,
-                    child: Text(
-                      'Unknown node: $currentValue',
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.code.copyWith(
-                        color: AppColors.warning,
-                      ),
-                    ),
-                  ),
-                ...candidates.map(
-                  (node) => DropdownMenuItem(
-                    value: node.id,
-                    child: Row(
-                      children: [
-                        Icon(
-                          _nodeIcon(node.type),
-                          size: 14,
-                          color: _nodeColor(node.type),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _nodeLabel(node),
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.body,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          node.type.name.toUpperCase(),
-                          style: AppTypography.caption.copyWith(
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-              onChanged: (value) {
-                _bodyController.text = value ?? '';
-                _updateData();
-                setState(() {});
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  String _nodeLabel(CanvasNode node) {
-    return node.data['name']?.toString() ??
-        node.data['flowName']?.toString() ??
-        node.type.name;
-  }
-
-  IconData _nodeIcon(FlowNodeType type) {
-    switch (type) {
-      case FlowNodeType.start:
-        return LucideIcons.play;
-      case FlowNodeType.endpoint:
-        return LucideIcons.server;
-      case FlowNodeType.branch:
-        return LucideIcons.gitBranch;
-      case FlowNodeType.subflow:
-        return LucideIcons.network;
-      case FlowNodeType.loop:
-        return LucideIcons.repeat;
-    }
-  }
-
-  Color _nodeColor(FlowNodeType type) {
-    switch (type) {
-      case FlowNodeType.start:
-        return AppColors.success;
-      case FlowNodeType.endpoint:
-        return AppColors.accent;
-      case FlowNodeType.branch:
-        return AppColors.warning;
-      case FlowNodeType.subflow:
-        return AppColors.info;
-      case FlowNodeType.loop:
-        return AppColors.methodPatch;
-    }
   }
 
   Widget _buildInput(
