@@ -190,7 +190,10 @@ class _WorkspaceEndpointsListState extends State<WorkspaceEndpointsList> {
                 ),
                 filled: true,
                 fillColor: AppColors.elevated,
-                contentPadding: const EdgeInsets.symmetric(vertical: 6),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 8,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: AppRadius.br8,
                   borderSide: BorderSide(color: AppColors.border),

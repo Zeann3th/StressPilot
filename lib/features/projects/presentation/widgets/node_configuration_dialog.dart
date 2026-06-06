@@ -11,8 +11,13 @@ import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart'
 
 class NodeConfigurationDialog extends StatefulWidget {
   final CanvasNode node;
+  final List<CanvasNode> availableNodes;
 
-  const NodeConfigurationDialog({super.key, required this.node});
+  const NodeConfigurationDialog({
+    super.key,
+    required this.node,
+    this.availableNodes = const [],
+  });
 
   @override
   State<NodeConfigurationDialog> createState() =>
@@ -31,7 +36,7 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
 
     _preProcessor = Map<String, dynamic>.from(
       widget.node.data['preProcessor'] ?? {},
@@ -89,6 +94,7 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
               controller: _tabController,
               tabs: const [
                 Tab(text: 'Details'),
+                Tab(text: 'Flow Control'),
                 Tab(text: 'Pre-Processor'),
                 Tab(text: 'Post-Processor'),
               ],
@@ -107,6 +113,13 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
                 controller: _tabController,
                 children: [
                   _buildDetailsTab(),
+                  _ControlEditor(
+                    data: _preProcessor,
+                    isLoopNode: widget.node.type == FlowNodeType.loop,
+                    availableNodes: widget.availableNodes,
+                    currentNodeId: widget.node.id,
+                    onChanged: (data) => _preProcessor = data,
+                  ),
                   _ProcessorEditor(
                     key: const ValueKey('pre'),
                     data: _preProcessor,
@@ -160,6 +173,45 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
     final primaryTextColor = AppColors.textPrimary;
     final secondaryTextColor = AppColors.textSecondary;
     final mutedTextColor = AppColors.textMuted;
+
+    if (endpoint == null && widget.node.type == FlowNodeType.loop) {
+      final loop = _preProcessor['loop'] is Map
+          ? Map<String, dynamic>.from(_preProcessor['loop'])
+          : const <String, dynamic>{};
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildDetailSection('Loop Node', [
+              _buildDetailRow(
+                'Name',
+                widget.node.data['name']?.toString() ?? 'Loop',
+                primaryTextColor,
+                secondaryTextColor,
+              ),
+              _buildDetailRow(
+                'Source',
+                loop['source']?.toString() ?? 'Not configured',
+                primaryTextColor,
+                secondaryTextColor,
+              ),
+              _buildDetailRow(
+                'Item',
+                loop['item']?.toString() ?? 'item',
+                primaryTextColor,
+                secondaryTextColor,
+              ),
+              _buildDetailRow(
+                'Body step',
+                loop['body']?.toString() ?? 'Connect or enter a body step',
+                primaryTextColor,
+                secondaryTextColor,
+              ),
+            ]),
+          ],
+        ),
+      );
+    }
 
     if (endpoint == null) {
       return Center(
@@ -329,6 +381,360 @@ class _NodeConfigurationDialogState extends State<NodeConfigurationDialog>
   }
 }
 
+class _SectionLabel extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
+  const _SectionLabel({required this.title, required this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.elevated.withValues(alpha: 0.7),
+        borderRadius: AppRadius.br8,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(LucideIcons.settings2, size: 16, color: AppColors.accent),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTypography.bodyMd),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ControlEditor extends StatefulWidget {
+  final Map<String, dynamic> data;
+  final bool isLoopNode;
+  final List<CanvasNode> availableNodes;
+  final String currentNodeId;
+  final ValueChanged<Map<String, dynamic>> onChanged;
+
+  const _ControlEditor({
+    required this.data,
+    required this.isLoopNode,
+    required this.availableNodes,
+    required this.currentNodeId,
+    required this.onChanged,
+  });
+
+  @override
+  State<_ControlEditor> createState() => _ControlEditorState();
+}
+
+class _ControlEditorState extends State<_ControlEditor> {
+  late TextEditingController _runIfController;
+  late TextEditingController _skipIfController;
+  late TextEditingController _sourceController;
+  late TextEditingController _itemController;
+  late TextEditingController _indexController;
+  late TextEditingController _bodyController;
+  late TextEditingController _countController;
+
+  @override
+  void initState() {
+    super.initState();
+    final loop = widget.data['loop'] is Map
+        ? Map<String, dynamic>.from(widget.data['loop'])
+        : const <String, dynamic>{};
+    _runIfController = TextEditingController(
+      text: widget.data['run_if']?.toString() ?? '',
+    );
+    _skipIfController = TextEditingController(
+      text: widget.data['skip_if']?.toString() ?? '',
+    );
+    _sourceController = TextEditingController(
+      text: loop['source']?.toString() ?? '',
+    );
+    _itemController = TextEditingController(
+      text: loop['item']?.toString() ?? 'item',
+    );
+    _indexController = TextEditingController(
+      text: loop['index']?.toString() ?? 'index',
+    );
+    _bodyController = TextEditingController(
+      text: loop['body']?.toString() ?? '',
+    );
+    _countController = TextEditingController(
+      text: loop['count']?.toString() ?? '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _runIfController.dispose();
+    _skipIfController.dispose();
+    _sourceController.dispose();
+    _itemController.dispose();
+    _indexController.dispose();
+    _bodyController.dispose();
+    _countController.dispose();
+    super.dispose();
+  }
+
+  void _updateData() {
+    final newData = Map<String, dynamic>.from(widget.data);
+
+    _putText(newData, 'run_if', _runIfController.text);
+    _putText(newData, 'skip_if', _skipIfController.text);
+
+    if (widget.isLoopNode) {
+      final loop = <String, dynamic>{};
+      _putText(loop, 'source', _sourceController.text);
+      _putText(loop, 'item', _itemController.text);
+      _putText(loop, 'index', _indexController.text);
+      _putText(loop, 'body', _bodyController.text);
+      final countText = _countController.text.trim();
+      if (countText.isNotEmpty) {
+        loop['count'] = int.tryParse(countText) ?? countText;
+      }
+      if (loop.isNotEmpty) {
+        newData['loop'] = loop;
+      } else {
+        newData.remove('loop');
+      }
+    }
+
+    widget.onChanged(newData);
+  }
+
+  void _putText(Map<String, dynamic> target, String key, String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      target.remove(key);
+    } else {
+      target[key] = trimmed;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _SectionLabel(
+          title: 'Conditions',
+          subtitle: 'Optional expressions evaluated before this node runs.',
+        ),
+        const SizedBox(height: 12),
+        _buildInput('Run if', 'student_iteration <= 10', _runIfController),
+        const SizedBox(height: 12),
+        _buildInput(
+          'Skip if',
+          "access_token != null && access_token != ''",
+          _skipIfController,
+        ),
+        if (widget.isLoopNode) ...[
+          const SizedBox(height: 24),
+          _SectionLabel(
+            title: 'Loop',
+            subtitle:
+                'Iterate over a list variable or fixed count, then jump to the body step.',
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInput(
+                  'Source list',
+                  'questions',
+                  _sourceController,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: _buildInput('Count', '10', _countController)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInput('Item name', 'question', _itemController),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildInput(
+                  'Index name',
+                  'question_index',
+                  _indexController,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildBodySelector(),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildBodySelector() {
+    final candidates = widget.availableNodes
+        .where((node) => node.id != widget.currentNodeId)
+        .where((node) => node.type != FlowNodeType.start)
+        .toList();
+    final currentValue = _bodyController.text.trim();
+    final hasCurrent = candidates.any((node) => node.id == currentValue);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Body node', style: AppTypography.label),
+        const SizedBox(height: 6),
+        Container(
+          height: AppSpacing.fieldHeight + 4,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: AppColors.elevated,
+            borderRadius: AppRadius.br8,
+            border: Border.all(color: AppColors.border),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: currentValue.isEmpty ? '' : currentValue,
+              dropdownColor: AppColors.elevated,
+              style: AppTypography.body,
+              iconEnabledColor: AppColors.textSecondary,
+              items: [
+                DropdownMenuItem(
+                  value: '',
+                  child: Text(
+                    'No body selected',
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                ),
+                if (currentValue.isNotEmpty && !hasCurrent)
+                  DropdownMenuItem(
+                    value: currentValue,
+                    child: Text(
+                      'Unknown node: $currentValue',
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.code.copyWith(
+                        color: AppColors.warning,
+                      ),
+                    ),
+                  ),
+                ...candidates.map(
+                  (node) => DropdownMenuItem(
+                    value: node.id,
+                    child: Row(
+                      children: [
+                        Icon(
+                          _nodeIcon(node.type),
+                          size: 14,
+                          color: _nodeColor(node.type),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _nodeLabel(node),
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.body,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          node.type.name.toUpperCase(),
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              onChanged: (value) {
+                _bodyController.text = value ?? '';
+                _updateData();
+                setState(() {});
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _nodeLabel(CanvasNode node) {
+    return node.data['name']?.toString() ??
+        node.data['flowName']?.toString() ??
+        node.type.name;
+  }
+
+  IconData _nodeIcon(FlowNodeType type) {
+    switch (type) {
+      case FlowNodeType.start:
+        return LucideIcons.play;
+      case FlowNodeType.endpoint:
+        return LucideIcons.server;
+      case FlowNodeType.branch:
+        return LucideIcons.gitBranch;
+      case FlowNodeType.subflow:
+        return LucideIcons.network;
+      case FlowNodeType.loop:
+        return LucideIcons.repeat;
+    }
+  }
+
+  Color _nodeColor(FlowNodeType type) {
+    switch (type) {
+      case FlowNodeType.start:
+        return AppColors.success;
+      case FlowNodeType.endpoint:
+        return AppColors.accent;
+      case FlowNodeType.branch:
+        return AppColors.warning;
+      case FlowNodeType.subflow:
+        return AppColors.info;
+      case FlowNodeType.loop:
+        return AppColors.methodPatch;
+    }
+  }
+
+  Widget _buildInput(
+    String label,
+    String hint,
+    TextEditingController controller,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTypography.label),
+        const SizedBox(height: 6),
+        PilotInput(
+          controller: controller,
+          placeholder: hint,
+          onChanged: (_) => _updateData(),
+          style: AppTypography.code,
+        ),
+      ],
+    );
+  }
+}
+
 class _ProcessorEditor extends StatefulWidget {
   final Map<String, dynamic> data;
   final ValueChanged<Map<String, dynamic>> onChanged;
@@ -346,9 +752,16 @@ class _ProcessorEditor extends StatefulWidget {
 class _ProcessorEditorState extends State<_ProcessorEditor> {
   late TextEditingController _sleepController;
   late TextEditingController _clearController;
+  late TextEditingController _setController;
+  late TextEditingController _incrementController;
+  late TextEditingController _appendController;
+  late TextEditingController _serializeJsonController;
   late TextEditingController _injectController;
   late TextEditingController _extractController;
 
+  bool _setError = false;
+  bool _appendError = false;
+  bool _serializeJsonError = false;
   bool _injectError = false;
   bool _extractError = false;
 
@@ -357,11 +770,26 @@ class _ProcessorEditorState extends State<_ProcessorEditor> {
     super.initState();
 
     _sleepController = TextEditingController(
-      text: widget.data['sleep']?.toString() ?? '',
+      text:
+          widget.data['delay']?.toString() ??
+          widget.data['sleep']?.toString() ??
+          '',
     );
     final clearData = widget.data['clear'];
     _clearController = TextEditingController(
       text: clearData is List ? clearData.join(', ') : '',
+    );
+    _setController = TextEditingController(
+      text: _formatJson(widget.data['set']),
+    );
+    _incrementController = TextEditingController(
+      text: _formatIncrement(widget.data['increment']),
+    );
+    _appendController = TextEditingController(
+      text: _formatJson(widget.data['append']),
+    );
+    _serializeJsonController = TextEditingController(
+      text: _formatJson(widget.data['serialize_json']),
     );
     _injectController = TextEditingController(
       text: _formatJson(widget.data['inject']),
@@ -381,12 +809,22 @@ class _ProcessorEditorState extends State<_ProcessorEditor> {
     }
   }
 
+  String _formatIncrement(dynamic data) {
+    if (data is Map) {
+      return data.entries.map((e) => '${e.key}: ${e.value}').join('\n');
+    }
+    return '';
+  }
+
   void _updateData() {
     final newData = Map<String, dynamic>.from(widget.data);
 
     if (_sleepController.text.isNotEmpty) {
-      newData['sleep'] = int.tryParse(_sleepController.text);
+      newData['delay'] =
+          int.tryParse(_sleepController.text) ?? _sleepController.text.trim();
+      newData.remove('sleep');
     } else {
+      newData.remove('delay');
       newData.remove('sleep');
     }
 
@@ -401,6 +839,50 @@ class _ProcessorEditorState extends State<_ProcessorEditor> {
     }
 
     bool hasChanged = false;
+
+    hasChanged |= _updateJsonField(
+      newData,
+      'set',
+      _setController.text,
+      (value) => _setError = value,
+      _setError,
+    );
+
+    final incrementText = _incrementController.text.trim();
+    if (incrementText.isNotEmpty) {
+      final increment = <String, dynamic>{};
+      for (final line in incrementText.split('\n')) {
+        final trimmed = line.trim();
+        if (trimmed.isEmpty) continue;
+        final separator = trimmed.indexOf(':');
+        if (separator <= 0) continue;
+        final key = trimmed.substring(0, separator).trim();
+        final value = trimmed.substring(separator + 1).trim();
+        increment[key] = int.tryParse(value) ?? double.tryParse(value) ?? value;
+      }
+      if (increment.isNotEmpty) {
+        newData['increment'] = increment;
+      } else {
+        newData.remove('increment');
+      }
+    } else {
+      newData.remove('increment');
+    }
+
+    hasChanged |= _updateJsonField(
+      newData,
+      'append',
+      _appendController.text,
+      (value) => _appendError = value,
+      _appendError,
+    );
+    hasChanged |= _updateJsonField(
+      newData,
+      'serialize_json',
+      _serializeJsonController.text,
+      (value) => _serializeJsonError = value,
+      _serializeJsonError,
+    );
 
     final injectText = _injectController.text.trim();
     if (injectText.isNotEmpty) {
@@ -454,10 +936,39 @@ class _ProcessorEditorState extends State<_ProcessorEditor> {
     widget.onChanged(newData);
   }
 
+  bool _updateJsonField(
+    Map<String, dynamic> data,
+    String key,
+    String text,
+    ValueChanged<bool> setError,
+    bool currentError,
+  ) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) {
+      setError(false);
+      data.remove(key);
+      return currentError;
+    }
+
+    try {
+      data[key] = jsonDecode(trimmed);
+      setError(false);
+      return currentError;
+    } catch (_) {
+      setError(true);
+      data.remove(key);
+      return !currentError;
+    }
+  }
+
   @override
   void dispose() {
     _sleepController.dispose();
     _clearController.dispose();
+    _setController.dispose();
+    _incrementController.dispose();
+    _appendController.dispose();
+    _serializeJsonController.dispose();
     _injectController.dispose();
     _extractController.dispose();
     super.dispose();
@@ -468,9 +979,14 @@ class _ProcessorEditorState extends State<_ProcessorEditor> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        _SectionLabel(
+          title: 'Native Operations',
+          subtitle: 'Common variable work without JavaScript endpoints.',
+        ),
+        const SizedBox(height: 12),
         _buildSection(
           context,
-          'Sleep (ms)',
+          'Delay (ms)',
           'Delay execution by milliseconds',
           _sleepController,
         ),
@@ -482,6 +998,46 @@ class _ProcessorEditorState extends State<_ProcessorEditor> {
           _clearController,
         ),
         const SizedBox(height: 16),
+        _buildSection(
+          context,
+          'Set Variables (JSON)',
+          '{"student_iteration": 1}',
+          _setController,
+          isMultiline: true,
+          hasError: _setError,
+        ),
+        const SizedBox(height: 16),
+        _buildSection(
+          context,
+          'Increment Variables',
+          'student_iteration: 1',
+          _incrementController,
+          isMultiline: true,
+        ),
+        const SizedBox(height: 16),
+        _buildSection(
+          context,
+          'Append To Lists (JSON)',
+          '{"answers": {"question_id": "{{question.id}}"}}',
+          _appendController,
+          isMultiline: true,
+          hasError: _appendError,
+        ),
+        const SizedBox(height: 16),
+        _buildSection(
+          context,
+          'Serialize JSON (JSON)',
+          '{"answers_json": "answers"}',
+          _serializeJsonController,
+          isMultiline: true,
+          hasError: _serializeJsonError,
+        ),
+        const SizedBox(height: 24),
+        _SectionLabel(
+          title: 'Advanced',
+          subtitle: 'Raw processor features for existing flows.',
+        ),
+        const SizedBox(height: 12),
         _buildSection(
           context,
           'Inject Variables (JSON)',

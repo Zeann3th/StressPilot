@@ -150,6 +150,7 @@ class CanvasProvider extends ChangeNotifier {
     ConnectionType connType = ConnectionType.defaultType;
     if (_selectedSourceHandle == 'true') connType = ConnectionType.trueType;
     if (_selectedSourceHandle == 'false') connType = ConnectionType.falseType;
+    if (_selectedSourceHandle == 'body') connType = ConnectionType.bodyType;
 
     _connections.removeWhere(
       (c) =>
@@ -242,6 +243,9 @@ class CanvasProvider extends ChangeNotifier {
           type = 'SUBFLOW';
           condition = node.data['subflowId']?.toString();
           break;
+        case FlowNodeType.loop:
+          type = 'LOOP';
+          break;
         case FlowNodeType.endpoint:
           type = 'ENDPOINT';
           endpointId = node.data['id'];
@@ -251,19 +255,29 @@ class CanvasProvider extends ChangeNotifier {
       String? nextIfTrue;
       String? nextIfFalse;
 
-      for (final conn in _connections.where((c) => c.sourceNodeId == node.id)) {
-        if (node.type == FlowNodeType.branch) {
-          if (conn.sourceHandle == 'true') nextIfTrue = conn.targetNodeId;
-          if (conn.sourceHandle == 'false') nextIfFalse = conn.targetNodeId;
-        } else {
-          nextIfTrue = conn.targetNodeId;
-        }
-      }
-
       Map<String, dynamic>? preProcessor;
       preProcessor = node.data['preProcessor'] != null
           ? Map<String, dynamic>.from(node.data['preProcessor'])
           : {};
+
+      for (final conn in _connections.where((c) => c.sourceNodeId == node.id)) {
+        if (node.type == FlowNodeType.branch) {
+          if (conn.sourceHandle == 'true') nextIfTrue = conn.targetNodeId;
+          if (conn.sourceHandle == 'false') nextIfFalse = conn.targetNodeId;
+        } else if (node.type == FlowNodeType.loop) {
+          if (conn.sourceHandle == 'body') {
+            final loop = Map<String, dynamic>.from(
+              preProcessor['loop'] is Map ? preProcessor['loop'] as Map : {},
+            );
+            loop['body'] = conn.targetNodeId;
+            preProcessor['loop'] = loop;
+          } else {
+            nextIfTrue = conn.targetNodeId;
+          }
+        } else {
+          nextIfTrue = conn.targetNodeId;
+        }
+      }
 
       if (node.type == FlowNodeType.endpoint) {
         preProcessor['endpoint_id'] = endpointId;
@@ -384,6 +398,9 @@ class CanvasProvider extends ChangeNotifier {
         case 'SUBFLOW':
           type = FlowNodeType.subflow;
           break;
+        case 'LOOP':
+          type = FlowNodeType.loop;
+          break;
         default:
           type = FlowNodeType.endpoint;
       }
@@ -467,12 +484,16 @@ class CanvasProvider extends ChangeNotifier {
               ? 48
               : (type == FlowNodeType.branch
                     ? 120
-                    : (type == FlowNodeType.subflow ? 180 : 160)),
+                    : (type == FlowNodeType.subflow
+                          ? 180
+                          : (type == FlowNodeType.loop ? 176 : 160))),
           height: type == FlowNodeType.start
               ? 48
               : (type == FlowNodeType.branch
                     ? 120
-                    : (type == FlowNodeType.subflow ? 64 : 100)),
+                    : (type == FlowNodeType.subflow
+                          ? 64
+                          : (type == FlowNodeType.loop ? 78 : 100))),
         ),
       );
     }
@@ -480,6 +501,7 @@ class CanvasProvider extends ChangeNotifier {
     for (final step in steps) {
       if (step.nextIfTrue != null &&
           _nodes.any((n) => n.id == step.nextIfTrue)) {
+        final isLoop = step.type.toUpperCase() == 'LOOP';
         _connections.add(
           CanvasConnection(
             id: const Uuid().v4(),
@@ -490,9 +512,26 @@ class CanvasProvider extends ChangeNotifier {
                 : 'default',
             type: step.type.toUpperCase() == 'BRANCH'
                 ? ConnectionType.trueType
-                : ConnectionType.defaultType,
+                : (isLoop
+                      ? ConnectionType.trueType
+                      : ConnectionType.defaultType),
           ),
         );
+      }
+      if (step.type.toUpperCase() == 'LOOP') {
+        final loop = step.preProcessor?['loop'];
+        final body = loop is Map ? loop['body']?.toString() : null;
+        if (body != null && _nodes.any((n) => n.id == body)) {
+          _connections.add(
+            CanvasConnection(
+              id: const Uuid().v4(),
+              sourceNodeId: step.id,
+              targetNodeId: body,
+              sourceHandle: 'body',
+              type: ConnectionType.bodyType,
+            ),
+          );
+        }
       }
       if (step.nextIfFalse != null &&
           step.type.toUpperCase() == 'BRANCH' &&
@@ -559,17 +598,34 @@ class CanvasProvider extends ChangeNotifier {
         final isBranch = _nodes.any(
           (n) => n.id == step.id && n.type == FlowNodeType.branch,
         );
+        final isLoop = _nodes.any(
+          (n) => n.id == step.id && n.type == FlowNodeType.loop,
+        );
         _connections.add(
           CanvasConnection(
             id: const Uuid().v4(),
             sourceNodeId: step.id,
             targetNodeId: step.nextIfTrue!,
             sourceHandle: isBranch ? 'true' : 'default',
-            type: isBranch
+            type: isBranch || isLoop
                 ? ConnectionType.trueType
                 : ConnectionType.defaultType,
           ),
         );
+      }
+      if (step.preProcessor?['loop'] is Map) {
+        final body = (step.preProcessor!['loop'] as Map)['body']?.toString();
+        if (body != null && _nodes.any((n) => n.id == body)) {
+          _connections.add(
+            CanvasConnection(
+              id: const Uuid().v4(),
+              sourceNodeId: step.id,
+              targetNodeId: body,
+              sourceHandle: 'body',
+              type: ConnectionType.bodyType,
+            ),
+          );
+        }
       }
       if (step.nextIfFalse != null &&
           _nodes.any((n) => n.id == step.nextIfFalse)) {

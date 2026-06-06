@@ -39,6 +39,13 @@ class CanvasNodeToolbar extends StatelessWidget {
             label: 'Subflow',
             color: AppColors.info,
           ),
+          const _Divider(),
+          _ToolbarNodeItem(
+            type: FlowNodeType.loop,
+            icon: LucideIcons.repeat,
+            label: 'Loop',
+            color: AppColors.methodPatch,
+          ),
         ],
       ),
     );

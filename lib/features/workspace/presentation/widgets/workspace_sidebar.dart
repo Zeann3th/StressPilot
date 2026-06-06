@@ -61,6 +61,14 @@ class _WorkspaceSidebarState extends State<WorkspaceSidebar> {
                   fontSize: 12,
                 ),
                 prefixIcon: const Icon(LucideIcons.search, size: 14),
+                prefixIconConstraints: const BoxConstraints(
+                  minWidth: 30,
+                  minHeight: 32,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 10,
+                ),
                 border: InputBorder.none,
                 isDense: true,
               ),
@@ -75,14 +83,16 @@ class _WorkspaceSidebarState extends State<WorkspaceSidebar> {
                   title: 'ENDPOINTS',
                   type: _SectionType.endpoints,
                   isExpanded: _endpointsExpanded,
-                  onToggle: () => setState(() => _endpointsExpanded = !_endpointsExpanded),
+                  onToggle: () =>
+                      setState(() => _endpointsExpanded = !_endpointsExpanded),
                 ),
                 const SizedBox(height: 8),
                 _buildSection(
                   title: 'FLOWS',
                   type: _SectionType.flows,
                   isExpanded: _flowsExpanded,
-                  onToggle: () => setState(() => _flowsExpanded = !_flowsExpanded),
+                  onToggle: () =>
+                      setState(() => _flowsExpanded = !_flowsExpanded),
                 ),
               ],
             ),

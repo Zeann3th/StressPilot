@@ -57,6 +57,24 @@ class KeymapProvider extends ChangeNotifier {
     return _keymap[actionId];
   }
 
+  String? findActionUsingShortcut(String shortcut, {String? exceptActionId}) {
+    final normalized = shortcut.trim();
+    if (normalized.isEmpty) return null;
+    for (final entry in _keymap.entries) {
+      if (entry.key == exceptActionId) continue;
+      if (entry.value.trim() == normalized) return entry.key;
+    }
+    return null;
+  }
+
+  @visibleForTesting
+  void replaceKeymapForTest(Map<String, String> keymap) {
+    _keymap
+      ..clear()
+      ..addAll(keymap);
+    _updateCache();
+  }
+
   Future<void> updateShortcut(String actionId, String shortcut) async {
     _keymap[actionId] = shortcut;
     _updateCache();

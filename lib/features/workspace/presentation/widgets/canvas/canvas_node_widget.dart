@@ -101,6 +101,8 @@ class _CanvasNodeWidgetState extends State<CanvasNodeWidget> {
         return AppColors.warning;
       case FlowNodeType.subflow:
         return AppColors.info;
+      case FlowNodeType.loop:
+        return AppColors.methodPatch;
     }
   }
 
@@ -114,6 +116,8 @@ class _CanvasNodeWidgetState extends State<CanvasNodeWidget> {
         return Icons.call_split_rounded;
       case FlowNodeType.subflow:
         return Icons.account_tree_rounded;
+      case FlowNodeType.loop:
+        return Icons.repeat_rounded;
     }
   }
 }

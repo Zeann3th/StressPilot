@@ -71,6 +71,15 @@ class _WorkspaceNodeLibraryState extends State<WorkspaceNodeLibrary> {
                     color: AppColors.info,
                   ),
                 ),
+                SizedBox(
+                  width: 98,
+                  child: _LogicChip(
+                    type: FlowNodeType.loop,
+                    label: 'Loop',
+                    icon: Icons.repeat_rounded,
+                    color: AppColors.methodPatch,
+                  ),
+                ),
               ],
             ),
           ),

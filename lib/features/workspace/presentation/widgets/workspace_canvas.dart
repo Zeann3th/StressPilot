@@ -396,6 +396,11 @@ class _CanvasContentState extends State<_CanvasContent>
                     node: node,
                     provider: provider,
                     colors: colors,
+                    isLoopBody: provider.connections.any(
+                      (connection) =>
+                          connection.targetNodeId == node.id &&
+                          connection.type == ConnectionType.bodyType,
+                    ),
                   ),
                 ),
                 if (isSelected)
@@ -435,6 +440,9 @@ class _CanvasContentState extends State<_CanvasContent>
       case FlowNodeType.subflow:
         _showSubflowConfiguration(node);
         break;
+      case FlowNodeType.loop:
+        _showNodeConfiguration(node);
+        break;
       case FlowNodeType.endpoint:
         _showNodeConfiguration(node);
         break;
@@ -467,12 +475,16 @@ class _CanvasContentState extends State<_CanvasContent>
           ? 56
           : (type == FlowNodeType.branch
                 ? 160
-                : (type == FlowNodeType.subflow ? 180 : 160)),
+                : (type == FlowNodeType.subflow
+                      ? 180
+                      : (type == FlowNodeType.loop ? 176 : 160))),
       height: type == FlowNodeType.start
           ? 56
           : (type == FlowNodeType.branch
                 ? 100
-                : (type == FlowNodeType.subflow ? 64 : 100)),
+                : (type == FlowNodeType.subflow
+                      ? 64
+                      : (type == FlowNodeType.loop ? 78 : 100))),
     );
     context.read<CanvasProvider>().addNode(newNode);
   }
@@ -480,7 +492,10 @@ class _CanvasContentState extends State<_CanvasContent>
   void _showNodeConfiguration(CanvasNode node) async {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => NodeConfigurationDialog(node: node),
+      builder: (context) => NodeConfigurationDialog(
+        node: node,
+        availableNodes: context.read<CanvasProvider>().nodes,
+      ),
     );
 
     if (result == null || !mounted) return;
@@ -1008,13 +1023,16 @@ class CanvasEdgePainter extends CustomPainter {
       if (source == null || target == null) continue;
 
       final isHighlighted = conn.id == highlightedConnectionId;
+      final isLoopBodyEdge = conn.type == ConnectionType.bodyType;
       final lineColor = isHighlighted
           ? AppColors.error.withValues(alpha: 0.9)
+          : isLoopBodyEdge
+          ? AppColors.methodPatch.withValues(alpha: 0.55)
           : colors.primary.withValues(alpha: 0.8);
 
       final paint = Paint()
         ..color = lineColor
-        ..strokeWidth = isHighlighted ? 3.0 : 2.0
+        ..strokeWidth = isHighlighted ? 3.0 : (isLoopBodyEdge ? 1.5 : 2.0)
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
 
@@ -1083,6 +1101,13 @@ class CanvasEdgePainter extends CustomPainter {
           sourceCenter,
           targetCenter,
           conn.type == ConnectionType.trueType ? 'T' : 'F',
+        );
+      } else if (source.type == FlowNodeType.loop) {
+        _drawLabel(
+          canvas,
+          sourceCenter,
+          targetCenter,
+          conn.type == ConnectionType.bodyType ? 'BODY' : 'DONE',
         );
       }
     }
@@ -1243,12 +1268,14 @@ class CanvasNodeBody extends StatelessWidget {
   final CanvasNode node;
   final CanvasProvider provider;
   final ColorScheme colors;
+  final bool isLoopBody;
 
   const CanvasNodeBody({
     super.key,
     required this.node,
     required this.provider,
     required this.colors,
+    this.isLoopBody = false,
   });
 
   @override
@@ -1260,13 +1287,21 @@ class CanvasNodeBody extends StatelessWidget {
         return _buildBranch();
       case FlowNodeType.subflow:
         return _buildSubflow();
+      case FlowNodeType.loop:
+        return _buildStandard();
       case FlowNodeType.endpoint:
         return _buildStandard();
     }
   }
 
   Widget _buildStandard() {
-    final type = node.data['type'] ?? 'HTTP';
+    final isLoop = node.type == FlowNodeType.loop;
+    final loopConfig = node.data['preProcessor'] is Map
+        ? (node.data['preProcessor'] as Map)['loop']
+        : null;
+    final loopSource = loopConfig is Map ? loopConfig['source'] : null;
+    final loopBody = loopConfig is Map ? loopConfig['body'] : null;
+    final type = isLoop ? 'LOOP' : (node.data['type'] ?? 'HTTP');
     final methodColor = _getTypeColor(type);
     final hasPre =
         node.data['preProcessor'] != null &&
@@ -1275,94 +1310,140 @@ class CanvasNodeBody extends StatelessWidget {
         node.data['postProcessor'] != null &&
         (node.data['postProcessor'] as Map).isNotEmpty;
 
-    return Container(
-      width: node.width,
-      constraints: BoxConstraints(minHeight: node.height),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: AppRadius.br8,
-        border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.6)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.textPrimary.withValues(alpha: 0.08),
-            blurRadius: 12,
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: node.width,
+          constraints: BoxConstraints(minHeight: node.height),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: AppRadius.br8,
+            border: Border.all(
+              color: isLoopBody && !isLoop
+                  ? AppColors.methodPatch.withValues(alpha: 0.55)
+                  : colors.outlineVariant.withValues(alpha: 0.6),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.textPrimary.withValues(alpha: 0.08),
+                blurRadius: 12,
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: methodColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  type.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: methodColor,
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: methodColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      type.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        color: methodColor,
+                      ),
+                    ),
                   ),
+                  if (node.data['method'] != null) ...[
+                    const SizedBox(width: 4),
+                    Text(
+                      node.data['method'].toString().toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                node.data['name'] ?? (isLoop ? 'Loop' : 'Endpoint'),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                isLoop
+                    ? 'source: ${loopSource ?? 'not set'} -> ${loopBody ?? 'body not set'}'
+                    : (node.data['url'] ?? 'Action node'),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: colors.onSurfaceVariant,
+                  fontFamily: 'JetBrains Mono',
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 4,
+                runSpacing: 4,
+                children: [
+                  if (hasPre)
+                    _InfoBadge(
+                      icon: LucideIcons.logIn,
+                      label: 'PRE',
+                      color: AppColors.warning,
+                    ),
+                  if (hasPost)
+                    _InfoBadge(
+                      icon: LucideIcons.logOut,
+                      label: 'POST',
+                      color: AppColors.methodPatch,
+                    ),
+                  if (isLoopBody && !isLoop)
+                    _InfoBadge(
+                      icon: LucideIcons.repeat,
+                      label: 'LOOP BODY',
+                      color: AppColors.methodPatch,
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        if (isLoopBody && !isLoop)
+          Positioned(
+            top: -10,
+            right: -10,
+            child: Tooltip(
+              message: 'Runs inside a loop',
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: AppColors.methodPatch,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: colors.surface, width: 2),
+                  boxShadow: AppShadows.subtle,
+                ),
+                child: const Icon(
+                  LucideIcons.repeat,
+                  size: 13,
+                  color: Colors.white,
                 ),
               ),
-              if (node.data['method'] != null) ...[
-                const SizedBox(width: 4),
-                Text(
-                  node.data['method'].toString().toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold,
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            node.data['name'] ?? 'Endpoint',
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            node.data['url'] ?? 'Action node',
-            style: TextStyle(
-              fontSize: 10,
-              color: colors.onSurfaceVariant,
-              fontFamily: 'JetBrains Mono',
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 4,
-            runSpacing: 4,
-            children: [
-              if (hasPre)
-                _InfoBadge(
-                  icon: LucideIcons.logIn,
-                  label: 'PRE',
-                  color: AppColors.warning,
-                ),
-              if (hasPost)
-                _InfoBadge(
-                  icon: LucideIcons.logOut,
-                  label: 'POST',
-                  color: AppColors.methodPatch,
-                ),
-            ],
-          ),
-        ],
-      ),
+      ],
     );
   }
 

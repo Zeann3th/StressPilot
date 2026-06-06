@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:stress_pilot/core/input/keymap_provider.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
@@ -94,9 +95,13 @@ class _KeymapSettingsTableState extends State<KeymapSettingsTable> {
       title: 'Edit Shortcut for ${_humanizeActionId(actionId)}',
       content: _ShortcutListener(
         initial: current,
+        actionId: actionId,
+        provider: provider,
+        humanizeActionId: _humanizeActionId,
         onRecorded: (val) {
           Navigator.pop(context, val);
         },
+        onCancel: () => Navigator.pop(context),
       ),
       actions: [
         PilotButton.ghost(
@@ -203,9 +208,20 @@ class _ShortcutRowState extends State<_ShortcutRow> {
 
 class _ShortcutListener extends StatefulWidget {
   final String initial;
+  final String actionId;
+  final KeymapProvider provider;
+  final String Function(String) humanizeActionId;
   final ValueChanged<String> onRecorded;
+  final VoidCallback onCancel;
 
-  const _ShortcutListener({required this.initial, required this.onRecorded});
+  const _ShortcutListener({
+    required this.initial,
+    required this.actionId,
+    required this.provider,
+    required this.humanizeActionId,
+    required this.onRecorded,
+    required this.onCancel,
+  });
 
   @override
   State<_ShortcutListener> createState() => _ShortcutListenerState();
@@ -214,6 +230,7 @@ class _ShortcutListener extends StatefulWidget {
 class _ShortcutListenerState extends State<_ShortcutListener> {
   final FocusNode _focusNode = FocusNode();
   String _current = "";
+  String? _conflictActionId;
 
   @override
   void initState() {
@@ -230,10 +247,18 @@ class _ShortcutListenerState extends State<_ShortcutListener> {
 
   @override
   Widget build(BuildContext context) {
+    final conflictLabel = _conflictActionId == null
+        ? null
+        : widget.humanizeActionId(_conflictActionId!);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Press any combination of keys to record a new shortcut.'),
+        Text(
+          'Press a key combination. Enter saves, Escape cancels, Backspace clears.',
+          style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 24),
         KeyboardListener(
           focusNode: _focusNode,
@@ -259,22 +284,66 @@ class _ShortcutListenerState extends State<_ShortcutListener> {
               style: AppTypography.code.copyWith(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.accent,
+                color: _conflictActionId == null
+                    ? AppColors.accent
+                    : AppColors.warning,
               ),
             ),
           ),
         ),
+        if (conflictLabel != null) ...[
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                LucideIcons.triangleAlert,
+                size: 14,
+                color: AppColors.warning,
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  'Already used by $conflictLabel',
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.warning,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 24),
         PilotButton.primary(
           label: 'Save Shortcut',
-          onPressed: () => widget.onRecorded(_current),
+          onPressed: _current.isEmpty || _conflictActionId != null
+              ? null
+              : () => widget.onRecorded(_current),
         ),
       ],
     );
   }
 
   void _handleKeyPress(KeyDownEvent event) {
-    if (event.logicalKey == LogicalKeyboardKey.enter) return;
+    if (event.logicalKey == LogicalKeyboardKey.escape) {
+      widget.onCancel();
+      return;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.enter) {
+      if (_current.isNotEmpty && _conflictActionId == null) {
+        widget.onRecorded(_current);
+      }
+      return;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.backspace) {
+      setState(() {
+        _current = '';
+        _conflictActionId = null;
+      });
+      return;
+    }
 
     final keys = <String>[];
     if (HardwareKeyboard.instance.isControlPressed) keys.add('Control');
@@ -282,25 +351,56 @@ class _ShortcutListenerState extends State<_ShortcutListener> {
     if (HardwareKeyboard.instance.isAltPressed) keys.add('Alt');
     if (HardwareKeyboard.instance.isMetaPressed) keys.add('Meta');
 
-    final keyLabel = event.logicalKey.keyLabel;
-    if (![
-      'Control',
-      'Shift',
-      'Alt',
-      'Meta',
-      'Control Left',
-      'Control Right',
-      'Shift Left',
-      'Shift Right',
-      'Alt Left',
-      'Alt Right',
-      'Meta Left',
-      'Meta Right',
-    ].contains(keyLabel)) {
+    final keyLabel = _displayKey(event.logicalKey);
+    if (!_isModifier(event.logicalKey)) {
       keys.add(keyLabel);
       setState(() {
         _current = keys.join('+');
+        _conflictActionId = widget.provider.findActionUsingShortcut(
+          _current,
+          exceptActionId: widget.actionId,
+        );
+      });
+    } else {
+      setState(() {
+        _current = keys.join('+');
+        _conflictActionId = null;
       });
     }
+  }
+
+  bool _isModifier(LogicalKeyboardKey key) {
+    return key == LogicalKeyboardKey.control ||
+        key == LogicalKeyboardKey.controlLeft ||
+        key == LogicalKeyboardKey.controlRight ||
+        key == LogicalKeyboardKey.shift ||
+        key == LogicalKeyboardKey.shiftLeft ||
+        key == LogicalKeyboardKey.shiftRight ||
+        key == LogicalKeyboardKey.alt ||
+        key == LogicalKeyboardKey.altLeft ||
+        key == LogicalKeyboardKey.altRight ||
+        key == LogicalKeyboardKey.meta ||
+        key == LogicalKeyboardKey.metaLeft ||
+        key == LogicalKeyboardKey.metaRight;
+  }
+
+  String _displayKey(LogicalKeyboardKey key) {
+    if (key.keyLabel.isNotEmpty && key.keyLabel.length == 1) {
+      return key.keyLabel.toUpperCase();
+    }
+    if (key == LogicalKeyboardKey.space) return 'Space';
+    if (key == LogicalKeyboardKey.tab) return 'Tab';
+    if (key == LogicalKeyboardKey.delete) return 'Delete';
+    if (key == LogicalKeyboardKey.arrowUp) return 'ArrowUp';
+    if (key == LogicalKeyboardKey.arrowDown) return 'ArrowDown';
+    if (key == LogicalKeyboardKey.arrowLeft) return 'ArrowLeft';
+    if (key == LogicalKeyboardKey.arrowRight) return 'ArrowRight';
+    if (key == LogicalKeyboardKey.comma) return 'Comma';
+    if (key == LogicalKeyboardKey.period) return 'Period';
+    if (key == LogicalKeyboardKey.slash) return 'Slash';
+    if (key == LogicalKeyboardKey.backslash) return 'Backslash';
+    if (key == LogicalKeyboardKey.semicolon) return 'Semicolon';
+    if (key == LogicalKeyboardKey.quote) return 'Quote';
+    return key.keyLabel.isNotEmpty ? key.keyLabel : key.debugName ?? 'Key';
   }
 }

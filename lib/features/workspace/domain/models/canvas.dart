@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum FlowNodeType { start, endpoint, branch, subflow }
+enum FlowNodeType { start, endpoint, branch, subflow, loop }
 
 class CanvasNode {
   final String id;
@@ -77,7 +77,7 @@ class CanvasNode {
   }
 }
 
-enum ConnectionType { defaultType, trueType, falseType }
+enum ConnectionType { defaultType, trueType, falseType, bodyType }
 
 class CanvasConnection {
   final String id;
