@@ -11,12 +11,13 @@ class ShutdownHandler with WindowListener, TrayListener {
   static const _logName = 'ShutdownHandler';
   final ProcessManager _processManager;
   bool _trayInitialized = false;
+  bool _closeDialogOpen = false;
 
   ShutdownHandler(this._processManager);
 
-  void setup() {
+  Future<void> setup() async {
     windowManager.addListener(this);
-    windowManager.setPreventClose(true);
+    await windowManager.setPreventClose(true);
     _setupSignalHandlers();
   }
 
@@ -41,6 +42,9 @@ class ShutdownHandler with WindowListener, TrayListener {
   @override
   Future<void> onWindowClose() async {
     AppLogger.info('Window close requested', name: _logName);
+    if (_closeDialogOpen) {
+      return;
+    }
 
     final context = AppNavigator.navigatorKey.currentContext;
     if (context == null) {
@@ -48,37 +52,43 @@ class ShutdownHandler with WindowListener, TrayListener {
       return;
     }
 
-    showShadDialog(
-      context: context,
-      builder: (context) => ShadDialog(
-        title: const Text('Exit Stress Pilot'),
-        description: const Text(
-          'Would you like to minimize to the system tray or exit?',
+    _closeDialogOpen = true;
+    try {
+      await showShadDialog(
+        context: context,
+        builder: (context) => ShadDialog(
+          title: const Text('Exit Stress Pilot'),
+          description: const Text(
+            'Would you like to minimize to the system tray or exit?',
+          ),
+          actions: [
+            ShadButton.outline(
+              child: const Text('System Tray'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _minimizeToTray();
+              },
+            ),
+            ShadButton.destructive(
+              child: const Text('Exit'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _exitEntirely();
+              },
+            ),
+          ],
         ),
-        actions: [
-          ShadButton.outline(
-            child: const Text('System Tray'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              _minimizeToTray();
-            },
-          ),
-          ShadButton.destructive(
-            child: const Text('Exit'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              _exitEntirely();
-            },
-          ),
-        ],
-      ),
-    );
+      );
+    } finally {
+      _closeDialogOpen = false;
+    }
   }
 
   Future<void> _minimizeToTray() async {
     if (!_trayInitialized) {
       await _initTray();
     }
+    await windowManager.setSkipTaskbar(true);
     await windowManager.hide();
   }
 
@@ -106,6 +116,7 @@ class ShutdownHandler with WindowListener, TrayListener {
 
   @override
   void onTrayIconMouseDown() {
+    windowManager.setSkipTaskbar(false);
     windowManager.show();
     windowManager.focus();
   }
@@ -118,6 +129,7 @@ class ShutdownHandler with WindowListener, TrayListener {
   @override
   void onTrayMenuItemClick(MenuItem menuItem) {
     if (menuItem.key == 'open_window') {
+      windowManager.setSkipTaskbar(false);
       windowManager.show();
       windowManager.focus();
     } else if (menuItem.key == 'exit') {
