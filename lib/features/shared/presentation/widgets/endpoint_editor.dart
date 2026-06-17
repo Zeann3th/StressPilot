@@ -231,25 +231,13 @@ class _EndpointEditorState extends State<EndpointEditor>
   }
 
   String _generateCurlCommand() {
-    final url = _urlCtrl.text;
-    final method = _method;
-    final headers = _headers;
-    final body = _bodyCtrl.text;
-
-    var curl = 'curl -X $method "$url"';
-    headers.forEach((key, value) {
-      curl += ' \\\n  -H "$key: $value"';
-    });
-
-    if (body.isNotEmpty &&
-        (method == 'POST' ||
-            method == 'PUT' ||
-            method == 'PATCH' ||
-            method == 'DELETE')) {
-      final escapedBody = body.replaceAll("'", "'\\''");
-      curl += " \\\n  -d '$escapedBody'";
-    }
-    return curl;
+    return CurlGenerator.generate(
+      url: _urlCtrl.text,
+      method: _method,
+      headers: _headers,
+      params: _params,
+      body: _bodyCtrl.text,
+    );
   }
 
   void _showExportCurlDialog() {
