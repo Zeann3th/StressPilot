@@ -89,16 +89,20 @@ class CurlGenerator {
   }) {
     String fullUrl = url;
     if (params.isNotEmpty) {
+      final uri = Uri.parse(url);
+      final hasQuery = uri.hasQuery && uri.query.isNotEmpty;
       final paramStr = params.entries
           .map((e) =>
               '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}')
           .join('&');
-      fullUrl = url.contains('?') ? '$url&$paramStr' : '$url?$paramStr';
+      fullUrl = hasQuery ? '$url&$paramStr' : '$url?$paramStr';
     }
 
     var curl = 'curl -X $method "$fullUrl"';
     headers.forEach((key, value) {
-      curl += ' \\\n  -H "$key: $value"';
+      final safeKey = key.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+      final safeValue = value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+      curl += ' \\\n  -H "$safeKey: $safeValue"';
     });
 
     if (body.isNotEmpty &&
@@ -106,7 +110,12 @@ class CurlGenerator {
             method == 'PUT' ||
             method == 'PATCH' ||
             method == 'DELETE')) {
-      final escapedBody = body.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+      final escapedBody = body
+          .replaceAll('\\', '\\\\')
+          .replaceAll('"', '\\"')
+          .replaceAll(r'$', r'\$')
+          .replaceAll('`', '\\`');
+      // Escaped for bash/zsh/PowerShell; cmd.exe users need to remove backslashes manually
       curl += ' \\\n  --data-raw "$escapedBody"';
     }
     return curl;

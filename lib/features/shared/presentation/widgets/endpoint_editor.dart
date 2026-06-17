@@ -29,8 +29,8 @@ class _EndpointEditorState extends State<EndpointEditor>
   late TextEditingController _bodyCtrl;
   late TextEditingController _successConditionCtrl;
 
-  final Map<String, String> _headers = {};
-  final Map<String, String> _params = {};
+  Map<String, String> _headers = {};
+  Map<String, String> _params = {};
   Map<String, String> _variables = {};
 
   Map<String, dynamic>? _response;
@@ -391,11 +391,11 @@ class _EndpointEditorState extends State<EndpointEditor>
                             successConditionController: _successConditionCtrl,
                             variables: _variables,
                             onParamsChanged: (d) {
-                              _params.addAll(d);
+                              setState(() { _params = Map<String, String>.from(d); });
                               _queueSync();
                             },
                             onHeadersChanged: (d) {
-                              _headers.addAll(d);
+                              setState(() { _headers = Map<String, String>.from(d); });
                               _queueSync();
                             },
                             onBodyChanged: (v) {

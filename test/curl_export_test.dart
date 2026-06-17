@@ -102,5 +102,17 @@ void main() {
       expect(result, contains('--data-raw'));
       expect(result, contains(r'\"sku\"'));
     });
+
+    test('body with backslash and quotes are both escaped', () {
+      final result = CurlGenerator.generate(
+        url: 'https://api.example.com/upload',
+        method: 'POST',
+        headers: {},
+        params: {},
+        body: r'{"path":"C:\\Users","name":"John"}',
+      );
+      expect(result, contains(r'C:\\\\Users'));
+      expect(result, contains(r'\"name\"'));
+    });
   });
 }
