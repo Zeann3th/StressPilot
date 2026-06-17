@@ -78,3 +78,37 @@ class CurlParser {
     );
   }
 }
+
+class CurlGenerator {
+  static String generate({
+    required String url,
+    required String method,
+    required Map<String, String> headers,
+    required Map<String, String> params,
+    required String body,
+  }) {
+    String fullUrl = url;
+    if (params.isNotEmpty) {
+      final paramStr = params.entries
+          .map((e) =>
+              '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}')
+          .join('&');
+      fullUrl = url.contains('?') ? '$url&$paramStr' : '$url?$paramStr';
+    }
+
+    var curl = 'curl -X $method "$fullUrl"';
+    headers.forEach((key, value) {
+      curl += ' \\\n  -H "$key: $value"';
+    });
+
+    if (body.isNotEmpty &&
+        (method == 'POST' ||
+            method == 'PUT' ||
+            method == 'PATCH' ||
+            method == 'DELETE')) {
+      final escapedBody = body.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+      curl += ' \\\n  --data-raw "$escapedBody"';
+    }
+    return curl;
+  }
+}
