@@ -16,6 +16,7 @@ import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/features/results/presentation/provider/custom_report_provider.dart';
 import 'package:stress_pilot/features/results/presentation/widgets/custom_report_sheet_dialog.dart';
+import 'package:stress_pilot/features/results/presentation/widgets/run_complete_overlay.dart';
 
 import 'package:stress_pilot/features/shared/presentation/widgets/fleet_page_bar.dart';
 
@@ -35,6 +36,9 @@ class _ResultsPageState extends State<ResultsPage> {
   Timer? _tickTimer;
   Duration _elapsed = Duration.zero;
   bool _exporting = false;
+  bool _showRunComplete = false;
+  bool _runCompleteIsSuccess = false;
+  String? _lastKnownStatus;
 
   @override
   void initState() {
@@ -152,6 +156,8 @@ class _ResultsPageState extends State<ResultsPage> {
         }
       });
 
+      _lastKnownStatus = run.status.toUpperCase();
+
       if (isTerminal) {
         _stopTimers();
       }
@@ -174,6 +180,23 @@ class _ResultsPageState extends State<ResultsPage> {
       setState(() {
         _currentRun = run;
       });
+
+      final newStatus = run.status.toUpperCase();
+      final oldStatus = _lastKnownStatus;
+      _lastKnownStatus = newStatus;
+
+      if (oldStatus != null &&
+          !_isTerminalStatus(oldStatus) &&
+          _isTerminalStatus(newStatus) &&
+          mounted) {
+        setState(() {
+          _showRunComplete = true;
+          _runCompleteIsSuccess = newStatus == 'COMPLETED';
+        });
+        Future.delayed(const Duration(milliseconds: 2500), () {
+          if (mounted) setState(() => _showRunComplete = false);
+        });
+      }
 
       if (_currentRun != null && _isTerminalStatus(_currentRun!.status)) {
         _stopTimers();
@@ -242,110 +265,116 @@ class _ResultsPageState extends State<ResultsPage> {
     final provider = context.watch<ResultsProvider>();
     return Scaffold(
       backgroundColor: AppColors.baseBackground,
-      body: Column(
+      body: Stack(
         children: [
-          FleetPageBar(
-            title: 'Results',
-            actions: [
-              _buildEndpointDropdown(provider),
-              const SizedBox(width: 8),
-              _buildCustomSheetsButton(),
-              _buildAbortButton(),
-              _buildExportButton(),
-            ],
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: PilotPanel(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                borderRadius: AppRadius.br8,
-                boxShadow: AppShadows.subtle,
-                child: Column(
-                  children: [
-                    Row(
+          Column(
+            children: [
+              FleetPageBar(
+                title: 'Results',
+                actions: [
+                  _buildEndpointDropdown(provider),
+                  const SizedBox(width: 8),
+                  _buildCustomSheetsButton(),
+                  _buildAbortButton(),
+                  _buildExportButton(),
+                ],
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: PilotPanel(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    borderRadius: AppRadius.br8,
+                    boxShadow: AppShadows.subtle,
+                    child: Column(
                       children: [
-                        Expanded(flex: 3, child: _buildRunInfoCard()),
-                        const SizedBox(width: AppSpacing.lg),
-                        Expanded(
-                          flex: 2,
-                          child: MetricsCard(
-                            title: 'Total Requests',
-                            numericValue: provider.totalRequests.toDouble(),
-                            formatter: (v) => v.toInt().toString(),
-                            icon: LucideIcons.hash,
-                            color: AppColors.info,
-                            isActive: _isRunActive(),
-                          ),
+                        Row(
+                          children: [
+                            Expanded(flex: 3, child: _buildRunInfoCard()),
+                            const SizedBox(width: AppSpacing.lg),
+                            Expanded(
+                              flex: 2,
+                              child: MetricsCard(
+                                title: 'Total Requests',
+                                numericValue: provider.totalRequests.toDouble(),
+                                formatter: (v) => v.toInt().toString(),
+                                icon: LucideIcons.hash,
+                                color: AppColors.info,
+                                isActive: _isRunActive(),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.lg),
+                            Expanded(
+                              flex: 2,
+                              child: MetricsCard(
+                                title: 'Avg Response',
+                                numericValue: provider.avgResponseTime,
+                                formatter: (v) => '${v.toStringAsFixed(0)} ms',
+                                icon: LucideIcons.timer,
+                                color: _latencyColor(provider.avgResponseTime),
+                                isActive: _isRunActive(),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.lg),
+                            Expanded(
+                              flex: 2,
+                              child: MetricsCard(
+                                title: 'Req / Sec',
+                                numericValue: provider.requestsPerSecond,
+                                formatter: (v) => v.toStringAsFixed(1),
+                                icon: LucideIcons.gauge,
+                                color: AppColors.success,
+                                isActive: _isRunActive(),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.lg),
+                            Expanded(
+                              flex: 2,
+                              child: MetricsCard(
+                                title: 'Errors',
+                                numericValue: provider.errorCount.toDouble(),
+                                formatter: (v) => v.toInt().toString(),
+                                icon: LucideIcons.triangleAlert,
+                                color: provider.errorCount > 0 ? AppColors.error : AppColors.success,
+                                isActive: _isRunActive(),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: AppSpacing.lg),
+                        const SizedBox(height: AppSpacing.xl),
                         Expanded(
-                          flex: 2,
-                          child: MetricsCard(
-                            title: 'Avg Response',
-                            numericValue: provider.avgResponseTime,
-                            formatter: (v) => '${v.toStringAsFixed(0)} ms',
-                            icon: LucideIcons.timer,
-                            color: _latencyColor(provider.avgResponseTime),
-                            isActive: _isRunActive(),
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.lg),
-                        Expanded(
-                          flex: 2,
-                          child: MetricsCard(
-                            title: 'Req / Sec',
-                            numericValue: provider.requestsPerSecond,
-                            formatter: (v) => v.toStringAsFixed(1),
-                            icon: LucideIcons.gauge,
-                            color: AppColors.success,
-                            isActive: _isRunActive(),
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.lg),
-                        Expanded(
-                          flex: 2,
-                          child: MetricsCard(
-                            title: 'Errors',
-                            numericValue: provider.errorCount.toDouble(),
-                            formatter: (v) => v.toInt().toString(),
-                            icon: LucideIcons.triangleAlert,
-                            color: provider.errorCount > 0 ? AppColors.error : AppColors.success,
-                            isActive: _isRunActive(),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: RealtimeChart(
+                                  title: 'Response Time (ms)',
+                                  data: provider.responseTimePoints,
+                                  color: AppColors.warning,
+                                  isActive: _isRunActive(),
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.lg),
+                              Expanded(
+                                child: RealtimeChart(
+                                  title: 'Requests Per Second',
+                                  data: provider.rpsPoints,
+                                  color: AppColors.success,
+                                  isYAxisInteger: true,
+                                  isActive: _isRunActive(),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.xl),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: RealtimeChart(
-                              title: 'Response Time (ms)',
-                              data: provider.responseTimePoints,
-                              color: AppColors.warning,
-                              isActive: _isRunActive(),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.lg),
-                          Expanded(
-                            child: RealtimeChart(
-                              title: 'Requests Per Second',
-                              data: provider.rpsPoints,
-                              color: AppColors.success,
-                              isYAxisInteger: true,
-                              isActive: _isRunActive(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
+          if (_showRunComplete)
+            RunCompleteOverlay(isSuccess: _runCompleteIsSuccess),
         ],
       ),
     );
@@ -432,10 +461,8 @@ class _ResultsPageState extends State<ResultsPage> {
   }
 
   Widget _buildCustomSheetsButton() {
-    return PilotButton.ghost(
-      label: 'Custom Sheets',
-      icon: LucideIcons.layoutDashboard,
-      onPressed: () {
+    return GestureDetector(
+      onTap: () {
         showDialog(
           context: context,
           builder: (_) => ChangeNotifierProvider.value(
@@ -444,6 +471,34 @@ class _ResultsPageState extends State<ResultsPage> {
           ),
         );
       },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.accent.withValues(alpha: 0.08),
+          borderRadius: AppRadius.br6,
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.accent.withValues(alpha: 0.12),
+              blurRadius: 8,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(LucideIcons.layoutDashboard, size: 13, color: AppColors.accent),
+            const SizedBox(width: 5),
+            Text(
+              'Custom Sheets',
+              style: AppTypography.caption.copyWith(
+                color: AppColors.accent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
