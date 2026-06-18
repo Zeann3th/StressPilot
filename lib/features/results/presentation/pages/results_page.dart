@@ -14,6 +14,9 @@ import 'package:stress_pilot/core/di/locator.dart';
 import 'package:stress_pilot/core/navigation/app_router.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
+import 'package:stress_pilot/features/results/data/repositories/custom_report_repository_impl.dart';
+import 'package:stress_pilot/features/results/presentation/provider/custom_report_provider.dart';
+import 'package:stress_pilot/features/results/presentation/widgets/custom_report_sheet_dialog.dart';
 
 import 'package:stress_pilot/features/shared/presentation/widgets/fleet_page_bar.dart';
 
@@ -235,6 +238,7 @@ class _ResultsPageState extends State<ResultsPage> {
             actions: [
               _buildEndpointDropdown(provider),
               const SizedBox(width: 8),
+              _buildCustomSheetsButton(),
               _buildAbortButton(),
               _buildExportButton(),
             ],
@@ -403,6 +407,22 @@ class _ResultsPageState extends State<ResultsPage> {
                 }
               }
             },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCustomSheetsButton() {
+    return PilotButton.ghost(
+      label: 'Custom Sheets',
+      icon: LucideIcons.layoutDashboard,
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (_) => ChangeNotifierProvider(
+            create: (_) => CustomReportProvider(CustomReportRepositoryImpl()),
+            child: const CustomReportSheetDialog(),
           ),
         );
       },
