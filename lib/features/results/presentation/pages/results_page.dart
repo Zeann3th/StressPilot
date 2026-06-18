@@ -225,6 +225,18 @@ class _ResultsPageState extends State<ResultsPage> {
     super.dispose();
   }
 
+  bool _isRunActive() {
+    if (_currentRun == null) return false;
+    final s = _currentRun!.status.toUpperCase();
+    return s == 'RUNNING' || s == 'STARTING';
+  }
+
+  Color _latencyColor(double ms) {
+    if (ms < 200) return AppColors.success;
+    if (ms < 500) return AppColors.warning;
+    return AppColors.error;
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ResultsProvider>();
@@ -259,9 +271,11 @@ class _ResultsPageState extends State<ResultsPage> {
                           flex: 2,
                           child: MetricsCard(
                             title: 'Total Requests',
-                            value: provider.totalRequests.toString(),
+                            numericValue: provider.totalRequests.toDouble(),
+                            formatter: (v) => v.toInt().toString(),
                             icon: LucideIcons.hash,
                             color: AppColors.info,
+                            isActive: _isRunActive(),
                           ),
                         ),
                         const SizedBox(width: AppSpacing.lg),
@@ -269,10 +283,11 @@ class _ResultsPageState extends State<ResultsPage> {
                           flex: 2,
                           child: MetricsCard(
                             title: 'Avg Response',
-                            value:
-                                '${provider.avgResponseTime.toStringAsFixed(0)} ms',
+                            numericValue: provider.avgResponseTime,
+                            formatter: (v) => '${v.toStringAsFixed(0)} ms',
                             icon: LucideIcons.timer,
-                            color: AppColors.warning,
+                            color: _latencyColor(provider.avgResponseTime),
+                            isActive: _isRunActive(),
                           ),
                         ),
                         const SizedBox(width: AppSpacing.lg),
@@ -280,11 +295,11 @@ class _ResultsPageState extends State<ResultsPage> {
                           flex: 2,
                           child: MetricsCard(
                             title: 'Req / Sec',
-                            value: provider.requestsPerSecond.toStringAsFixed(
-                              1,
-                            ),
+                            numericValue: provider.requestsPerSecond,
+                            formatter: (v) => v.toStringAsFixed(1),
                             icon: LucideIcons.gauge,
                             color: AppColors.success,
+                            isActive: _isRunActive(),
                           ),
                         ),
                         const SizedBox(width: AppSpacing.lg),
@@ -292,9 +307,11 @@ class _ResultsPageState extends State<ResultsPage> {
                           flex: 2,
                           child: MetricsCard(
                             title: 'Errors',
-                            value: provider.errorCount.toString(),
+                            numericValue: provider.errorCount.toDouble(),
+                            formatter: (v) => v.toInt().toString(),
                             icon: LucideIcons.triangleAlert,
-                            color: AppColors.error,
+                            color: provider.errorCount > 0 ? AppColors.error : AppColors.success,
+                            isActive: _isRunActive(),
                           ),
                         ),
                       ],
