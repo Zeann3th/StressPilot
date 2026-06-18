@@ -212,7 +212,7 @@ class _RunsListWidgetState extends State<RunsListWidget> {
                       isSelected: widget.selectedIds.contains(_runs![index].id),
                       onSelectionChanged: widget.onSelectionChanged,
                     )
-                        .animate(delay: Duration(milliseconds: index * 45))
+                        .animate(delay: Duration(milliseconds: index * 60))
                         .slideX(begin: -0.04, end: 0, duration: 280.ms, curve: Curves.easeOut)
                         .fadeIn(duration: 280.ms),
                   ),
@@ -572,7 +572,7 @@ class _RunTileState extends State<_RunTile> {
                         const SizedBox(width: 8),
                         _StatChip(
                           label: 'Total',
-                          value: _formatRuntime(
+                          value: formatRuntime(
                             widget.run.startedAt,
                             widget.run.completedAt!,
                           ),
@@ -644,7 +644,7 @@ class _StatChip extends StatelessWidget {
   }
 }
 
-String _formatRuntime(DateTime start, DateTime end) {
+String formatRuntime(DateTime start, DateTime end) {
   final diff = end.difference(start);
   if (diff.inHours > 0) {
     return '${diff.inHours}h ${diff.inMinutes.remainder(60)}m';

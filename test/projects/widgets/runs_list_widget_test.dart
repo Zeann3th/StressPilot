@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stress_pilot/core/di/locator.dart';
 import 'package:stress_pilot/features/results/domain/models/run.dart';
+import 'package:stress_pilot/features/projects/presentation/widgets/runs_list_widget.dart' show formatRuntime;
 
 // Minimal Run factory for tests
 Run _makeRun({
@@ -26,39 +27,31 @@ Run _makeRun({
   );
 }
 
-// Mirrors _formatRuntime logic from runs_list_widget.dart for unit testing
-String _formatRuntime(DateTime start, DateTime end) {
-  final diff = end.difference(start);
-  if (diff.inHours > 0) return '${diff.inHours}h ${diff.inMinutes.remainder(60)}m';
-  if (diff.inMinutes > 0) return '${diff.inMinutes}m ${diff.inSeconds.remainder(60)}s';
-  return '${diff.inSeconds}s';
-}
-
 void main() {
   setUpAll(() => setupLocator());
 
-  group('_formatRuntime logic', () {
+  group('formatRuntime logic', () {
     test('returns seconds when diff < 60s', () {
       final start = DateTime(2024, 1, 1, 10, 0, 0);
       final end = DateTime(2024, 1, 1, 10, 0, 45);
-      expect(_formatRuntime(start, end), '45s');
+      expect(formatRuntime(start, end), '45s');
     });
 
     test('returns minutes and seconds when diff >= 60s', () {
       final start = DateTime(2024, 1, 1, 10, 0, 0);
       final end = DateTime(2024, 1, 1, 10, 2, 15);
-      expect(_formatRuntime(start, end), '2m 15s');
+      expect(formatRuntime(start, end), '2m 15s');
     });
 
     test('returns hours and minutes when diff >= 3600s', () {
       final start = DateTime(2024, 1, 1, 8, 0, 0);
       final end = DateTime(2024, 1, 1, 10, 30, 0);
-      expect(_formatRuntime(start, end), '2h 30m');
+      expect(formatRuntime(start, end), '2h 30m');
     });
 
     test('returns 0s for identical timestamps', () {
       final t = DateTime(2024, 1, 1, 10, 0, 0);
-      expect(_formatRuntime(t, t), '0s');
+      expect(formatRuntime(t, t), '0s');
     });
   });
 
@@ -95,74 +88,38 @@ void main() {
         completedAt: DateTime(2024, 1, 1, 10, 1, 30),
       );
       expect(run.completedAt, isNotNull);
-      expect(_formatRuntime(run.startedAt, run.completedAt!), '1m 30s');
-    });
-  });
-
-  group('Status appearance logic', () {
-    // Mirrors _statusAppearance switch cases
-    test('RUNNING status maps to info color logic', () {
-      final run = _makeRun(status: 'RUNNING');
-      expect(run.status.toUpperCase(), 'RUNNING');
-    });
-
-    test('COMPLETED status maps to success color logic', () {
-      final run = _makeRun(status: 'COMPLETED');
-      expect(run.status.toUpperCase(), 'COMPLETED');
-    });
-
-    test('FAILED status maps to error color logic', () {
-      final run = _makeRun(status: 'FAILED');
-      expect(run.status.toUpperCase(), 'FAILED');
-    });
-
-    test('isRunning is true for RUNNING', () {
-      final status = 'RUNNING';
-      final isRunning = status == 'RUNNING' || status == 'STARTING';
-      expect(isRunning, isTrue);
-    });
-
-    test('isRunning is true for STARTING', () {
-      final status = 'STARTING';
-      final isRunning = status == 'RUNNING' || status == 'STARTING';
-      expect(isRunning, isTrue);
-    });
-
-    test('isRunning is false for COMPLETED', () {
-      final status = 'COMPLETED';
-      final isRunning = status == 'RUNNING' || status == 'STARTING';
-      expect(isRunning, isFalse);
+      expect(formatRuntime(run.startedAt, run.completedAt!), '1m 30s');
     });
   });
 
   group('Stagger animation delay values', () {
     test('item 0 has 0ms delay', () {
-      final delay = Duration(milliseconds: 0 * 45);
+      final delay = Duration(milliseconds: 0 * 60);
       expect(delay.inMilliseconds, 0);
     });
 
-    test('item 1 has 45ms delay', () {
-      final delay = Duration(milliseconds: 1 * 45);
-      expect(delay.inMilliseconds, 45);
+    test('item 1 has 60ms delay', () {
+      final delay = Duration(milliseconds: 1 * 60);
+      expect(delay.inMilliseconds, 60);
     });
 
-    test('item 5 has 225ms delay', () {
-      final delay = Duration(milliseconds: 5 * 45);
-      expect(delay.inMilliseconds, 225);
+    test('item 5 has 300ms delay', () {
+      final delay = Duration(milliseconds: 5 * 60);
+      expect(delay.inMilliseconds, 300);
     });
   });
 
-  group('StatusBadge pulsing flag', () {
-    test('pulsing is true when status is RUNNING', () {
-      final status = 'RUNNING';
-      final isRunning = status == 'RUNNING' || status == 'STARTING';
-      expect(isRunning, isTrue); // StatusBadge(pulsing: isRunning)
+  group('formatRuntime is used correctly', () {
+    test('formatRuntime is public and can be imported', () {
+      // Verify the function works as expected when called directly
+      final start = DateTime(2024, 1, 1, 10, 0, 0);
+      final end = DateTime(2024, 1, 1, 10, 2, 15);
+      expect(formatRuntime(start, end), '2m 15s');
     });
 
-    test('pulsing is false when status is COMPLETED', () {
-      final status = 'COMPLETED';
-      final isRunning = status == 'RUNNING' || status == 'STARTING';
-      expect(isRunning, isFalse);
+    test('formatRuntime handles edge cases', () {
+      final t = DateTime(2024, 1, 1, 10, 0, 0);
+      expect(formatRuntime(t, t), '0s');
     });
   });
 }
