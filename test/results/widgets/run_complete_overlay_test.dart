@@ -11,7 +11,7 @@ void main() {
       home: Scaffold(body: RunCompleteOverlay(isSuccess: true)),
     ));
     // Pump to let animations start
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Run Complete'), findsOneWidget);
   });
 
@@ -20,7 +20,7 @@ void main() {
       home: Scaffold(body: RunCompleteOverlay(isSuccess: false)),
     ));
     // Pump to let animations start
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Run Failed'), findsOneWidget);
   });
 }
