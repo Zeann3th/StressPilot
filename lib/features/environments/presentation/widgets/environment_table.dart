@@ -114,6 +114,7 @@ class _EnvironmentTableState extends State<EnvironmentTable> {
                     return _EnvironmentRow(
                       key: ValueKey(v.id),
                       variable: v,
+                      index: index,
                       isLast: index == filtered.length - 1,
                       onChanged: (key, value, isActive) {
                         provider.updateVariable(
@@ -196,6 +197,7 @@ class _SaveButton extends StatelessWidget {
 
 class _EnvironmentRow extends StatefulWidget {
   final EnvironmentVariable variable;
+  final int index;
   final bool isLast;
   final Function(String key, String value, bool isActive) onChanged;
   final VoidCallback onDelete;
@@ -203,6 +205,7 @@ class _EnvironmentRow extends StatefulWidget {
   const _EnvironmentRow({
     super.key,
     required this.variable,
+    required this.index,
     required this.isLast,
     required this.onChanged,
     required this.onDelete,
@@ -216,6 +219,18 @@ class _EnvironmentRowState extends State<_EnvironmentRow> {
   late TextEditingController _keyCtrl;
   late TextEditingController _valCtrl;
   bool _isHovered = false;
+  bool _isValueRevealed = false;
+
+  static bool _looksLikeSecret(String key) {
+    final lower = key.toLowerCase();
+    return lower.contains('key') ||
+        lower.contains('token') ||
+        lower.contains('secret') ||
+        lower.contains('pass') ||
+        lower.contains('pwd') ||
+        lower.contains('auth') ||
+        lower.contains('credential');
+  }
 
   @override
   void initState() {
@@ -260,7 +275,11 @@ class _EnvironmentRowState extends State<_EnvironmentRow> {
         height: 40,
         padding: const EdgeInsets.symmetric(horizontal: 24),
         decoration: BoxDecoration(
-          color: _isHovered ? AppColors.hoverItem : Colors.transparent,
+          color: _isHovered
+              ? AppColors.hoverItem
+              : widget.index % 2 == 1
+                  ? AppColors.hoverItem.withValues(alpha: 0.25)
+                  : Colors.transparent,
           border: widget.isLast
               ? null
               : Border(
@@ -312,20 +331,50 @@ class _EnvironmentRowState extends State<_EnvironmentRow> {
             const SizedBox(width: 16),
             Expanded(
               flex: 2,
-              child: TextField(
-                controller: _valCtrl,
-                decoration: InputDecoration(
-                  hintText: 'Variable value...',
-                  hintStyle: AppTypography.codeSm.copyWith(
-                    color: AppColors.textSecondary.withValues(alpha: 0.3),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _valCtrl,
+                      obscureText: _looksLikeSecret(widget.variable.key) &&
+                          !_isValueRevealed,
+                      decoration: InputDecoration(
+                        hintText: 'Variable value...',
+                        hintStyle: AppTypography.codeSm.copyWith(
+                          color: AppColors.textSecondary.withValues(alpha: 0.3),
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                      ),
+                      style: AppTypography.codeSm.copyWith(
+                        color: widget.variable.isActive ? textColor : textMuted,
+                      ),
+                      onChanged: (_) => _notify(),
+                    ),
                   ),
-                  border: InputBorder.none,
-                  isDense: true,
-                ),
-                style: AppTypography.codeSm.copyWith(
-                  color: widget.variable.isActive ? textColor : textMuted,
-                ),
-                onChanged: (_) => _notify(),
+                  if (_looksLikeSecret(widget.variable.key))
+                    AnimatedOpacity(
+                      duration: AppDurations.micro,
+                      opacity: _isHovered ? 1.0 : 0.0,
+                      child: IconButton(
+                        icon: Icon(
+                          _isValueRevealed
+                              ? LucideIcons.eyeOff
+                              : LucideIcons.eye,
+                          size: 14,
+                          color: AppColors.textMuted,
+                        ),
+                        onPressed: () =>
+                            setState(() => _isValueRevealed = !_isValueRevealed),
+                        tooltip: _isValueRevealed ? 'Hide value' : 'Reveal value',
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 28,
+                          minHeight: 28,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             AnimatedOpacity(
