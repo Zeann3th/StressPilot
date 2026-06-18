@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class CustomReportElement {
   final int id;
   final int sheetId;
@@ -21,7 +23,11 @@ class CustomReportElement {
         sheetId: json['sheetId'] as int,
         name: json['name'] as String,
         type: json['type'] as String,
-        config: json['config'] as String?,
+        config: json['config'] == null
+            ? null
+            : json['config'] is String
+                ? json['config'] as String
+                : jsonEncode(json['config']),
         displayOrder: json['displayOrder'] as int? ?? 0,
       );
 

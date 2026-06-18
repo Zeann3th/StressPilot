@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/scheduler.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +37,15 @@ class _CustomReportSheetDialogState extends State<CustomReportSheetDialog> {
         height: 500,
         child: Consumer<CustomReportProvider>(
           builder: (ctx, provider, _) {
+            if (provider.errorMessage != null && !provider.isLoading) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(provider.errorMessage!)),
+                  );
+                }
+              });
+            }
             if (provider.isLoading) {
               return const Center(child: CircularProgressIndicator());
             }
@@ -69,6 +79,7 @@ class _CustomReportSheetDialogState extends State<CustomReportSheetDialog> {
                                 compact: true,
                                 onPressed: () async {
                                   await provider.deleteSheet(sheet.id);
+                                  if (!mounted) return;
                                   if (_selectedSheet?.id == sheet.id) {
                                     setState(() => _selectedSheet = null);
                                   }
@@ -217,7 +228,7 @@ class _CustomReportSheetDialogState extends State<CustomReportSheetDialog> {
                   name: ctrl.text.trim(),
                   displayOrder: provider.sheets.length,
                 );
-                if (mounted) Navigator.pop(dialogCtx);
+                if (dialogCtx.mounted) Navigator.pop(dialogCtx);
               }
             },
           ),
@@ -342,12 +353,16 @@ class _CustomReportSheetDialogState extends State<CustomReportSheetDialog> {
                   }
 
                   if (element == null) {
+                    final currentSheet = provider.sheets
+                        .where((s) => s.id == sheetId)
+                        .firstOrNull;
+                    final newOrder = currentSheet?.elements.length ?? 0;
                     await provider.createElement(
                       sheetId,
                       name: nameCtrl.text.trim(),
                       type: selectedType,
                       config: config,
-                      displayOrder: 0,
+                      displayOrder: newOrder,
                     );
                   } else {
                     await provider.updateElement(
@@ -358,7 +373,7 @@ class _CustomReportSheetDialogState extends State<CustomReportSheetDialog> {
                       config: config,
                     );
                   }
-                  if (mounted) Navigator.pop(dialogCtx);
+                  if (dialogCtx.mounted) Navigator.pop(dialogCtx);
                 },
               ),
             ],

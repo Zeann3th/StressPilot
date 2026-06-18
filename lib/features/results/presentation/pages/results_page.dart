@@ -14,7 +14,6 @@ import 'package:stress_pilot/core/di/locator.dart';
 import 'package:stress_pilot/core/navigation/app_router.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
-import 'package:stress_pilot/features/results/data/repositories/custom_report_repository_impl.dart';
 import 'package:stress_pilot/features/results/presentation/provider/custom_report_provider.dart';
 import 'package:stress_pilot/features/results/presentation/widgets/custom_report_sheet_dialog.dart';
 
@@ -420,8 +419,8 @@ class _ResultsPageState extends State<ResultsPage> {
       onPressed: () {
         showDialog(
           context: context,
-          builder: (_) => ChangeNotifierProvider(
-            create: (_) => CustomReportProvider(CustomReportRepositoryImpl()),
+          builder: (_) => ChangeNotifierProvider.value(
+            value: getIt<CustomReportProvider>(),
             child: const CustomReportSheetDialog(),
           ),
         );

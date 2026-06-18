@@ -10,7 +10,9 @@ class CustomReportRepositoryImpl implements CustomReportRepository {
   @override
   Future<List<CustomReportSheet>> getSheets() async {
     final response = await _dio.get('/api/v1/report-sheets');
-    final List<dynamic> data = response.data['data'] as List<dynamic>;
+    final raw = response.data['data'];
+    if (raw == null) return [];
+    final List<dynamic> data = raw as List<dynamic>;
     return data
         .map((e) => CustomReportSheet.fromJson(e as Map<String, dynamic>))
         .toList();

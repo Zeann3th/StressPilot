@@ -163,7 +163,12 @@ class CustomReportProvider extends ChangeNotifier {
   }
 
   /// Reload sheets without toggling isLoading (used internally after mutations).
+  /// On failure, keeps the existing sheets and sets a descriptive error message.
   Future<void> _reloadSheets() async {
-    _sheets = await _repository.getSheets();
+    try {
+      _sheets = await _repository.getSheets();
+    } catch (e) {
+      _errorMessage = 'Changes saved but could not refresh list: $e';
+    }
   }
 }
