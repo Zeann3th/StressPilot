@@ -114,3 +114,7 @@ void setupDependencies() {
 
   getIt<ResultsProvider>();
 }
+
+void setupLocator() {
+  setupDependencies();
+}
