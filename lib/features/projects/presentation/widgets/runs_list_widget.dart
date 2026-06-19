@@ -81,32 +81,13 @@ class _RunsListWidgetState extends State<RunsListWidget> {
   }
 
   Future<void> _handleRunTap(Run run) async {
-    final status = run.status.toUpperCase();
-    if (status == 'RUNNING' || status == 'STARTING') {
-      Navigator.pushNamed(
-        context,
-        AppRouter.resultsRoute,
-        arguments: {'runId': run.id},
-      ).then((_) => _loadRuns());
-    } else {
-      final format = await _chooseExportFormat();
-      if (format != null) {
-        _exportRun(run, format: format);
-      }
-    }
+    Navigator.pushNamed(
+      context,
+      AppRouter.resultsRoute,
+      arguments: {'runId': run.id},
+    ).then((_) => _loadRuns());
   }
 
-  Future<RunExportFormat?> _chooseExportFormat() {
-    return showMenu<RunExportFormat>(
-      context: context,
-      position: const RelativeRect.fromLTRB(80, 80, 0, 0),
-      items: RunExportFormat.values
-          .map(
-            (format) => PopupMenuItem(value: format, child: Text(format.label)),
-          )
-          .toList(),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
