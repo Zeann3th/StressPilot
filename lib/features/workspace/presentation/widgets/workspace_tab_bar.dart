@@ -192,76 +192,80 @@ class _WorkspaceTabWidgetState extends State<_WorkspaceTabWidget> {
         child: GestureDetector(
           onTap: widget.onTap,
           onDoubleTap: _startEditing,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: widget.isActive
-                  ? AppColors.activeItem
-                  : Colors.transparent,
-              border: Border(
-                bottom: BorderSide(
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: widget.isActive
+                    ? AppColors.activeItem
+                    : (_isHovered ? AppColors.hoverItem : Colors.transparent),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
                   color: widget.isActive
-                      ? AppColors.accent
+                      ? AppColors.accent.withValues(alpha: 0.3)
                       : Colors.transparent,
-                  width: 2,
                 ),
               ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  widget.tab.type == WorkspaceTabType.flow
-                      ? LucideIcons.gitFork
-                      : LucideIcons.link,
-                  size: 13,
-                  color: widget.isActive
-                      ? AppColors.accent
-                      : AppColors.textSecondary,
-                ),
-                const SizedBox(width: 8),
-                if (_isEditing)
-                  SizedBox(
-                    width: 120,
-                    child: TextField(
-                      controller: _editCtrl,
-                      autofocus: true,
-                      style: AppTypography.body.copyWith(fontSize: 12),
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                        border: InputBorder.none,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    widget.tab.type == WorkspaceTabType.flow
+                        ? LucideIcons.gitFork
+                        : LucideIcons.link,
+                    size: 13,
+                    color: widget.isActive
+                        ? AppColors.accent
+                        : AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 8),
+                  if (_isEditing)
+                    SizedBox(
+                      width: 120,
+                      child: TextField(
+                        controller: _editCtrl,
+                        autofocus: true,
+                        style: AppTypography.body.copyWith(fontSize: 12),
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                          border: InputBorder.none,
+                        ),
+                        onSubmitted: (_) => _submitRename(),
+                        onTapOutside: (_) => _submitRename(),
                       ),
-                      onSubmitted: (_) => _submitRename(),
-                      onTapOutside: (_) => _submitRename(),
+                    )
+                  else
+                    Text(
+                      widget.tab.name,
+                      style: AppTypography.body.copyWith(
+                        color: widget.isActive
+                            ? AppColors.textPrimary
+                            : AppColors.textSecondary,
+                        fontSize: 13,
+                        fontWeight: widget.isActive
+                            ? FontWeight.w500
+                            : FontWeight.normal,
+                      ),
                     ),
-                  )
-                else
-                  Text(
-                    widget.tab.name,
-                    style: AppTypography.body.copyWith(
-                      color: widget.isActive
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: widget.isActive
-                          ? FontWeight.w500
-                          : FontWeight.normal,
+                  const SizedBox(width: 8),
+                  Visibility(
+                    visible: (_isHovered || widget.isActive) && !_isEditing,
+                    maintainSize: true,
+                    maintainAnimation: true,
+                    maintainState: true,
+                    child: GestureDetector(
+                      onTap: widget.onClose,
+                      child: Icon(
+                        LucideIcons.x,
+                        size: 12,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ),
-                const SizedBox(width: 8),
-                if ((_isHovered || widget.isActive) && !_isEditing)
-                  GestureDetector(
-                    onTap: widget.onClose,
-                    child: Icon(
-                      LucideIcons.x,
-                      size: 12,
-                      color: AppColors.textSecondary,
-                    ),
-                  )
-                else
-                  const SizedBox(width: 12),
-              ],
+                ],
+              ),
             ),
           ),
         ),

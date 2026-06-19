@@ -7,6 +7,7 @@ import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/features/shared/presentation/widgets/fleet_page_bar.dart';
 import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/pulse_indicator.dart';
 
 class EnvironmentPage extends StatefulWidget {
   final int projectId;
@@ -75,40 +76,79 @@ class _EnvironmentHeader extends StatelessWidget {
     final envProvider = context.watch<EnvironmentProvider>();
     final projectProvider = context.read<ProjectProvider>();
     final selectedId = envProvider.currentEnvironmentId;
-    final selected = envProvider.environments
-        .where((e) => e.id == selectedId)
-        .firstOrNull;
 
     return Container(
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Row(
         children: [
-          Icon(LucideIcons.serverCog, size: 16, color: AppColors.accent),
-          const SizedBox(width: AppSpacing.sm),
-          Text(
-            selected?.name ?? 'Environment',
-            style: AppTypography.bodyLg.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  ...envProvider.environments.map((env) {
+                    final isSelected = env.id == selectedId;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: GestureDetector(
+                        onTap: isSelected
+                            ? null
+                            : () async {
+                                await projectProvider.switchActiveEnvironment(
+                                  projectId: projectId,
+                                  environmentId: env.id,
+                                );
+                                if (context.mounted) {
+                                  await context
+                                      .read<EnvironmentProvider>()
+                                      .loadVariables(env.id);
+                                }
+                              },
+                        child: AnimatedContainer(
+                          duration: AppDurations.short,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.accent.withValues(alpha: 0.12)
+                                : Colors.transparent,
+                            borderRadius: AppRadius.br6,
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.accent.withValues(alpha: 0.4)
+                                  : AppColors.border,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isSelected) ...[
+                                const PulseIndicator(size: 5),
+                                const SizedBox(width: 5),
+                              ],
+                              Text(
+                                env.name,
+                                style: AppTypography.body.copyWith(
+                                  color: isSelected
+                                      ? AppColors.accent
+                                      : AppColors.textSecondary,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
             ),
           ),
-          const Spacer(),
-          _EnvironmentDropdown(
-            selectedEnvironmentId: selectedId,
-            onSelected: (environmentId) async {
-              await projectProvider.switchActiveEnvironment(
-                projectId: projectId,
-                environmentId: environmentId,
-              );
-              if (context.mounted) {
-                await context.read<EnvironmentProvider>().loadVariables(
-                  environmentId,
-                );
-              }
-            },
-          ),
-          const SizedBox(width: AppSpacing.sm),
           PilotButton.primary(
             icon: LucideIcons.plus,
             compact: true,
@@ -165,88 +205,5 @@ class _EnvironmentHeader extends StatelessWidget {
       environmentId: environment.id,
     );
     await envProvider.loadVariables(environment.id);
-  }
-}
-
-class _EnvironmentDropdown extends StatelessWidget {
-  final int? selectedEnvironmentId;
-  final ValueChanged<int> onSelected;
-
-  const _EnvironmentDropdown({
-    required this.selectedEnvironmentId,
-    required this.onSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<EnvironmentProvider>();
-    return PopupMenuButton<int>(
-      tooltip: 'Select Environment',
-      color: AppColors.elevatedSurface,
-      position: PopupMenuPosition.under,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppRadius.br6,
-        side: BorderSide(color: AppColors.border),
-      ),
-      onSelected: onSelected,
-      itemBuilder: (context) => provider.environments
-          .map(
-            (environment) => PopupMenuItem<int>(
-              value: environment.id,
-              height: 36,
-              child: Row(
-                children: [
-                  Icon(
-                    environment.id == selectedEnvironmentId
-                        ? LucideIcons.check
-                        : LucideIcons.server,
-                    size: 14,
-                    color: environment.id == selectedEnvironmentId
-                        ? AppColors.accent
-                        : AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    environment.name,
-                    style: AppTypography.body.copyWith(
-                      color: environment.id == selectedEnvironmentId
-                          ? AppColors.accent
-                          : AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-          .toList(),
-      child: Container(
-        height: 32,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-        decoration: BoxDecoration(
-          color: AppColors.elevated,
-          borderRadius: AppRadius.br6,
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              provider.environments
-                      .where((e) => e.id == selectedEnvironmentId)
-                      .firstOrNull
-                      ?.name ??
-                  'Select',
-              style: AppTypography.body.copyWith(color: AppColors.textPrimary),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Icon(
-              LucideIcons.chevronsUpDown,
-              size: 14,
-              color: AppColors.textSecondary,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

@@ -31,6 +31,9 @@ import 'package:stress_pilot/features/settings/presentation/provider/scheduling_
 import 'package:stress_pilot/features/results/domain/repositories/run_repository.dart';
 import 'package:stress_pilot/features/results/data/repositories/run_repository_impl.dart';
 import 'package:stress_pilot/features/results/presentation/provider/run_provider.dart';
+import 'package:stress_pilot/features/results/domain/repositories/custom_report_repository.dart';
+import 'package:stress_pilot/features/results/data/repositories/custom_report_repository_impl.dart';
+import 'package:stress_pilot/features/results/presentation/provider/custom_report_provider.dart';
 import 'package:stress_pilot/core/input/keymap_provider.dart';
 
 import 'package:stress_pilot/features/environments/domain/repositories/environment_repository.dart';
@@ -90,6 +93,11 @@ void setupDependencies() {
   getIt.registerLazySingleton<RunRepository>(() => RunRepositoryImpl());
   getIt.registerLazySingleton(() => RunProvider(getIt()));
 
+  getIt.registerLazySingleton<CustomReportRepository>(
+    () => CustomReportRepositoryImpl(),
+  );
+  getIt.registerLazySingleton(() => CustomReportProvider(getIt()));
+
   getIt.registerLazySingleton<PluginRepository>(() => PluginRepositoryImpl());
   getIt.registerLazySingleton(() => PluginSettingsProvider(getIt()));
   getIt.registerLazySingleton<FunctionRepository>(
@@ -105,4 +113,8 @@ void setupDependencies() {
   );
 
   getIt<ResultsProvider>();
+}
+
+void setupLocator() {
+  setupDependencies();
 }

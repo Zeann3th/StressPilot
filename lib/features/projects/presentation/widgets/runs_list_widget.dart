@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
@@ -10,6 +11,7 @@ import 'package:stress_pilot/core/navigation/app_router.dart';
 import 'package:stress_pilot/features/results/domain/repositories/run_repository.dart';
 import 'package:stress_pilot/features/results/presentation/provider/run_provider.dart';
 import 'package:stress_pilot/features/results/domain/models/run.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/status_badge.dart';
 
 class RunsListWidget extends StatefulWidget {
   final int? flowId;
@@ -79,32 +81,13 @@ class _RunsListWidgetState extends State<RunsListWidget> {
   }
 
   Future<void> _handleRunTap(Run run) async {
-    final status = run.status.toUpperCase();
-    if (status == 'RUNNING' || status == 'STARTING') {
-      Navigator.pushNamed(
-        context,
-        AppRouter.resultsRoute,
-        arguments: {'runId': run.id},
-      ).then((_) => _loadRuns());
-    } else {
-      final format = await _chooseExportFormat();
-      if (format != null) {
-        _exportRun(run, format: format);
-      }
-    }
+    Navigator.pushNamed(
+      context,
+      AppRouter.resultsRoute,
+      arguments: {'runId': run.id},
+    ).then((_) => _loadRuns());
   }
 
-  Future<RunExportFormat?> _chooseExportFormat() {
-    return showMenu<RunExportFormat>(
-      context: context,
-      position: const RelativeRect.fromLTRB(80, 80, 0, 0),
-      items: RunExportFormat.values
-          .map(
-            (format) => PopupMenuItem(value: format, child: Text(format.label)),
-          )
-          .toList(),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,22 +150,29 @@ class _RunsListWidgetState extends State<RunsListWidget> {
                         width: 72,
                         height: 72,
                         decoration: BoxDecoration(
-                          borderRadius: AppRadius.br8,
-                          border: Border.all(color: border),
+                          color: AppColors.elevatedSurface.withValues(alpha: 0.6),
+                          borderRadius: AppRadius.br12,
+                          border: Border.all(color: AppColors.border),
+                          boxShadow: AppShadows.panel,
                         ),
                         child: Icon(
-                          Icons.play_disabled_rounded,
+                          Icons.rocket_launch_rounded,
                           size: 32,
-                          color: AppColors.textMuted,
+                          color: AppColors.accent,
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'No runs found',
+                        'No runs yet',
                         style: AppTypography.heading.copyWith(color: textColor),
                       ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Start a run from the Flow editor',
+                        style: AppTypography.caption,
+                      ),
                     ],
-                  ),
+                  ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, duration: 400.ms),
                 )
               : RefreshIndicator(
                   onRefresh: _loadRuns,
@@ -202,7 +192,10 @@ class _RunsListWidgetState extends State<RunsListWidget> {
                       isSelectionMode: widget.isSelectionMode,
                       isSelected: widget.selectedIds.contains(_runs![index].id),
                       onSelectionChanged: widget.onSelectionChanged,
-                    ),
+                    )
+                        .animate(delay: Duration(milliseconds: index * 60))
+                        .slideX(begin: -0.04, end: 0, duration: 280.ms, curve: Curves.easeOut)
+                        .fadeIn(duration: 280.ms),
                   ),
                 ),
         ),
@@ -324,8 +317,6 @@ class _RunTileState extends State<_RunTile> {
 
   @override
   Widget build(BuildContext context) {
-    final surface = AppColors.surface;
-    final border = AppColors.border;
     final textColor = AppColors.textPrimary;
 
     final status = widget.run.status.toUpperCase();
@@ -352,156 +343,226 @@ class _RunTileState extends State<_RunTile> {
           tween: Tween(begin: 1.0, end: _isPressed ? 0.98 : 1.0),
           builder: (context, scale, child) =>
               Transform.scale(scale: scale, child: child),
-          child: AnimatedContainer(
-            duration: AppDurations.micro,
-            decoration: BoxDecoration(
-              color: widget.isSelected
-                  ? AppColors.accent.withValues(alpha: 0.05)
-                  : _hovered
-                  ? AppColors.accent.withValues(alpha: 0.02)
-                  : surface,
-              borderRadius: AppRadius.br10,
-              border: Border.all(
+          child: RepaintBoundary(
+            child: AnimatedContainer(
+              duration: AppDurations.micro,
+              decoration: BoxDecoration(
                 color: widget.isSelected
-                    ? AppColors.accent
+                    ? AppColors.accent.withValues(alpha: 0.06)
                     : _hovered
-                    ? AppColors.accent.withValues(alpha: 0.2)
-                    : border,
-              ),
-              boxShadow: _hovered ? AppShadows.subtle : null,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            child: Row(
-              children: [
-                if (widget.isSelectionMode)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: Checkbox(
-                      value: widget.isSelected,
-                      activeColor: AppColors.accent,
-                      onChanged: (val) {
-                        widget.onSelectionChanged?.call(
-                          widget.run.id,
-                          val ?? false,
-                        );
-                      },
-                    ),
-                  ),
-                Icon(statusIcon, color: statusColor, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Run #${widget.run.id}',
-                            style: AppTypography.body.copyWith(
-                              color: textColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          PilotBadge(
-                            label: status,
-                            color: statusColor,
-                            compact: true,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 1),
-                      Text(
-                        'Flow ID: ${widget.run.flowId} • ${_formatLimits(widget.run)}',
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 11,
-                        ),
-                      ),
-                      const SizedBox(height: 1),
-                      Text(
-                        DateFormat(
-                          'yyyy-MM-dd HH:mm:ss',
-                        ).format(widget.run.startedAt.toLocal()),
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.textMuted,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ? AppColors.accent.withValues(alpha: 0.03)
+                    : AppColors.elevatedSurface.withValues(alpha: 0.88),
+                borderRadius: AppRadius.br10,
+                border: Border.all(
+                  color: widget.isSelected
+                      ? AppColors.accent.withValues(alpha: 0.7)
+                      : _hovered
+                      ? statusColor.withValues(alpha: 0.3)
+                      : AppColors.border,
+                  width: widget.isSelected ? 1.5 : 1.0,
                 ),
-                if (!widget.isSelectionMode) ...[
-                  if (isRunning)
-                    _isInterrupting
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : IconButton(
-                            icon: Icon(
-                              Icons.stop_circle_outlined,
-                              color: AppColors.error,
-                            ),
-                            tooltip: 'Abort Run',
-                            onPressed: () async {
-                              setState(() => _isInterrupting = true);
-                              try {
-                                await context.read<RunProvider>().interruptRun(
-                                  widget.run.id,
-                                );
-                                widget.onRefresh();
-                              } catch (e) {
-                                if (mounted && context.mounted) {
-                                  PilotToast.show(
-                                    context,
-                                    'Failed to abort: $e',
-                                    isError: true,
-                                  );
-                                }
-                              } finally {
-                                if (mounted) {
-                                  setState(() => _isInterrupting = false);
-                                }
-                              }
-                            },
-                          ),
-                  if (status == 'RUNNING')
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      size: 16,
-                      color: AppColors.textMuted,
+                boxShadow: [
+                  ...AppShadows.panel,
+                  if (_hovered || widget.isSelected)
+                    BoxShadow(
+                      color: (widget.isSelected ? AppColors.accent : statusColor)
+                          .withValues(alpha: widget.isSelected ? 0.2 : 0.1),
+                      blurRadius: 12,
+                      spreadRadius: 0,
                     ),
-                  if (status != 'RUNNING' && status != 'STARTING')
-                    widget.isExporting
-                        ? SizedBox(
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      if (widget.isSelectionMode && widget.isSelected)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Container(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                            decoration: BoxDecoration(
                               color: AppColors.accent,
+                              shape: BoxShape.circle,
                             ),
-                          )
-                        : PopupMenuButton<RunExportFormat>(
-                            tooltip: 'Export',
-                            onSelected: widget.onExportSelected,
-                            itemBuilder: (context) => RunExportFormat.values
-                                .map(
-                                  (format) => PopupMenuItem(
-                                    value: format,
-                                    child: Text(format.label),
+                            child: const Icon(
+                              Icons.check_rounded,
+                              size: 13,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      else if (widget.isSelectionMode)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.border,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.12),
+                          borderRadius: AppRadius.br8,
+                          border: Border.all(
+                            color: statusColor.withValues(alpha: 0.3),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: statusColor.withValues(alpha: 0.2),
+                              blurRadius: 8,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Icon(statusIcon, color: statusColor, size: 16),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Run #${widget.run.id}',
+                                  style: AppTypography.body.copyWith(
+                                    color: textColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                StatusBadge(
+                                  color: statusColor,
+                                  label: status,
+                                  pulsing: isRunning,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Flow #${widget.run.flowId} • ${DateFormat('MMM d, HH:mm').format(widget.run.startedAt.toLocal())}',
+                              style: AppTypography.caption.copyWith(
+                                color: AppColors.textSecondary,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (!widget.isSelectionMode) ...[
+                        if (isRunning)
+                          _isInterrupting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
                                   ),
                                 )
-                                .toList(),
-                            child: Icon(
-                              Icons.download_rounded,
-                              color: AppColors.accent,
-                              size: 18,
-                            ),
+                              : IconButton(
+                                  icon: Icon(
+                                    Icons.stop_circle_outlined,
+                                    color: AppColors.error,
+                                  ),
+                                  tooltip: 'Abort Run',
+                                  onPressed: () async {
+                                    setState(() => _isInterrupting = true);
+                                    try {
+                                      await context
+                                          .read<RunProvider>()
+                                          .interruptRun(widget.run.id);
+                                      widget.onRefresh();
+                                    } catch (e) {
+                                      if (mounted && context.mounted) {
+                                        PilotToast.show(
+                                          context,
+                                          'Failed to abort: $e',
+                                          isError: true,
+                                        );
+                                      }
+                                    } finally {
+                                      if (mounted) {
+                                        setState(() => _isInterrupting = false);
+                                      }
+                                    }
+                                  },
+                                ),
+                        if (!isRunning)
+                          widget.isExporting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : PopupMenuButton<RunExportFormat>(
+                                  tooltip: 'Export',
+                                  onSelected: widget.onExportSelected,
+                                  itemBuilder: (context) =>
+                                      RunExportFormat.values
+                                          .map(
+                                            (format) => PopupMenuItem(
+                                              value: format,
+                                              child: Text(format.label),
+                                            ),
+                                          )
+                                          .toList(),
+                                  child: Icon(
+                                    Icons.download_rounded,
+                                    color: AppColors.accent,
+                                    size: 18,
+                                  ),
+                                ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      _StatChip(
+                        label: 'Threads',
+                        value: widget.run.threads.toString(),
+                      ),
+                      const SizedBox(width: 8),
+                      _StatChip(
+                        label: 'Duration',
+                        value: widget.run.duration != null
+                            ? '${widget.run.duration}s'
+                            : '—',
+                      ),
+                      const SizedBox(width: 8),
+                      _StatChip(
+                        label: 'Loops',
+                        value: widget.run.loopCount?.toString() ?? '—',
+                      ),
+                      if (widget.run.completedAt != null) ...[
+                        const SizedBox(width: 8),
+                        _StatChip(
+                          label: 'Total',
+                          value: formatRuntime(
+                            widget.run.startedAt,
+                            widget.run.completedAt!,
                           ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
-              ],
+              ),
             ),
           ),
         ),
@@ -525,9 +586,52 @@ class _RunTileState extends State<_RunTile> {
     }
   }
 
-  String _formatLimits(Run run) {
-    final duration = run.duration != null ? '${run.duration}s' : null;
-    final loops = run.loopCount != null ? '${run.loopCount} loops' : null;
-    return [duration, loops].whereType<String>().join(' / ');
+}
+
+class _StatChip extends StatelessWidget {
+  final String label;
+  final String value;
+  const _StatChip({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppColors.hoverItem,
+        borderRadius: AppRadius.br4,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '$label: ',
+              style: AppTypography.caption.copyWith(fontSize: 10),
+            ),
+            TextSpan(
+              text: value,
+              style: AppTypography.caption.copyWith(
+                fontSize: 10,
+                fontFamily: 'JetBrains Mono',
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
+}
+
+String formatRuntime(DateTime start, DateTime end) {
+  final diff = end.difference(start);
+  if (diff.inHours > 0) {
+    return '${diff.inHours}h ${diff.inMinutes.remainder(60)}m';
+  }
+  if (diff.inMinutes > 0) {
+    return '${diff.inMinutes}m ${diff.inSeconds.remainder(60)}s';
+  }
+  return '${diff.inSeconds}s';
 }

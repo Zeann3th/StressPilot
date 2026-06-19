@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/features/results/presentation/provider/results_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/pulse_indicator.dart';
 import 'dart:math' as math;
 
 class RealtimeChart extends StatelessWidget {
@@ -10,6 +11,7 @@ class RealtimeChart extends StatelessWidget {
   final List<FlSpotData> data;
   final Color color;
   final bool isYAxisInteger;
+  final bool isActive;
 
   const RealtimeChart({
     super.key,
@@ -17,6 +19,7 @@ class RealtimeChart extends StatelessWidget {
     required this.data,
     required this.color,
     this.isYAxisInteger = false,
+    this.isActive = false,
   });
 
   @override
@@ -37,18 +40,45 @@ class RealtimeChart extends StatelessWidget {
       if (xInterval <= 0) xInterval = 1000;
     }
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: AppRadius.br8,
-        border: Border.all(color: border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTypography.heading.copyWith(fontSize: 13)),
-          const SizedBox(height: AppSpacing.xl),
+    return RepaintBoundary(
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: AppRadius.br8,
+          border: Border.all(color: border),
+          boxShadow: [
+            ...AppShadows.panel,
+            if (isActive)
+              BoxShadow(
+                color: color.withValues(alpha: 0.12),
+                blurRadius: 12,
+                spreadRadius: 0,
+              ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(title, style: AppTypography.heading.copyWith(fontSize: 13)),
+                if (isActive) ...[
+                  const SizedBox(width: 8),
+                  const PulseIndicator(size: 5),
+                  const SizedBox(width: 4),
+                  Text(
+                    'LIVE',
+                    style: AppTypography.caption.copyWith(
+                      color: AppColors.accent,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xl),
           Expanded(
             child: data.isEmpty
                 ? Center(
@@ -68,12 +98,10 @@ class RealtimeChart extends StatelessWidget {
                       gridData: FlGridData(
                         show: true,
                         drawVerticalLine: false,
-                        getDrawingHorizontalLine: (value) {
-                          return FlLine(
-                            color: border.withValues(alpha: 0.5),
-                            strokeWidth: 1,
-                          );
-                        },
+                        getDrawingHorizontalLine: (_) => FlLine(
+                          color: border.withValues(alpha: 0.5),
+                          strokeWidth: 1,
+                        ),
                       ),
                       titlesData: FlTitlesData(
                         show: true,
@@ -126,18 +154,23 @@ class RealtimeChart extends StatelessWidget {
                       lineTouchData: const LineTouchData(enabled: false),
                       lineBarsData: [
                         LineChartBarData(
-                          spots: data.map((e) => FlSpot(e.x, e.y)).toList(),
+                          spots:
+                              data.map((e) => FlSpot(e.x, e.y)).toList(),
                           isCurved: true,
                           curveSmoothness: 0.2,
                           color: color,
-                          barWidth: 1.6,
+                          barWidth: 2.5,
                           isStrokeCapRound: true,
+                          shadow: Shadow(
+                            color: color.withValues(alpha: 0.4),
+                            blurRadius: 8,
+                          ),
                           dotData: const FlDotData(show: false),
                           belowBarData: BarAreaData(
                             show: true,
                             gradient: LinearGradient(
                               colors: [
-                                color.withValues(alpha: 0.12),
+                                color.withValues(alpha: 0.25),
                                 color.withValues(alpha: 0.0),
                               ],
                               begin: Alignment.topCenter,
@@ -149,8 +182,9 @@ class RealtimeChart extends StatelessWidget {
                     ),
                     duration: Duration.zero,
                   ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
