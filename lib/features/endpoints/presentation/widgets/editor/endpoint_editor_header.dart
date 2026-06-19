@@ -75,39 +75,59 @@ class _MethodDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = AppColors.accent;
-    return DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        value: value,
-        dropdownColor: AppColors.elevatedSurface,
-        icon: Icon(
-          LucideIcons.chevronDown,
-          size: 12,
-          color: AppColors.textSecondary,
-        ),
-        items: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].map((m) {
-          final methodColor =
-              {
-                'GET': AppColors.methodGet,
-                'POST': AppColors.methodPost,
-                'PUT': AppColors.methodPut,
-                'DELETE': AppColors.methodDelete,
-                'PATCH': AppColors.methodPatch,
-              }[m] ??
-              accentColor;
-          return DropdownMenuItem(
-            value: m,
-            child: Text(
-              m,
-              style: TextStyle(
-                color: methodColor,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
+    final methodColor = {
+      'GET': AppColors.methodGet,
+      'POST': AppColors.methodPost,
+      'PUT': AppColors.methodPut,
+      'DELETE': AppColors.methodDelete,
+      'PATCH': AppColors.methodPatch,
+    }[value] ?? AppColors.accent;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: methodColor.withValues(alpha: 0.08),
+        borderRadius: AppRadius.br6,
+        border: Border.all(color: methodColor.withValues(alpha: 0.35)),
+        boxShadow: [
+          BoxShadow(
+            color: methodColor.withValues(alpha: 0.18),
+            blurRadius: 8,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          dropdownColor: AppColors.elevatedSurface,
+          icon: Icon(
+            LucideIcons.chevronDown,
+            size: 12,
+            color: methodColor.withValues(alpha: 0.7),
+          ),
+          items: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].map((m) {
+            final itemColor = {
+              'GET': AppColors.methodGet,
+              'POST': AppColors.methodPost,
+              'PUT': AppColors.methodPut,
+              'DELETE': AppColors.methodDelete,
+              'PATCH': AppColors.methodPatch,
+            }[m] ?? AppColors.accent;
+            return DropdownMenuItem(
+              value: m,
+              child: Text(
+                m,
+                style: TextStyle(
+                  color: itemColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-          );
-        }).toList(),
-        onChanged: onChanged,
+            );
+          }).toList(),
+          onChanged: onChanged,
+        ),
       ),
     );
   }
