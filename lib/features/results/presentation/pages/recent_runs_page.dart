@@ -164,10 +164,12 @@ class _RecentRunsPageState extends State<RecentRunsPage> {
             bottom: _isCompareMode && _selectedIds.length == 2 ? 16 : -80,
             left: 16,
             right: 16,
-            child: _CompareBar(
-              isExporting: _isExportingComparison,
-              selectedCount: _selectedIds.length,
-              onExport: _exportComparison,
+            child: RepaintBoundary(
+              child: _CompareBar(
+                isExporting: _isExportingComparison,
+                selectedCount: _selectedIds.length,
+                onExport: _exportComparison,
+              ),
             ),
           ),
         ],
