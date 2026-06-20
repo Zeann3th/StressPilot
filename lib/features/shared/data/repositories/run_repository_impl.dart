@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:stress_pilot/core/network/http_client.dart';
-import 'package:stress_pilot/features/results/domain/models/run.dart';
-import '../../domain/repositories/run_repository.dart';
+import 'package:stress_pilot/features/shared/domain/models/run.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/run_repository.dart';
 
 class RunRepositoryImpl implements RunRepository {
   final Dio _dio = HttpClient.getInstance();

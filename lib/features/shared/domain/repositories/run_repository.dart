@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:stress_pilot/features/results/domain/models/run.dart';
+import 'package:stress_pilot/features/shared/domain/models/run.dart';
 
 enum RunExportFormat {
   xlsx('XLSX', 'XLSX', 'xlsx'),
