@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stress_pilot/core/di/locator.dart';
 import 'package:stress_pilot/core/themes/theme_manager.dart';
-import 'package:stress_pilot/features/endpoints/presentation/widgets/editor/endpoint_editor_tabs.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/endpoints/editor/endpoint_editor_tabs.dart';
 
 void main() {
   setUp(() async {

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stress_pilot/core/di/locator.dart';
 import 'package:stress_pilot/core/themes/theme_manager.dart';
-import 'package:stress_pilot/features/projects/presentation/widgets/node_configuration_dialog.dart';
+import 'package:stress_pilot/features/workspace/presentation/widgets/node_configuration_dialog.dart';
 import 'package:stress_pilot/core/input/keymap_provider.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart';
+import 'package:stress_pilot/features/shared/domain/models/flow.dart';
 import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
 import 'package:stress_pilot/features/workspace/presentation/provider/canvas_provider.dart';
 

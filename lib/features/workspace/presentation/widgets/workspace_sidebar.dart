@@ -5,18 +5,18 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:stress_pilot/core/di/locator.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
-import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart';
+import 'package:stress_pilot/features/shared/domain/models/endpoint.dart';
 import 'package:stress_pilot/features/shared/domain/repositories/utility_repository.dart';
-import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/endpoint_provider.dart';
 import 'package:stress_pilot/features/shared/presentation/widgets/create_endpoint_dialog.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+import 'package:stress_pilot/features/shared/domain/models/flow.dart'
     as flow_domain;
 import 'package:stress_pilot/core/input/pilot_intent.dart';
 import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
-import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
-import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/flow_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/project_provider.dart';
 import 'package:stress_pilot/features/workspace/presentation/provider/workspace_tab_provider.dart';
-import 'package:stress_pilot/features/projects/presentation/widgets/flow_dialog.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/flow_dialog.dart';
 
 import 'package:stress_pilot/features/shared/presentation/widgets/sidebar_section_header.dart';
 
@@ -156,8 +156,11 @@ class _SidebarSectionState extends State<_SidebarSection> {
         );
         break;
       case _SectionType.flows:
+        final projectId = context.read<ProjectProvider>().selectedProject?.id;
+        if (projectId == null) return;
         FlowDialog.showCreateDialog(
           context,
+          projectId: projectId,
           onCreate: (name, description, type, projectId) async {
             await context.read<FlowProvider>().createFlow(
               flow_domain.CreateFlowRequest(

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart';
-import 'package:stress_pilot/features/results/domain/models/run.dart';
+import 'package:stress_pilot/features/shared/domain/models/flow.dart';
+import 'package:stress_pilot/features/shared/domain/models/run.dart';
 
 void main() {
   test('run flow request sends null stop conditions when fields are blank', () {

@@ -6,14 +6,16 @@ import 'package:stress_pilot/core/system/session_manager.dart';
 import 'package:stress_pilot/core/themes/theme_manager.dart';
 import 'package:stress_pilot/core/system/settings_manager.dart';
 import 'package:stress_pilot/core/system/app_state_manager.dart';
-import 'package:stress_pilot/features/projects/domain/repositories/flow_repository.dart';
-import 'package:stress_pilot/features/projects/data/repositories/flow_repository_impl.dart';
-import 'package:stress_pilot/features/projects/domain/repositories/project_repository.dart';
-import 'package:stress_pilot/features/projects/data/repositories/project_repository_impl.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/flow_repository.dart';
+import 'package:stress_pilot/features/shared/data/repositories/flow_repository_impl.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/project_repository.dart';
+import 'package:stress_pilot/features/shared/data/repositories/project_repository_impl.dart';
 import 'package:stress_pilot/features/workspace/presentation/provider/canvas_provider.dart';
-import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
-import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
-import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/endpoint_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/flow_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/project_provider.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/endpoint_repository.dart';
+import 'package:stress_pilot/features/shared/data/repositories/endpoint_repository_impl.dart';
 import 'package:stress_pilot/features/workspace/presentation/provider/workspace_tab_provider.dart';
 import 'package:stress_pilot/features/settings/domain/repositories/setting_repository.dart';
 import 'package:stress_pilot/features/settings/data/repositories/setting_repository_impl.dart';
@@ -28,9 +30,9 @@ import 'package:stress_pilot/features/settings/presentation/provider/function_se
 import 'package:stress_pilot/features/settings/domain/repositories/schedule_repository.dart';
 import 'package:stress_pilot/features/settings/data/repositories/schedule_repository_impl.dart';
 import 'package:stress_pilot/features/settings/presentation/provider/scheduling_provider.dart';
-import 'package:stress_pilot/features/results/domain/repositories/run_repository.dart';
-import 'package:stress_pilot/features/results/data/repositories/run_repository_impl.dart';
-import 'package:stress_pilot/features/results/presentation/provider/run_provider.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/run_repository.dart';
+import 'package:stress_pilot/features/shared/data/repositories/run_repository_impl.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/run_provider.dart';
 import 'package:stress_pilot/features/results/domain/repositories/custom_report_repository.dart';
 import 'package:stress_pilot/features/results/data/repositories/custom_report_repository_impl.dart';
 import 'package:stress_pilot/features/results/presentation/provider/custom_report_provider.dart';
@@ -62,10 +64,10 @@ void setupDependencies() {
   HttpClient.getInstance(sessionManager: getIt<SessionManager>());
 
   getIt.registerLazySingleton<ProjectRepository>(() => ProjectRepositoryImpl());
-  getIt.registerLazySingleton(() => ProjectProvider());
+  getIt.registerLazySingleton(() => ProjectProvider(projectRepository: getIt()));
 
   getIt.registerLazySingleton<FlowRepository>(() => FlowRepositoryImpl());
-  getIt.registerLazySingleton(() => FlowProvider());
+  getIt.registerLazySingleton(() => FlowProvider(flowRepository: getIt()));
 
   getIt.registerLazySingleton<SettingRepository>(() => SettingRepositoryImpl());
   getIt.registerLazySingleton(() => SettingProvider(getIt()));
@@ -73,7 +75,8 @@ void setupDependencies() {
   getIt.registerLazySingleton(() => SettingsManager());
   getIt.registerLazySingleton(() => KeymapProvider());
 
-  getIt.registerLazySingleton(() => EndpointProvider());
+  getIt.registerLazySingleton<EndpointRepository>(() => EndpointRepositoryImpl());
+  getIt.registerLazySingleton(() => EndpointProvider(endpointRepository: getIt()));
   getIt.registerLazySingleton(() => WorkspaceTabProvider());
 
   getIt.registerLazySingleton(() => CanvasProvider());

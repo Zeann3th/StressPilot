@@ -1,0 +1,300 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:stress_pilot/core/network/http_client.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/endpoint_repository.dart';
+import 'package:stress_pilot/features/shared/data/repositories/endpoint_repository_impl.dart';
+import 'package:stress_pilot/features/shared/domain/models/endpoint.dart';
+import 'package:stress_pilot/features/shared/domain/models/paged_response.dart';
+
+class EndpointProvider extends ChangeNotifier {
+  final EndpointRepository _endpointRepository;
+
+  EndpointProvider({EndpointRepository? endpointRepository})
+      : _endpointRepository = endpointRepository ?? EndpointRepositoryImpl();
+  List<Endpoint> _endpoints = [];
+  bool _isLoading = false;
+  bool _isLoadingMore = false;
+
+  int _currentPage = 0;
+  int _pageSize = 20;
+  bool _hasMore = true;
+
+  Endpoint? _selectedEndpoint;
+  bool _isExecuting = false;
+  String? _error;
+
+  final Map<int, Map<String, dynamic>> _executionResults = {};
+  final Map<int, Map<String, dynamic>> _transientStates = {};
+
+  final Map<int, CancelToken> _cancelTokens = {};
+
+  bool _isResponsePanelVisible = false;
+  bool get isResponsePanelVisible => _isResponsePanelVisible;
+
+  void setResponsePanelVisible(bool visible) {
+    _isResponsePanelVisible = visible;
+    notifyListeners();
+  }
+
+  void toggleResponsePanel() {
+    _isResponsePanelVisible = !_isResponsePanelVisible;
+    notifyListeners();
+  }
+
+  List<Endpoint> get endpoints => _endpoints;
+  Endpoint? get selectedEndpoint => _selectedEndpoint;
+
+  void selectEndpoint(Endpoint endpoint) {
+    _selectedEndpoint = endpoint;
+    notifyListeners();
+  }
+
+  void updateTransientState(int endpointId, Map<String, dynamic> state) {
+    _transientStates[endpointId] = state;
+  }
+
+  Map<String, dynamic>? getTransientState(int endpointId) =>
+      _transientStates[endpointId];
+
+  bool get isLoading => _isLoading;
+  bool get isLoadingMore => _isLoadingMore;
+  bool get hasMore => _hasMore;
+
+  bool get isExecuting => _isExecuting;
+
+  String? get error => _error;
+
+  Map<String, dynamic>? getExecutionResult(int endpointId) =>
+      _executionResults[endpointId];
+
+  void clearExecutionResult(int endpointId) {
+    _executionResults.remove(endpointId);
+    notifyListeners();
+  }
+
+  Future<void> loadEndpoints({
+    required int projectId,
+    int pageSize = 20,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    _currentPage = 0;
+    _pageSize = pageSize;
+    _hasMore = true;
+
+    try {
+      if (_endpoints.isEmpty) {
+        await HttpClient.waitForBackend();
+      }
+
+      final PagedResponse<Endpoint> page = await _endpointRepository
+          .fetchEndpoints(
+            projectId: projectId,
+            page: _currentPage,
+            size: _pageSize,
+          );
+
+      _endpoints = page.content;
+      _hasMore = _currentPage < (page.totalPages - 1);
+    } catch (e) {
+      _error = e.toString();
+      _hasMore = false;
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> loadMoreEndpoints({required int projectId}) async {
+    if (!_hasMore || _isLoadingMore) return;
+
+    _isLoadingMore = true;
+    notifyListeners();
+
+    try {
+      final nextPage = _currentPage + 1;
+      final PagedResponse<Endpoint> page = await _endpointRepository
+          .fetchEndpoints(
+            projectId: projectId,
+            page: nextPage,
+            size: _pageSize,
+          );
+
+      _endpoints.addAll(page.content);
+      _currentPage = page.pageNumber;
+      _hasMore = _currentPage < (page.totalPages - 1);
+    } catch (e) {
+      _error = e.toString();
+    }
+
+    _isLoadingMore = false;
+    notifyListeners();
+  }
+
+  Future<void> refreshEndpoints({required int projectId}) async {
+    await loadEndpoints(projectId: projectId);
+  }
+
+  Future<Endpoint> cloneEndpoint(Endpoint endpoint) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final data = endpoint.toJson();
+      data.remove('id');
+      data['name'] = '${endpoint.name} copy';
+
+      final created = await _endpointRepository.createEndpoint(data);
+      await loadEndpoints(projectId: endpoint.projectId);
+      _isLoading = false;
+      notifyListeners();
+      return created;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  void clearEndpoints() {
+    _endpoints = [];
+    notifyListeners();
+  }
+
+  Future<Endpoint> createEndpoint(Map<String, dynamic> data) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final created = await _endpointRepository.createEndpoint(data);
+      if (data['projectId'] != null) {
+        await loadEndpoints(projectId: data['projectId']);
+      }
+      return created;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<Endpoint> updateEndpoint(int id, Map<String, dynamic> data) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updated = await _endpointRepository.updateEndpoint(id, data);
+      if (data['projectId'] != null) {
+        await loadEndpoints(projectId: data['projectId']);
+      }
+      return updated;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> deleteEndpoint(int id, int projectId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _endpointRepository.deleteEndpoint(id);
+      await loadEndpoints(projectId: projectId);
+      _executionResults.remove(id);
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> uploadEndpointsFile({
+    required String filePath,
+    required int projectId,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _endpointRepository.uploadEndpoints(
+        filePath: filePath,
+        projectId: projectId,
+      );
+      await loadEndpoints(projectId: projectId);
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<Endpoint> getEndpoint(int id) async {
+    return await _endpointRepository.getEndpointDetail(id);
+  }
+
+  Future<Map<String, dynamic>> executeEndpoint(
+    int endpointId,
+    Map<String, dynamic> body,
+  ) async {
+    _isExecuting = true;
+    final cancelToken = CancelToken();
+    _cancelTokens[endpointId] = cancelToken;
+    notifyListeners();
+
+    try {
+      final result = await _endpointRepository.executeEndpoint(
+        endpointId,
+        body,
+        cancelToken: cancelToken,
+      );
+      _executionResults[endpointId] = result;
+      _isExecuting = false;
+      _cancelTokens.remove(endpointId);
+      notifyListeners();
+      return result;
+    } on DioException catch (e) {
+      _isExecuting = false;
+      _cancelTokens.remove(endpointId);
+      if (CancelToken.isCancel(e)) {
+        final canceledResult = {
+          'error': 'Request cancelled',
+          'isCancelled': true,
+        };
+        _executionResults[endpointId] = canceledResult;
+        notifyListeners();
+        return canceledResult;
+      }
+      notifyListeners();
+      rethrow;
+    } catch (e) {
+      _isExecuting = false;
+      _cancelTokens.remove(endpointId);
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  void cancelExecution(int endpointId) {
+    _cancelTokens[endpointId]?.cancel('User cancelled');
+    _cancelTokens.remove(endpointId);
+    _isExecuting = false;
+    notifyListeners();
+  }
+
+  bool isEndpointExecuting(int endpointId) =>
+      _cancelTokens.containsKey(endpointId);
+}

@@ -41,7 +41,7 @@ class _PulseIndicatorState extends State<PulseIndicator>
         children: [
           AnimatedBuilder(
             animation: _controller,
-            builder: (_, __) => Opacity(
+            builder: (context, child) => Opacity(
               opacity: _opacity.value,
               child: Transform.scale(
                 scale: _scale.value,

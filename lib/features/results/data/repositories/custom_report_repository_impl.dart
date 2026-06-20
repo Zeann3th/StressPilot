@@ -33,8 +33,8 @@ class CustomReportRepositoryImpl implements CustomReportRepository {
       {String? name, int? displayOrder}) async {
     final response = await _dio.patch('/api/v1/report-sheets/$id',
         data: {
-          if (name != null) 'name': name,
-          if (displayOrder != null) 'displayOrder': displayOrder,
+          'name': ?name,
+          'displayOrder': ?displayOrder,
         });
     return CustomReportSheet.fromJson(response.data['data'] as Map<String, dynamic>);
   }
@@ -56,7 +56,7 @@ class CustomReportRepositoryImpl implements CustomReportRepository {
         data: {
           'name': name,
           'type': type,
-          if (config != null) 'config': config,
+          'config': ?config,
           'displayOrder': displayOrder,
         });
     return CustomReportElement.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -74,10 +74,10 @@ class CustomReportRepositoryImpl implements CustomReportRepository {
     final response = await _dio.patch(
         '/api/v1/report-sheets/$sheetId/elements/$elementId',
         data: {
-          if (name != null) 'name': name,
-          if (type != null) 'type': type,
-          if (config != null) 'config': config,
-          if (displayOrder != null) 'displayOrder': displayOrder,
+          'name': ?name,
+          'type': ?type,
+          'config': ?config,
+          'displayOrder': ?displayOrder,
         });
     return CustomReportElement.fromJson(response.data['data'] as Map<String, dynamic>);
   }

@@ -3,8 +3,8 @@ import 'package:lucide_icons/lucide_icons.dart' as lucide;
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/core/di/locator.dart';
-import 'package:stress_pilot/features/results/domain/repositories/run_repository.dart';
-import 'package:stress_pilot/features/projects/presentation/widgets/runs_list_widget.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/run_repository.dart';
+import 'package:stress_pilot/features/results/presentation/widgets/runs_list_widget.dart';
 import 'package:stress_pilot/features/shared/presentation/widgets/fleet_page_bar.dart';
 
 class RecentRunsPage extends StatefulWidget {

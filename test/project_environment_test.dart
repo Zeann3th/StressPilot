@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stress_pilot/features/environments/domain/environment.dart';
-import 'package:stress_pilot/features/projects/domain/models/project.dart';
+import 'package:stress_pilot/features/shared/domain/models/project.dart';
 
 void main() {
   test('Project reads activeEnvironmentId and keeps environmentId alias', () {

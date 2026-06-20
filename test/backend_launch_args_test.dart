@@ -67,7 +67,7 @@ void main() {
     await service.reset();
 
     expect(await service.loadRaw(), isEmpty);
-    expect(await service.loadJvmRaw(), isEmpty);
+    expect(await service.loadJvmRaw(), BackendLaunchArgs.defaultJvmArgsRaw);
     expect(await service.loadAppRaw(), isEmpty);
     expect(await service.loadArgs(), isEmpty);
   });

@@ -6,7 +6,7 @@ import 'package:stress_pilot/features/environments/presentation/widgets/environm
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/features/shared/presentation/widgets/fleet_page_bar.dart';
-import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/project_provider.dart';
 import 'package:stress_pilot/features/shared/presentation/widgets/pulse_indicator.dart';
 
 class EnvironmentPage extends StatefulWidget {

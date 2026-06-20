@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/layout/pilot_panel.dart';
-import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/project_provider.dart';
 import 'package:stress_pilot/features/projects/presentation/widgets/recent_pages_widget.dart';
 import 'package:stress_pilot/features/projects/presentation/widgets/projects_sidebar.dart';
 import 'package:stress_pilot/features/shared/presentation/widgets/global_search_dropdown.dart';
