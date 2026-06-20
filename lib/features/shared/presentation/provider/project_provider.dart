@@ -10,7 +10,10 @@ import 'package:stress_pilot/features/shared/domain/repositories/project_reposit
 import 'package:stress_pilot/features/shared/data/repositories/project_repository_impl.dart';
 
 class ProjectProvider extends ChangeNotifier {
-  final ProjectRepository _projectRepository = ProjectRepositoryImpl();
+  final ProjectRepository _projectRepository;
+
+  ProjectProvider({ProjectRepository? projectRepository})
+      : _projectRepository = projectRepository ?? ProjectRepositoryImpl();
 
   List<Project> _projects = [];
   Project? _selectedProject;

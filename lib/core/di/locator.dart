@@ -14,6 +14,8 @@ import 'package:stress_pilot/features/workspace/presentation/provider/canvas_pro
 import 'package:stress_pilot/features/shared/presentation/provider/endpoint_provider.dart';
 import 'package:stress_pilot/features/shared/presentation/provider/flow_provider.dart';
 import 'package:stress_pilot/features/shared/presentation/provider/project_provider.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/endpoint_repository.dart';
+import 'package:stress_pilot/features/shared/data/repositories/endpoint_repository_impl.dart';
 import 'package:stress_pilot/features/workspace/presentation/provider/workspace_tab_provider.dart';
 import 'package:stress_pilot/features/settings/domain/repositories/setting_repository.dart';
 import 'package:stress_pilot/features/settings/data/repositories/setting_repository_impl.dart';
@@ -62,10 +64,10 @@ void setupDependencies() {
   HttpClient.getInstance(sessionManager: getIt<SessionManager>());
 
   getIt.registerLazySingleton<ProjectRepository>(() => ProjectRepositoryImpl());
-  getIt.registerLazySingleton(() => ProjectProvider());
+  getIt.registerLazySingleton(() => ProjectProvider(projectRepository: getIt()));
 
   getIt.registerLazySingleton<FlowRepository>(() => FlowRepositoryImpl());
-  getIt.registerLazySingleton(() => FlowProvider());
+  getIt.registerLazySingleton(() => FlowProvider(flowRepository: getIt()));
 
   getIt.registerLazySingleton<SettingRepository>(() => SettingRepositoryImpl());
   getIt.registerLazySingleton(() => SettingProvider(getIt()));
@@ -73,7 +75,8 @@ void setupDependencies() {
   getIt.registerLazySingleton(() => SettingsManager());
   getIt.registerLazySingleton(() => KeymapProvider());
 
-  getIt.registerLazySingleton(() => EndpointProvider());
+  getIt.registerLazySingleton<EndpointRepository>(() => EndpointRepositoryImpl());
+  getIt.registerLazySingleton(() => EndpointProvider(endpointRepository: getIt()));
   getIt.registerLazySingleton(() => WorkspaceTabProvider());
 
   getIt.registerLazySingleton(() => CanvasProvider());

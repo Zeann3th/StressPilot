@@ -7,7 +7,10 @@ import 'package:stress_pilot/features/shared/domain/models/endpoint.dart';
 import 'package:stress_pilot/features/shared/domain/models/paged_response.dart';
 
 class EndpointProvider extends ChangeNotifier {
-  final EndpointRepository _endpointRepository = EndpointRepositoryImpl();
+  final EndpointRepository _endpointRepository;
+
+  EndpointProvider({EndpointRepository? endpointRepository})
+      : _endpointRepository = endpointRepository ?? EndpointRepositoryImpl();
   List<Endpoint> _endpoints = [];
   bool _isLoading = false;
   bool _isLoadingMore = false;

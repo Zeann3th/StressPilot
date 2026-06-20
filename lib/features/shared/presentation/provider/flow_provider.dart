@@ -12,7 +12,10 @@ import 'package:stress_pilot/features/shared/domain/repositories/flow_repository
 import 'package:stress_pilot/features/shared/data/repositories/flow_repository_impl.dart';
 
 class FlowProvider extends ChangeNotifier {
-  final FlowRepository _flowRepository = FlowRepositoryImpl();
+  final FlowRepository _flowRepository;
+
+  FlowProvider({FlowRepository? flowRepository})
+      : _flowRepository = flowRepository ?? FlowRepositoryImpl();
 
   List<flow_domain.Flow> _flows = [];
   flow_domain.Flow? _selectedFlow;
