@@ -70,6 +70,7 @@ class WorkspaceFlowTabs extends StatelessWidget {
               final flowProv = context.read<FlowProvider>();
               FlowDialog.showCreateDialog(
                 context,
+                projectId: projectId,
                 onCreate: (name, desc, type, pid) async {
                   await flowProv.createFlow(
                     flow_domain.CreateFlowRequest(

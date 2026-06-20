@@ -156,8 +156,11 @@ class _SidebarSectionState extends State<_SidebarSection> {
         );
         break;
       case _SectionType.flows:
+        final projectId = context.read<ProjectProvider>().selectedProject?.id;
+        if (projectId == null) return;
         FlowDialog.showCreateDialog(
           context,
+          projectId: projectId,
           onCreate: (name, description, type, projectId) async {
             await context.read<FlowProvider>().createFlow(
               flow_domain.CreateFlowRequest(
