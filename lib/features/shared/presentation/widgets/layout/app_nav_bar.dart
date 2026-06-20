@@ -4,13 +4,13 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:stress_pilot/core/navigation/app_router.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+import 'package:stress_pilot/features/shared/domain/models/endpoint.dart';
+import 'package:stress_pilot/features/shared/domain/models/flow.dart'
     as flow_domain;
 import 'package:stress_pilot/features/workspace/presentation/provider/workspace_tab_provider.dart';
-import 'package:stress_pilot/features/projects/presentation/widgets/run_flow_dialog.dart';
-import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
-import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/run_flow_dialog.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/endpoint_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/project_provider.dart';
 
 class AppNavBar extends StatelessWidget {
   final VoidCallback onToggleSidebar;

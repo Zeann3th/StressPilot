@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:stress_pilot/features/projects/domain/repositories/flow_repository.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/flow_repository.dart';
 import 'package:stress_pilot/features/results/domain/repositories/results_repository.dart';
 import 'package:stress_pilot/features/results/domain/models/request_log.dart';
 

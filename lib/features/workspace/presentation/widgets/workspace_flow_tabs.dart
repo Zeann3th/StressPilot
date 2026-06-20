@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+import 'package:stress_pilot/features/shared/domain/models/flow.dart'
     as flow_domain;
-import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
-import 'package:stress_pilot/features/projects/presentation/provider/project_provider.dart';
-import 'package:stress_pilot/features/projects/presentation/widgets/flow_dialog.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/flow_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/project_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/flow_dialog.dart';
 
 class WorkspaceFlowTabs extends StatelessWidget {
   final flow_domain.Flow? selectedFlow;

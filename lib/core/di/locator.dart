@@ -11,7 +11,7 @@ import 'package:stress_pilot/features/shared/data/repositories/flow_repository_i
 import 'package:stress_pilot/features/shared/domain/repositories/project_repository.dart';
 import 'package:stress_pilot/features/shared/data/repositories/project_repository_impl.dart';
 import 'package:stress_pilot/features/workspace/presentation/provider/canvas_provider.dart';
-import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/endpoint_provider.dart';
 import 'package:stress_pilot/features/shared/presentation/provider/flow_provider.dart';
 import 'package:stress_pilot/features/shared/presentation/provider/project_provider.dart';
 import 'package:stress_pilot/features/workspace/presentation/provider/workspace_tab_provider.dart';
@@ -28,9 +28,9 @@ import 'package:stress_pilot/features/settings/presentation/provider/function_se
 import 'package:stress_pilot/features/settings/domain/repositories/schedule_repository.dart';
 import 'package:stress_pilot/features/settings/data/repositories/schedule_repository_impl.dart';
 import 'package:stress_pilot/features/settings/presentation/provider/scheduling_provider.dart';
-import 'package:stress_pilot/features/results/domain/repositories/run_repository.dart';
-import 'package:stress_pilot/features/results/data/repositories/run_repository_impl.dart';
-import 'package:stress_pilot/features/results/presentation/provider/run_provider.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/run_repository.dart';
+import 'package:stress_pilot/features/shared/data/repositories/run_repository_impl.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/run_provider.dart';
 import 'package:stress_pilot/features/results/domain/repositories/custom_report_repository.dart';
 import 'package:stress_pilot/features/results/data/repositories/custom_report_repository_impl.dart';
 import 'package:stress_pilot/features/results/presentation/provider/custom_report_provider.dart';

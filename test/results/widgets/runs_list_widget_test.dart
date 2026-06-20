@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stress_pilot/core/di/locator.dart';
-import 'package:stress_pilot/features/results/domain/models/run.dart';
-import 'package:stress_pilot/features/projects/presentation/widgets/runs_list_widget.dart' show formatRuntime;
+import 'package:stress_pilot/features/shared/domain/models/run.dart';
+import 'package:stress_pilot/features/results/presentation/widgets/runs_list_widget.dart' show formatRuntime;
 
 // Minimal Run factory for tests
 Run _makeRun({

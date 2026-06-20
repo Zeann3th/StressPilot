@@ -5,8 +5,8 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
-import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
-import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart'
+import 'package:stress_pilot/features/shared/presentation/provider/endpoint_provider.dart';
+import 'package:stress_pilot/features/shared/domain/models/endpoint.dart'
     as domain_endpoint;
 
 class NodeConfigurationDialog extends StatefulWidget {

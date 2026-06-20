@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart'
+import 'package:stress_pilot/features/shared/domain/models/flow.dart'
     as flow_domain;
 import 'package:stress_pilot/features/shared/presentation/widgets/sidebar_section_header.dart';
 import 'package:stress_pilot/features/workspace/presentation/widgets/workspace_endpoints_list.dart';

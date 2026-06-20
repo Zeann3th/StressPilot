@@ -116,7 +116,7 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
 
     expect(await backendLaunchArgs.loadRaw(), isEmpty);
-    expect(await backendLaunchArgs.loadJvmRaw(), isEmpty);
+    expect(await backendLaunchArgs.loadJvmRaw(), BackendLaunchArgs.defaultJvmArgsRaw);
     expect(await backendLaunchArgs.loadAppRaw(), isEmpty);
     expect(find.byType(TextField), findsNWidgets(2));
   });

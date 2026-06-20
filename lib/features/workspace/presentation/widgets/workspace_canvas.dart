@@ -3,15 +3,15 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:stress_pilot/core/navigation/app_router.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart' as flow;
+import 'package:stress_pilot/features/shared/domain/models/flow.dart' as flow;
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/features/workspace/presentation/provider/canvas_provider.dart';
-import 'package:stress_pilot/features/projects/presentation/provider/flow_provider.dart';
-import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
-import 'package:stress_pilot/features/projects/presentation/widgets/node_configuration_dialog.dart';
-import 'package:stress_pilot/features/projects/presentation/widgets/run_flow_dialog.dart';
-import 'package:stress_pilot/features/projects/presentation/widgets/subflow_configuration_dialog.dart';
-import 'package:stress_pilot/features/results/presentation/provider/run_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/flow_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/endpoint_provider.dart';
+import 'package:stress_pilot/features/workspace/presentation/widgets/node_configuration_dialog.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/run_flow_dialog.dart';
+import 'package:stress_pilot/features/workspace/presentation/widgets/subflow_configuration_dialog.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/run_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 import 'dart:convert';
@@ -24,7 +24,7 @@ import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
 import 'package:stress_pilot/core/input/pilot_intent.dart';
 
 import 'package:stress_pilot/features/workspace/presentation/provider/workspace_tab_provider.dart';
-import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart'
+import 'package:stress_pilot/features/shared/domain/models/endpoint.dart'
     as domain_endpoint;
 
 import 'canvas/canvas_node_toolbar.dart';

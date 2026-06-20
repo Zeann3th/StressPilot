@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
-import 'package:stress_pilot/features/endpoints/presentation/widgets/json_viewer.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/json_viewer.dart';
 
 class EndpointEditorResponsePanel extends StatelessWidget {
   final Map<String, dynamic>? response;

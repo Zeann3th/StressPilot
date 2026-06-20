@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:stress_pilot/core/di/locator.dart';
 import 'package:stress_pilot/features/shared/domain/models/flow.dart'
     as flow_domain;

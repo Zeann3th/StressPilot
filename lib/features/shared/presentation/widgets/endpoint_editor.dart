@@ -7,12 +7,12 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/core/input/pilot_intent.dart';
-import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart';
-import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
-import 'package:stress_pilot/features/endpoints/data/curl_parser.dart';
-import 'package:stress_pilot/features/endpoints/presentation/widgets/editor/endpoint_editor_header.dart';
-import 'package:stress_pilot/features/endpoints/presentation/widgets/editor/endpoint_editor_tabs.dart';
-import 'package:stress_pilot/features/endpoints/presentation/widgets/editor/endpoint_editor_response_panel.dart';
+import 'package:stress_pilot/features/shared/domain/models/endpoint.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/endpoint_provider.dart';
+import 'package:stress_pilot/features/shared/data/curl_parser.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/endpoints/editor/endpoint_editor_header.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/endpoints/editor/endpoint_editor_tabs.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/endpoints/editor/endpoint_editor_response_panel.dart';
 
 class EndpointEditor extends StatefulWidget {
   final Endpoint endpoint;

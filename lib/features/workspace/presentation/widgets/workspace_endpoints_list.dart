@@ -6,14 +6,14 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:stress_pilot/core/navigation/app_router.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart' as flow;
-import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart'
+import 'package:stress_pilot/features/shared/domain/models/flow.dart' as flow;
+import 'package:stress_pilot/features/shared/domain/models/endpoint.dart'
     as domain_endpoint;
-import 'package:stress_pilot/features/endpoints/presentation/widgets/endpoint_type_badge.dart';
+import 'package:stress_pilot/features/shared/presentation/widgets/endpoint_type_badge.dart';
 import 'package:stress_pilot/core/di/locator.dart';
 import 'package:stress_pilot/features/shared/domain/repositories/utility_repository.dart';
 import 'package:stress_pilot/features/workspace/domain/models/canvas.dart';
-import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
+import 'package:stress_pilot/features/shared/presentation/provider/endpoint_provider.dart';
 
 class WorkspaceEndpointsList extends StatefulWidget {
   final flow.Flow? selectedFlow;
