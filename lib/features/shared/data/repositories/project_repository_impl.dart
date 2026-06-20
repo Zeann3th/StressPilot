@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:stress_pilot/core/network/http_client.dart';
 import 'package:stress_pilot/features/shared/domain/models/paged_response.dart';
-import 'package:stress_pilot/features/projects/domain/models/project.dart';
-import '../../domain/repositories/project_repository.dart';
+import 'package:stress_pilot/features/shared/domain/models/project.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/project_repository.dart';
 
 class ProjectRepositoryImpl implements ProjectRepository {
   final Dio _dio = HttpClient.getInstance();

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:stress_pilot/features/shared/domain/models/paged_response.dart';
-import 'package:stress_pilot/features/projects/domain/models/flow.dart';
+import 'package:stress_pilot/features/shared/domain/models/flow.dart';
 
 abstract class FlowRepository {
   Future<PagedResponse<Flow>> getFlows({

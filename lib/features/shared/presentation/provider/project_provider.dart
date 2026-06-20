@@ -5,9 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stress_pilot/core/network/http_client.dart';
 import 'package:stress_pilot/core/navigation/navigation_tracker.dart';
 import 'package:stress_pilot/features/shared/domain/models/paged_response.dart';
-import 'package:stress_pilot/features/projects/domain/models/project.dart';
-import 'package:stress_pilot/features/projects/domain/repositories/project_repository.dart';
-import 'package:stress_pilot/features/projects/data/repositories/project_repository_impl.dart';
+import 'package:stress_pilot/features/shared/domain/models/project.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/project_repository.dart';
+import 'package:stress_pilot/features/shared/data/repositories/project_repository_impl.dart';
 
 class ProjectProvider extends ChangeNotifier {
   final ProjectRepository _projectRepository = ProjectRepositoryImpl();

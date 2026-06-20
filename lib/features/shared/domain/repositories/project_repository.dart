@@ -1,5 +1,5 @@
 import 'package:stress_pilot/features/shared/domain/models/paged_response.dart';
-import 'package:stress_pilot/features/projects/domain/models/project.dart';
+import 'package:stress_pilot/features/shared/domain/models/project.dart';
 
 abstract class ProjectRepository {
   Future<PagedResponse<Project>> getProjects({
