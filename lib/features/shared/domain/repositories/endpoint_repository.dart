@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart';
+import 'package:stress_pilot/features/shared/domain/models/endpoint.dart';
 import 'package:stress_pilot/features/shared/domain/models/paged_response.dart';
 
 abstract class EndpointRepository {

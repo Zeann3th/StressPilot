@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:stress_pilot/core/network/http_client.dart';
-import 'package:stress_pilot/features/endpoints/domain/repositories/endpoint_repository.dart';
-import 'package:stress_pilot/features/endpoints/data/repositories/endpoint_repository_impl.dart';
-import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart';
+import 'package:stress_pilot/features/shared/domain/repositories/endpoint_repository.dart';
+import 'package:stress_pilot/features/shared/data/repositories/endpoint_repository_impl.dart';
+import 'package:stress_pilot/features/shared/domain/models/endpoint.dart';
 import 'package:stress_pilot/features/shared/domain/models/paged_response.dart';
 
 class EndpointProvider extends ChangeNotifier {
