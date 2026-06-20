@@ -5,7 +5,7 @@ import 'package:stress_pilot/features/results/domain/repositories/custom_report_
 import 'package:stress_pilot/features/results/presentation/provider/custom_report_provider.dart';
 
 class _FakeRepo implements CustomReportRepository {
-  List<CustomReportSheet> _sheets = [];
+  final List<CustomReportSheet> _sheets = [];
   int _nextSheetId = 1;
   int _nextElemId = 1;
 
