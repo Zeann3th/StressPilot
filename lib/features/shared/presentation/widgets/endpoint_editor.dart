@@ -403,11 +403,15 @@ class _EndpointEditorState extends State<EndpointEditor>
                             successConditionController: _successConditionCtrl,
                             variables: _variables,
                             onParamsChanged: (d) {
-                              _params.addAll(d);
+                              _params
+                                ..clear()
+                                ..addAll(d);
                               _queueSync();
                             },
                             onHeadersChanged: (d) {
-                              _headers.addAll(d);
+                              _headers
+                                ..clear()
+                                ..addAll(d);
                               _queueSync();
                             },
                             onBodyChanged: (v) {
