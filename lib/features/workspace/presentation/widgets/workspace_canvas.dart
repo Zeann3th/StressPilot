@@ -353,7 +353,7 @@ class _CanvasContentState extends State<_CanvasContent>
               left: 16,
               top: 100,
               bottom: 100,
-              child: Center(child: const CanvasNodeToolbar()),
+              child: Center(child: CanvasNodeToolbar()),
             ),
           ],
         ),
@@ -638,7 +638,9 @@ class _CanvasContentState extends State<_CanvasContent>
                       ? 64
                       : (type == FlowNodeType.loop ? 78 : 100))),
     );
-    context.read<CanvasProvider>().addNode(newNode);
+    final canvasProvider = context.read<CanvasProvider>();
+    canvasProvider.addNode(newNode);
+    canvasProvider.selectNode(newNode.id);
   }
 
   void _showNodeConfiguration(CanvasNode node) async {
@@ -756,11 +758,17 @@ class _CanvasContentState extends State<_CanvasContent>
     final steps = provider.generateFlowConfiguration();
     final initialValue = const JsonEncoder.withIndent(
       '  ',
-    ).convert(steps.map((s) => s.toJson(includeMetadata: false)).toList());
+    ).convert(steps.map((s) => s.toJson(includeMetadata: true)).toList());
+    final endpointProvider = context.read<EndpointProvider>();
+    final flowProvider = context.read<FlowProvider>();
     showDialog(
       context: context,
-      builder: (context) =>
-          _JsonPayloadDialog(initialValue: initialValue, provider: provider),
+      builder: (context) => _JsonPayloadDialog(
+        initialValue: initialValue,
+        provider: provider,
+        endpoints: endpointProvider.endpoints,
+        flows: flowProvider.flows,
+      ),
     );
   }
 
@@ -1959,10 +1967,14 @@ class _BranchDialog extends StatelessWidget {
 class _JsonPayloadDialog extends StatefulWidget {
   final String initialValue;
   final CanvasProvider provider;
+  final List<domain_endpoint.Endpoint>? endpoints;
+  final List<flow.Flow>? flows;
 
   const _JsonPayloadDialog({
     required this.initialValue,
     required this.provider,
+    this.endpoints,
+    this.flows,
   });
 
   @override
@@ -2076,7 +2088,11 @@ class _JsonPayloadDialogState extends State<_JsonPayloadDialog> {
                       final newSteps = jsonList
                           .map((e) => flow.FlowStep.fromJson(e))
                           .toList();
-                      widget.provider.applyConfiguration(newSteps);
+                      widget.provider.applyConfiguration(
+                        newSteps,
+                        widget.endpoints,
+                        widget.flows,
+                      );
                       Navigator.pop(context);
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(

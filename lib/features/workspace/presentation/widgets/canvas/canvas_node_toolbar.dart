@@ -8,13 +8,15 @@ class CanvasNodeToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Container(
       width: 44,
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.elevatedSurface,
+        color: colors.surfaceContainerHighest,
         borderRadius: AppRadius.br8,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -23,21 +25,21 @@ class CanvasNodeToolbar extends StatelessWidget {
             type: FlowNodeType.start,
             icon: LucideIcons.play,
             label: 'Start',
-            color: AppColors.success,
+            color: colors.tertiary,
           ),
           const _Divider(),
           _ToolbarNodeItem(
             type: FlowNodeType.branch,
             icon: LucideIcons.gitBranch,
             label: 'Branch',
-            color: AppColors.accent,
+            color: colors.primary,
           ),
           const _Divider(),
           _ToolbarNodeItem(
             type: FlowNodeType.subflow,
             icon: LucideIcons.network,
             label: 'Subflow',
-            color: AppColors.info,
+            color: colors.secondary,
           ),
         ],
       ),
@@ -131,7 +133,9 @@ class _IconBody extends StatelessWidget {
       child: Icon(
         icon,
         size: 18,
-        color: hovered || isDragging ? color : AppColors.textSecondary,
+        color: hovered || isDragging
+            ? color
+            : Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
   }
@@ -146,7 +150,7 @@ class _Divider extends StatelessWidget {
       width: 20,
       height: 1,
       margin: const EdgeInsets.symmetric(vertical: 4),
-      color: AppColors.divider,
+      color: Theme.of(context).colorScheme.outlineVariant,
     );
   }
 }
