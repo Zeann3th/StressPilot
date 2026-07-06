@@ -7,6 +7,7 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:stress_pilot/core/themes/theme_tokens.dart';
 import 'package:stress_pilot/core/themes/components/components.dart';
 import 'package:stress_pilot/core/input/pilot_intent.dart';
+import 'package:stress_pilot/core/utils/debouncer.dart';
 import 'package:stress_pilot/features/endpoints/domain/models/endpoint.dart';
 import 'package:stress_pilot/features/endpoints/presentation/provider/endpoint_provider.dart';
 import 'package:stress_pilot/features/endpoints/data/curl_parser.dart';
@@ -47,6 +48,7 @@ class _EndpointEditorState extends State<EndpointEditor>
   final FocusNode _keyboardFocusNode = FocusNode();
   int _currentSearchMatchIndex = 0;
   int _totalMatchesCount = 0;
+  final Debouncer _searchDebounce = Debouncer(const Duration(milliseconds: 150));
 
   late TabController _reqTabCtrl;
   late ScrollController _responseScrollCtrl;
@@ -212,6 +214,7 @@ class _EndpointEditorState extends State<EndpointEditor>
   void dispose() {
     _syncTimer?.cancel();
     _debounce?.cancel();
+    _searchDebounce.dispose();
     _executionTimer?.cancel();
     _urlCtrl.dispose();
     _bodyCtrl.dispose();
@@ -451,8 +454,9 @@ class _EndpointEditorState extends State<EndpointEditor>
                             searchFocusNode: _searchFocusNode,
                             currentSearchMatchIndex: _currentSearchMatchIndex,
                             totalMatchesCount: _totalMatchesCount,
-                            onSearchChanged: (v) =>
-                                setState(() => _currentSearchMatchIndex = 0),
+                            onSearchChanged: (v) => _searchDebounce.run(
+                              () => setState(() => _currentSearchMatchIndex = 0),
+                            ),
                             onSearchNext: () {
                               if (_totalMatchesCount > 0) {
                                 setState(
@@ -473,12 +477,15 @@ class _EndpointEditorState extends State<EndpointEditor>
                                 );
                               }
                             },
-                            onCloseSearch: () => setState(() {
-                              _showSearch = false;
-                              _searchCtrl.clear();
-                              _totalMatchesCount = 0;
-                              _currentSearchMatchIndex = 0;
-                            }),
+                            onCloseSearch: () {
+                              _searchDebounce.dispose();
+                              setState(() {
+                                _showSearch = false;
+                                _searchCtrl.clear();
+                                _totalMatchesCount = 0;
+                                _currentSearchMatchIndex = 0;
+                              });
+                            },
                             onMatchesCountChanged: (count) {
                               if (_totalMatchesCount != count) {
                                 setState(() => _totalMatchesCount = count);

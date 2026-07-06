@@ -22,16 +22,19 @@ class JsonViewer extends StatefulWidget {
 }
 
 class _JsonViewerState extends State<JsonViewer> {
-  final List<GlobalKey> _matchKeys = [];
+  GlobalKey? _activeMatchKey;
+  int _matchCount = 0;
   int _lastReportedCount = -1;
+
+  Map<String, dynamic>? _cachedJson;
+  List<_ColorSegment>? _cachedSegments;
 
   @override
   void didUpdateWidget(JsonViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (widget.activeMatchIndex != oldWidget.activeMatchIndex &&
-        widget.activeMatchIndex >= 0 &&
-        widget.activeMatchIndex < _matchKeys.length) {
+        _activeMatchKey != null) {
       _scrollToActiveMatch();
     }
 
@@ -43,14 +46,9 @@ class _JsonViewerState extends State<JsonViewer> {
 
   void _scrollToActiveMatch() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      if (widget.activeMatchIndex < 0 ||
-          widget.activeMatchIndex >= _matchKeys.length) {
-        return;
-      }
+      if (!mounted || _activeMatchKey == null) return;
 
-      final key = _matchKeys[widget.activeMatchIndex];
-      final context = key.currentContext;
+      final context = _activeMatchKey!.currentContext;
       if (context != null) {
         Scrollable.ensureVisible(
           context,
@@ -64,13 +62,24 @@ class _JsonViewerState extends State<JsonViewer> {
 
   @override
   Widget build(BuildContext context) {
-    _matchKeys.clear();
+    _activeMatchKey = null;
+    _matchCount = 0;
 
-    final jsonString = const JsonEncoder.withIndent('  ').convert(widget.json);
-    final spans = _highlightJson(jsonString, context);
+    // Colorized segments only depend on the response data, so they're cached
+    // across rebuilds triggered purely by search-box typing (identical map
+    // reference in the common `_getResponseData` path).
+    if (!identical(widget.json, _cachedJson) || _cachedSegments == null) {
+      final jsonString = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(widget.json);
+      _cachedJson = widget.json;
+      _cachedSegments = _colorizeJson(jsonString, context);
+    }
+
+    final spans = _applySearch(_cachedSegments!);
 
     if (widget.onMatchesCountChanged != null) {
-      final currentCount = _matchKeys.length;
+      final currentCount = _matchCount;
       if (currentCount != _lastReportedCount) {
         _lastReportedCount = currentCount;
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -93,8 +102,8 @@ class _JsonViewerState extends State<JsonViewer> {
     );
   }
 
-  List<InlineSpan> _highlightJson(String json, BuildContext context) {
-    final List<InlineSpan> spans = [];
+  List<_ColorSegment> _colorizeJson(String json, BuildContext context) {
+    final List<_ColorSegment> segments = [];
     final regex = RegExp(
       r'(?<key>".*?":)|(?<string>".*?")|(?<number>-?\d+(?:\.\d+)?)|(?<bool>true|false)|(?<null>null)',
     );
@@ -115,10 +124,8 @@ class _JsonViewerState extends State<JsonViewer> {
 
     for (final match in regex.allMatches(json)) {
       if (match.start > lastMatchEnd) {
-        _addTextWithSearch(
-          spans,
-          json.substring(lastMatchEnd, match.start),
-          null,
+        segments.add(
+          _ColorSegment(json.substring(lastMatchEnd, match.start), null),
         );
       }
 
@@ -135,14 +142,22 @@ class _JsonViewerState extends State<JsonViewer> {
         color = keywordColor;
       }
 
-      _addTextWithSearch(spans, match.group(0)!, color);
+      segments.add(_ColorSegment(match.group(0)!, color));
       lastMatchEnd = match.end;
     }
 
     if (lastMatchEnd < json.length) {
-      _addTextWithSearch(spans, json.substring(lastMatchEnd), null);
+      segments.add(_ColorSegment(json.substring(lastMatchEnd), null));
     }
 
+    return segments;
+  }
+
+  List<InlineSpan> _applySearch(List<_ColorSegment> segments) {
+    final List<InlineSpan> spans = [];
+    for (final segment in segments) {
+      _addTextWithSearch(spans, segment.text, segment.color);
+    }
     return spans;
   }
 
@@ -183,37 +198,56 @@ class _JsonViewerState extends State<JsonViewer> {
       }
 
       final matchText = text.substring(index, index + query.length);
-      final matchIndex = _matchKeys.length;
-      final key = GlobalKey();
-      _matchKeys.add(key);
+      final matchIndex = _matchCount;
+      _matchCount++;
 
       final isActive = matchIndex == widget.activeMatchIndex;
 
-      spans.add(
-        WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: Container(
-            key: key,
-            decoration: BoxDecoration(
-              color: isActive
-                  ? Colors.orange.withValues(alpha: 0.8)
-                  : Colors.yellow.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(2),
-            ),
-            child: Text(
-              matchText,
-              style: TextStyle(
-                fontFamily: 'JetBrains Mono',
-                fontSize: 13,
-                color: isActive ? Colors.black : color,
-                fontWeight: FontWeight.bold,
+      if (isActive) {
+        final key = GlobalKey();
+        _activeMatchKey = key;
+        spans.add(
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Container(
+              key: key,
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: Text(
+                matchText,
+                style: const TextStyle(
+                  fontFamily: 'JetBrains Mono',
+                  fontSize: 13,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
-        ),
-      );
+        );
+      } else {
+        spans.add(
+          TextSpan(
+            text: matchText,
+            style: TextStyle(
+              backgroundColor: Colors.yellow.withValues(alpha: 0.4),
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+      }
 
       start = index + query.length;
     }
   }
+}
+
+class _ColorSegment {
+  const _ColorSegment(this.text, this.color);
+
+  final String text;
+  final Color? color;
 }
