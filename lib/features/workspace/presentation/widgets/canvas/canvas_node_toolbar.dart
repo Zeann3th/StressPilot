@@ -8,15 +8,20 @@ class CanvasNodeToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     return Container(
       width: 44,
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
+        color: AppColors.elevatedSurface,
         borderRadius: AppRadius.br8,
-        border: Border.all(color: colors.outlineVariant),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -25,21 +30,21 @@ class CanvasNodeToolbar extends StatelessWidget {
             type: FlowNodeType.start,
             icon: LucideIcons.play,
             label: 'Start',
-            color: colors.tertiary,
+            color: AppColors.textMuted,
           ),
           const _Divider(),
           _ToolbarNodeItem(
             type: FlowNodeType.branch,
             icon: LucideIcons.gitBranch,
             label: 'Branch',
-            color: colors.primary,
+            color: AppColors.textMuted,
           ),
           const _Divider(),
           _ToolbarNodeItem(
             type: FlowNodeType.subflow,
             icon: LucideIcons.network,
             label: 'Subflow',
-            color: colors.secondary,
+            color: AppColors.textMuted,
           ),
         ],
       ),
@@ -94,6 +99,7 @@ class _ToolbarNodeItemState extends State<_ToolbarNodeItem> {
           child: _IconBody(
             icon: widget.icon,
             color: widget.color,
+            activeColor: AppColors.accent,
             isDragging: false,
             hovered: _hovered,
           ),
@@ -106,15 +112,17 @@ class _ToolbarNodeItemState extends State<_ToolbarNodeItem> {
 class _IconBody extends StatelessWidget {
   final IconData icon;
   final Color color;
+  final Color activeColor;
   final bool isDragging;
   final bool hovered;
 
   const _IconBody({
     required this.icon,
     required this.color,
+    Color? activeColor,
     required this.isDragging,
     required this.hovered,
-  });
+  }) : activeColor = activeColor ?? color;
 
   @override
   Widget build(BuildContext context) {
@@ -123,19 +131,19 @@ class _IconBody extends StatelessWidget {
       height: 32,
       margin: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
-        color: hovered ? color.withValues(alpha: 0.1) : Colors.transparent,
+        color: hovered || isDragging
+            ? activeColor.withValues(alpha: 0.12)
+            : Colors.transparent,
         borderRadius: AppRadius.br8,
         border: Border.all(
-          color: isDragging ? color : Colors.transparent,
+          color: isDragging ? activeColor : Colors.transparent,
           width: 1.5,
         ),
       ),
       child: Icon(
         icon,
         size: 18,
-        color: hovered || isDragging
-            ? color
-            : Theme.of(context).colorScheme.onSurfaceVariant,
+        color: hovered || isDragging ? activeColor : color,
       ),
     );
   }
@@ -150,7 +158,7 @@ class _Divider extends StatelessWidget {
       width: 20,
       height: 1,
       margin: const EdgeInsets.symmetric(vertical: 4),
-      color: Theme.of(context).colorScheme.outlineVariant,
+      color: AppColors.border.withValues(alpha: 0.3),
     );
   }
 }
