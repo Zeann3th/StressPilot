@@ -43,6 +43,7 @@ class _EndpointEditorState extends State<EndpointEditor>
 
   final TextEditingController _searchCtrl = TextEditingController();
   bool _showSearch = false;
+  String _debouncedSearchQuery = '';
   final FocusNode _searchFocusNode = FocusNode();
   final FocusNode _keyboardFocusNode = FocusNode();
   int _currentSearchMatchIndex = 0;
@@ -57,6 +58,7 @@ class _EndpointEditorState extends State<EndpointEditor>
 
   async_timer.Timer? _syncTimer;
   async_timer.Timer? _debounce;
+  async_timer.Timer? _searchDebounce;
   async_timer.Timer? _executionTimer;
 
   @override
@@ -208,10 +210,30 @@ class _EndpointEditorState extends State<EndpointEditor>
     });
   }
 
+  void _handleSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = async_timer.Timer(const Duration(milliseconds: 180), () {
+      if (!mounted) return;
+      setState(() {
+        _debouncedSearchQuery = value;
+        _currentSearchMatchIndex = 0;
+      });
+    });
+  }
+
+  void _clearSearchState() {
+    _searchDebounce?.cancel();
+    _searchCtrl.clear();
+    _debouncedSearchQuery = '';
+    _totalMatchesCount = 0;
+    _currentSearchMatchIndex = 0;
+  }
+
   @override
   void dispose() {
     _syncTimer?.cancel();
     _debounce?.cancel();
+    _searchDebounce?.cancel();
     _executionTimer?.cancel();
     _urlCtrl.dispose();
     _bodyCtrl.dispose();
@@ -263,7 +285,9 @@ class _EndpointEditorState extends State<EndpointEditor>
           maxWidth: 600,
           content: Container(
             constraints: const BoxConstraints(maxHeight: 400),
+            width: double.infinity,
             child: Stack(
+              clipBehavior: Clip.none,
               children: [
                 Scrollbar(
                   controller: scrollCtrl,
@@ -370,7 +394,7 @@ class _EndpointEditorState extends State<EndpointEditor>
                 if (_showSearch) {
                   _searchFocusNode.requestFocus();
                 } else {
-                  _searchCtrl.clear();
+                  _clearSearchState();
                 }
               });
             }
@@ -451,8 +475,8 @@ class _EndpointEditorState extends State<EndpointEditor>
                             searchFocusNode: _searchFocusNode,
                             currentSearchMatchIndex: _currentSearchMatchIndex,
                             totalMatchesCount: _totalMatchesCount,
-                            onSearchChanged: (v) =>
-                                setState(() => _currentSearchMatchIndex = 0),
+                            debouncedSearchQuery: _debouncedSearchQuery,
+                            onSearchChanged: _handleSearchChanged,
                             onSearchNext: () {
                               if (_totalMatchesCount > 0) {
                                 setState(
@@ -475,13 +499,19 @@ class _EndpointEditorState extends State<EndpointEditor>
                             },
                             onCloseSearch: () => setState(() {
                               _showSearch = false;
-                              _searchCtrl.clear();
-                              _totalMatchesCount = 0;
-                              _currentSearchMatchIndex = 0;
+                              _clearSearchState();
                             }),
                             onMatchesCountChanged: (count) {
                               if (_totalMatchesCount != count) {
-                                setState(() => _totalMatchesCount = count);
+                                setState(() {
+                                  _totalMatchesCount = count;
+                                  if (count == 0) {
+                                    _currentSearchMatchIndex = 0;
+                                  } else if (_currentSearchMatchIndex >=
+                                      count) {
+                                    _currentSearchMatchIndex = count - 1;
+                                  }
+                                });
                               }
                             },
                           ),

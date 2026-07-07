@@ -310,7 +310,7 @@ class _EndpointListState extends State<_EndpointList> {
 
     if (endpointProvider.isLoading && endpointProvider.endpoints.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.only(left: 16, top: 8),
+        padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
         child: Column(
           children: List.generate(
             5,
@@ -348,7 +348,7 @@ class _EndpointListState extends State<_EndpointList> {
     return Focus(
       onFocusChange: (focus) => setState(() => _hasFocus = focus),
       child: Padding(
-        padding: const EdgeInsets.only(left: 16),
+        padding: const EdgeInsets.only(left: 16, right: 8),
         child: Scrollbar(
           controller: _scrollController,
           thumbVisibility: true,
@@ -517,7 +517,7 @@ class _FlowListState extends State<_FlowList> {
 
     if (flowProvider.isLoading && flowProvider.flows.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.only(left: 16, top: 8),
+        padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
         child: Column(
           children: List.generate(
             3,
@@ -554,7 +554,7 @@ class _FlowListState extends State<_FlowList> {
     return Focus(
       onFocusChange: (focus) => setState(() => _hasFocus = focus),
       child: Padding(
-        padding: const EdgeInsets.only(left: 16),
+        padding: const EdgeInsets.only(left: 16, right: 8),
         child: Scrollbar(
           controller: _scrollController,
           thumbVisibility: true,

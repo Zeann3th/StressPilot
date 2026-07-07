@@ -527,21 +527,12 @@ class _ResultsPageState extends State<ResultsPage> {
                 value: _currentRun!.loopCount?.toString() ?? '-',
               ),
               const SizedBox(width: AppSpacing.xl),
-              _InfoBadge(label: 'Elapsed', value: _formatDuration(_elapsed)),
+              _InfoBadge(label: 'Elapsed', value: '${_elapsed.inSeconds}s'),
             ],
           ),
         ],
       ),
     );
-  }
-
-  String _formatDuration(Duration d) {
-    final h = d.inHours;
-    final m = d.inMinutes.remainder(60);
-    final s = d.inSeconds.remainder(60);
-    if (h > 0) return '${h}h ${m}m ${s}s';
-    if (m > 0) return '${m}m ${s}s';
-    return '${s}s';
   }
 }
 

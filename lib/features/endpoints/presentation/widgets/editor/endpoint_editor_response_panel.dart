@@ -19,6 +19,7 @@ class EndpointEditorResponsePanel extends StatelessWidget {
   final bool showSearch;
   final TextEditingController searchController;
   final FocusNode searchFocusNode;
+  final String debouncedSearchQuery;
   final int currentSearchMatchIndex;
   final int totalMatchesCount;
   final ValueChanged<String> onSearchChanged;
@@ -44,6 +45,7 @@ class EndpointEditorResponsePanel extends StatelessWidget {
     required this.showSearch,
     required this.searchController,
     required this.searchFocusNode,
+    required this.debouncedSearchQuery,
     required this.currentSearchMatchIndex,
     required this.totalMatchesCount,
     required this.onSearchChanged,
@@ -250,7 +252,7 @@ class EndpointEditorResponsePanel extends StatelessWidget {
                                     )
                                   : JsonViewer(
                                       json: _getResponseData(response!),
-                                      searchQuery: searchController.text,
+                                      searchQuery: debouncedSearchQuery,
                                       activeMatchIndex: currentSearchMatchIndex,
                                       onMatchesCountChanged:
                                           onMatchesCountChanged,

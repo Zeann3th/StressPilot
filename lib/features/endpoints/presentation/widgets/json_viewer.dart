@@ -7,6 +7,7 @@ class JsonViewer extends StatefulWidget {
   final String? searchQuery;
   final int activeMatchIndex;
   final Function(int)? onMatchesCountChanged;
+  final String Function(Map<String, dynamic>)? jsonFormatter;
 
   const JsonViewer({
     super.key,
@@ -15,6 +16,7 @@ class JsonViewer extends StatefulWidget {
     this.searchQuery,
     this.activeMatchIndex = 0,
     this.onMatchesCountChanged,
+    this.jsonFormatter,
   });
 
   @override
@@ -24,21 +26,37 @@ class JsonViewer extends StatefulWidget {
 class _JsonViewerState extends State<JsonViewer> {
   final List<GlobalKey> _matchKeys = [];
   int _lastReportedCount = -1;
+  late String _jsonString;
+  bool _shouldScrollToActiveMatch = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _jsonString = _formatJson(widget.json);
+  }
 
   @override
   void didUpdateWidget(JsonViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.activeMatchIndex != oldWidget.activeMatchIndex &&
-        widget.activeMatchIndex >= 0 &&
-        widget.activeMatchIndex < _matchKeys.length) {
-      _scrollToActiveMatch();
+    if (widget.activeMatchIndex != oldWidget.activeMatchIndex) {
+      _shouldScrollToActiveMatch = true;
     }
 
-    if (widget.searchQuery != oldWidget.searchQuery ||
-        widget.json != oldWidget.json) {
+    if (widget.json != oldWidget.json) {
+      _jsonString = _formatJson(widget.json);
       _lastReportedCount = -1;
+      _shouldScrollToActiveMatch = true;
+    } else if (widget.searchQuery != oldWidget.searchQuery) {
+      _lastReportedCount = -1;
+      _shouldScrollToActiveMatch = true;
     }
+  }
+
+  String _formatJson(Map<String, dynamic> json) {
+    final formatter = widget.jsonFormatter;
+    if (formatter != null) return formatter(json);
+    return const JsonEncoder.withIndent('  ').convert(json);
   }
 
   void _scrollToActiveMatch() {
@@ -66,8 +84,7 @@ class _JsonViewerState extends State<JsonViewer> {
   Widget build(BuildContext context) {
     _matchKeys.clear();
 
-    final jsonString = const JsonEncoder.withIndent('  ').convert(widget.json);
-    final spans = _highlightJson(jsonString, context);
+    final spans = _highlightJson(_jsonString, context);
 
     if (widget.onMatchesCountChanged != null) {
       final currentCount = _matchKeys.length;
@@ -77,6 +94,13 @@ class _JsonViewerState extends State<JsonViewer> {
           if (mounted) widget.onMatchesCountChanged!(currentCount);
         });
       }
+    }
+
+    if (_shouldScrollToActiveMatch &&
+        widget.activeMatchIndex >= 0 &&
+        widget.activeMatchIndex < _matchKeys.length) {
+      _shouldScrollToActiveMatch = false;
+      _scrollToActiveMatch();
     }
 
     return SelectableText.rich(

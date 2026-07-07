@@ -480,16 +480,22 @@ class CanvasProvider extends ChangeNotifier {
       savedX ??= (step.preProcessor?['_canvas_x'] as num?)?.toDouble();
       savedY ??= (step.preProcessor?['_canvas_y'] as num?)?.toDouble();
 
-      final double x =
-          savedX ??
-          (tempSyncId != null ? oldPositions[tempSyncId]?.dx : null) ??
-          oldPositions[step.id]?.dx ??
-          (startX + (i % 4) * spacingX);
-      final double y =
-          savedY ??
-          (tempSyncId != null ? oldPositions[tempSyncId]?.dy : null) ??
-          oldPositions[step.id]?.dy ??
-          (startY + (i ~/ 4) * spacingY);
+      final savedPosition = savedX != null && savedY != null
+          ? Offset(savedX, savedY)
+          : null;
+      final oldPosition =
+          (tempSyncId != null ? oldPositions[tempSyncId] : null) ??
+          oldPositions[step.id];
+      final position =
+          savedPosition ??
+          oldPosition ??
+          _nextOpenGridPosition(
+            occupiedPositions: _nodes.map((node) => node.position),
+            startX: startX,
+            startY: startY,
+            spacingX: spacingX,
+            spacingY: spacingY,
+          );
 
       Map<String, dynamic> nodeData = {};
 
@@ -539,7 +545,7 @@ class CanvasProvider extends ChangeNotifier {
         CanvasNode(
           id: step.id,
           type: type,
-          position: Offset(x, y),
+          position: position,
           data: nodeData,
           width: type == FlowNodeType.start
               ? 48
@@ -699,86 +705,34 @@ class CanvasProvider extends ChangeNotifier {
     rebuildFromSteps(responseSteps, endpoints, flows);
   }
 
-  void applyConfiguration(List<FlowStep> steps) {
-    for (final step in steps) {
-      final index = _nodes.indexWhere((n) => n.id == step.id);
-      if (index == -1) continue;
+  Offset _nextOpenGridPosition({
+    required Iterable<Offset> occupiedPositions,
+    required double startX,
+    required double startY,
+    required double spacingX,
+    required double spacingY,
+  }) {
+    final occupiedKeys = occupiedPositions
+        .map((position) => '${position.dx.round()}:${position.dy.round()}')
+        .toSet();
 
-      final node = _nodes[index];
-      final newData = Map<String, dynamic>.from(node.data);
-
-      if (step.preProcessor != null) {
-        final existingPre =
-            newData['preProcessor'] as Map<String, dynamic>? ?? {};
-        newData['preProcessor'] = Map<String, dynamic>.from(existingPre)
-          ..addAll(step.preProcessor!);
-      }
-      if (step.postProcessor != null) {
-        final existingPost =
-            newData['postProcessor'] as Map<String, dynamic>? ?? {};
-        newData['postProcessor'] = Map<String, dynamic>.from(existingPost)
-          ..addAll(step.postProcessor!);
-      }
-      if (node.type == FlowNodeType.branch && step.condition != null) {
-        newData['condition'] = step.condition;
-      }
-      if (node.type == FlowNodeType.subflow && step.condition != null) {
-        newData['subflowId'] = step.condition;
-      }
-
-      _nodes[index] = node.copyWith(data: newData);
+    for (int i = 0; i < 1000; i++) {
+      final candidate = Offset(
+        startX + (i % 4) * spacingX,
+        startY + (i ~/ 4) * spacingY,
+      );
+      final key = '${candidate.dx.round()}:${candidate.dy.round()}';
+      if (!occupiedKeys.contains(key)) return candidate;
     }
 
-    _connections.clear();
-    for (final step in steps) {
-      if (step.nextIfTrue != null &&
-          _nodes.any((n) => n.id == step.nextIfTrue)) {
-        final isBranch = _nodes.any(
-          (n) => n.id == step.id && n.type == FlowNodeType.branch,
-        );
-        final isLoop = _nodes.any(
-          (n) => n.id == step.id && n.type == FlowNodeType.loop,
-        );
-        _connections.add(
-          CanvasConnection(
-            id: const Uuid().v4(),
-            sourceNodeId: step.id,
-            targetNodeId: step.nextIfTrue!,
-            sourceHandle: isBranch ? 'true' : 'default',
-            type: isBranch || isLoop
-                ? ConnectionType.trueType
-                : ConnectionType.defaultType,
-          ),
-        );
-      }
-      if (step.preProcessor?['loop'] is Map) {
-        final body = (step.preProcessor!['loop'] as Map)['body']?.toString();
-        if (body != null && _nodes.any((n) => n.id == body)) {
-          _connections.add(
-            CanvasConnection(
-              id: const Uuid().v4(),
-              sourceNodeId: step.id,
-              targetNodeId: body,
-              sourceHandle: 'body',
-              type: ConnectionType.bodyType,
-            ),
-          );
-        }
-      }
-      if (step.nextIfFalse != null &&
-          _nodes.any((n) => n.id == step.nextIfFalse)) {
-        _connections.add(
-          CanvasConnection(
-            id: const Uuid().v4(),
-            sourceNodeId: step.id,
-            targetNodeId: step.nextIfFalse!,
-            sourceHandle: 'false',
-            type: ConnectionType.falseType,
-          ),
-        );
-      }
-    }
+    return Offset(startX, startY + occupiedKeys.length * spacingY);
+  }
 
-    notifyListeners();
+  void applyConfiguration(
+    List<FlowStep> steps, [
+    List<domain_endpoint.Endpoint>? endpoints,
+    List<Flow>? flows,
+  ]) {
+    rebuildFromSteps(steps, endpoints, flows);
   }
 }

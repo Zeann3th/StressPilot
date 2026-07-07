@@ -126,6 +126,100 @@ void main() {
     );
   });
 
+  test(
+    'apply configuration rebuilds JSON edits and keeps new nodes visible',
+    () {
+      final provider = CanvasProvider();
+
+      provider.rebuildFromSteps([
+        FlowStep(
+          id: 'start',
+          type: 'START',
+          nextIfTrue: 'existing',
+          preProcessor: const {
+            'location': {'x': 3800.0, 'y': 3800.0},
+          },
+        ),
+        FlowStep(
+          id: 'existing',
+          type: 'ENDPOINT',
+          endpointId: 1,
+          endpointName: 'Existing',
+          preProcessor: const {
+            'location': {'x': 4050.0, 'y': 3800.0},
+          },
+        ),
+      ]);
+
+      provider.applyConfiguration([
+        FlowStep(id: 'start', type: 'START', nextIfTrue: 'existing'),
+        FlowStep(
+          id: 'existing',
+          type: 'ENDPOINT',
+          endpointId: 1,
+          endpointName: 'Existing',
+          nextIfTrue: 'new-node',
+        ),
+        FlowStep(id: 'new-node', type: 'BRANCH', condition: 'true'),
+      ]);
+
+      expect(
+        provider.nodes.map((node) => node.id),
+        containsAll(['start', 'existing', 'new-node']),
+      );
+      expect(
+        provider.connections.any(
+          (connection) =>
+              connection.sourceNodeId == 'existing' &&
+              connection.targetNodeId == 'new-node',
+        ),
+        isTrue,
+      );
+    },
+  );
+
+  test('rebuild allocates missing node locations away from occupied slots', () {
+    final provider = CanvasProvider();
+
+    provider.addNode(
+      CanvasNode(
+        id: 'start',
+        type: FlowNodeType.start,
+        position: const Offset(3800, 3800),
+      ),
+    );
+    provider.addNode(
+      CanvasNode(
+        id: 'existing',
+        type: FlowNodeType.endpoint,
+        position: const Offset(4050, 3800),
+      ),
+    );
+
+    provider.rebuildFromSteps([
+      FlowStep(id: 'start', type: 'START', nextIfTrue: 'existing'),
+      FlowStep(
+        id: 'existing',
+        type: 'ENDPOINT',
+        endpointId: 1,
+        endpointName: 'Existing',
+        nextIfTrue: 'new-node',
+      ),
+      FlowStep(id: 'new-node', type: 'BRANCH', condition: 'true'),
+    ]);
+
+    final positions = provider.nodes.map((node) => node.position).toSet();
+    expect(positions.length, provider.nodes.length);
+    expect(
+      provider.nodes.firstWhere((node) => node.id == 'new-node').position,
+      isNot(const Offset(3800, 3800)),
+    );
+    expect(
+      provider.nodes.firstWhere((node) => node.id == 'new-node').position,
+      isNot(const Offset(4050, 3800)),
+    );
+  });
+
   test('keymap duplicate lookup ignores the currently edited action', () async {
     final provider = KeymapProvider();
     provider.replaceKeymapForTest({

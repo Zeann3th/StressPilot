@@ -95,6 +95,9 @@ class _PilotInputState extends State<PilotInput> {
           prefixIcon: widget.prefixIcon != null
               ? Icon(widget.prefixIcon, size: 16, color: AppColors.textMuted)
               : null,
+          prefixIconConstraints: widget.prefixIcon != null
+              ? const BoxConstraints(minWidth: 36, minHeight: 20)
+              : null,
           border: InputBorder.none,
           isDense: true,
           contentPadding: EdgeInsets.symmetric(
