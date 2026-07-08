@@ -1369,7 +1369,7 @@ class CanvasEdgePainter extends CustomPainter {
     const dashW = 8.0;
     const dashGap = 6.0;
     for (final metric in path.computeMetrics()) {
-      double d = -animationOffset % (dashW + dashGap);
+      double d = animationOffset % (dashW + dashGap);
       while (d < metric.length) {
         final s = d.clamp(0.0, metric.length);
         final e = (d + dashW).clamp(0.0, metric.length);

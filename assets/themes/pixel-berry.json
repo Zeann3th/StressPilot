@@ -1,0 +1,25 @@
+{
+  "name": "Pixel Berry",
+  "brightness": "dark",
+  "colors": {
+    "background": "#292026",
+    "surface": "#221820",
+    "elevated": "#30242c",
+    "activeItem": "#663a56",
+    "hoverItem": "#2e2228",
+    "accent": "#c44560",
+    "accentHover": "#c46878",
+    "accentActive": "#a04060",
+    "border": "#3c2c35",
+    "divider": "#3c2c35",
+    "textPrimary": "#ede5e8",
+    "textSecondary": "#c8bec2",
+    "textDisabled": "#8e8488",
+    "success": "#a8d8a8",
+    "info": "#8fb0f2",
+    "warning": "#cca700",
+    "error": "#f48771",
+    "methodDelete": "#d17b8b",
+    "methodPatch": "#ddb0ec"
+  }
+}
