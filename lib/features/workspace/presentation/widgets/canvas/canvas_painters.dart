@@ -239,7 +239,7 @@ class ConnectionPainter extends CustomPainter {
     final pathMetrics = path.computeMetrics();
 
     for (final metric in pathMetrics) {
-      double distance = -animationOffset % (dashWidth + dashSpace);
+      double distance = animationOffset % (dashWidth + dashSpace);
       while (distance < metric.length) {
         final double startDist = distance.clamp(0.0, metric.length);
         final double endDist = (distance + dashWidth).clamp(0.0, metric.length);
