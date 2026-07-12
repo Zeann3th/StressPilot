@@ -331,6 +331,7 @@ class _ResultsPageState extends State<ResultsPage> {
 
   Widget _buildEndpointDropdown(ResultsProvider provider) {
     return Container(
+      width: 220,
       height: 28,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
@@ -340,6 +341,8 @@ class _ResultsPageState extends State<ResultsPage> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<int?>(
+          isExpanded: true,
+          itemHeight: null,
           value: provider.selectedEndpointId,
           hint: Text(
             'All Endpoints',
@@ -367,7 +370,25 @@ class _ResultsPageState extends State<ResultsPage> {
                 child: Text(
                   e.value,
                   style: AppTypography.body.copyWith(fontSize: 12),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
+              ),
+            ),
+          ],
+          selectedItemBuilder: (context) => [
+            Text(
+              'All Endpoints',
+              style: AppTypography.body.copyWith(fontSize: 12),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            ...provider.endpointNames.values.map(
+              (name) => Text(
+                name,
+                style: AppTypography.body.copyWith(fontSize: 12),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
