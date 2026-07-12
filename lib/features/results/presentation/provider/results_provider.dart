@@ -70,7 +70,7 @@ class ResultsProvider extends ChangeNotifier {
     _resetMetrics();
     _lastPlottedSecond = -1;
 
-    await _loadFlowDetails(flowId);
+    await _loadFlowEndpoints(flowId);
     if (_disposed) return;
     notifyListeners();
 
@@ -93,19 +93,20 @@ class ResultsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _loadFlowDetails(int flowId) async {
+  Future<void> _loadFlowEndpoints(int flowId) async {
+    _endpointNames.clear();
     try {
-      final flow = await _flowRepository.getFlowDetail(flowId);
-      _endpointNames.clear();
-      for (var step in flow.steps) {
-        if (step.endpointId != null) {
-          _endpointNames[step.endpointId!] = "Endpoint ${step.endpointId}";
-        }
+      final endpoints = await _flowRepository.getFlowEndpoints(flowId);
+      for (final endpoint in endpoints) {
+        final name = endpoint.name.trim();
+        _endpointNames[endpoint.id] = name.isNotEmpty
+            ? name
+            : 'Endpoint ${endpoint.id}';
       }
       if (_disposed) return;
       notifyListeners();
     } catch (e) {
-      debugPrint("Error loading flow details: $e");
+      debugPrint('Error loading flow endpoints: $e');
     }
   }
 
@@ -114,6 +115,13 @@ class ResultsProvider extends ChangeNotifier {
 
   void _onNewLogs(List<RequestLog> newLogs) {
     if (_disposed) return;
+
+    for (final log in newLogs) {
+      final endpointId = log.endpointId;
+      if (endpointId != null) {
+        _endpointNames.putIfAbsent(endpointId, () => 'Endpoint $endpointId');
+      }
+    }
 
     _allLogs.addAll(newLogs);
 

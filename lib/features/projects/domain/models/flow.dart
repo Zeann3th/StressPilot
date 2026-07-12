@@ -348,3 +348,15 @@ class DryRunRequestLog {
     );
   }
 }
+
+class FlowEndpoint {
+  final int id;
+  final String name;
+
+  const FlowEndpoint({required this.id, required this.name});
+
+  factory FlowEndpoint.fromJson(Map<String, dynamic> json) => FlowEndpoint(
+    id: Flow._toInt(json['id']),
+    name: json['name']?.toString() ?? '',
+  );
+}

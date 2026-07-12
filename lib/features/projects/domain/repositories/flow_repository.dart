@@ -10,6 +10,7 @@ abstract class FlowRepository {
     int size = 20,
   });
   Future<Flow> getFlowDetail(int flowId);
+  Future<List<FlowEndpoint>> getFlowEndpoints(int flowId);
   Future<Flow> createFlow(CreateFlowRequest request);
   Future<Flow> updateFlow({
     required int flowId,

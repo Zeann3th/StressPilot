@@ -39,6 +39,18 @@ class FlowRepositoryImpl implements FlowRepository {
   }
 
   @override
+  Future<List<FlowEndpoint>> getFlowEndpoints(int flowId) async {
+    final response = await _dio.get('/api/v1/flows/$flowId/endpoints');
+    final data = response.data['data'];
+    if (data is! List) return const [];
+
+    return data
+        .whereType<Map>()
+        .map((json) => FlowEndpoint.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  @override
   Future<Flow> createFlow(CreateFlowRequest request) async {
     final response = await _dio.post('/api/v1/flows', data: request.toJson());
     return Flow.fromJson(response.data['data']);
